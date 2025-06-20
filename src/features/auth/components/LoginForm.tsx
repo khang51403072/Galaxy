@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TextInput, Text, Button, StyleSheet } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
-import { LoginInput } from './AuthTypes';
+import { LoginInput } from '../types/AuthTypes';
 
 type Props = {
   onSubmit: (data: LoginInput) => void;
