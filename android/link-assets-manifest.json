@@ -1,0 +1,65 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/shared/assets/fonts/Orbitron-Black.ttf",
+      "sha1": "466c7565b40f328e604ee0a91913cabb8f9a05dc"
+    },
+    {
+      "path": "src/shared/assets/fonts/Orbitron-Bold.ttf",
+      "sha1": "216014e8feaf538874f86d970a8c821e094109e7"
+    },
+    {
+      "path": "src/shared/assets/fonts/Orbitron-ExtraBold.ttf",
+      "sha1": "44ed139f1dc77c6c599e3b2b6b5f0f19bd23ccaa"
+    },
+    {
+      "path": "src/shared/assets/fonts/Orbitron-Medium.ttf",
+      "sha1": "7816f6522ae3b38b22eedcc548b2e74b33b63b9a"
+    },
+    {
+      "path": "src/shared/assets/fonts/Orbitron-Regular.ttf",
+      "sha1": "9d73a88e5582667c7f2289c57548fee6833e611a"
+    },
+    {
+      "path": "src/shared/assets/fonts/Orbitron-SemiBold.ttf",
+      "sha1": "2c6d65b07dd0bf7a8794756f61332de0f0e4ac4d"
+    },
+    {
+      "path": "src/shared/assets/fonts/Outfit-Black.ttf",
+      "sha1": "f4d64613dbcd578cf46958930ee10442c3540816"
+    },
+    {
+      "path": "src/shared/assets/fonts/Outfit-Bold.ttf",
+      "sha1": "eb4eb063dea76aff22585c182d473d56ee4bea79"
+    },
+    {
+      "path": "src/shared/assets/fonts/Outfit-ExtraBold.ttf",
+      "sha1": "07b7996e8c245ee6580ee6cccfc338c5a816bade"
+    },
+    {
+      "path": "src/shared/assets/fonts/Outfit-ExtraLight.ttf",
+      "sha1": "98e4860b211044096b671edfc4ff46dd90404e07"
+    },
+    {
+      "path": "src/shared/assets/fonts/Outfit-Light.ttf",
+      "sha1": "e1d3ebe2eba31feb11585eabd1a1851c1b3af31d"
+    },
+    {
+      "path": "src/shared/assets/fonts/Outfit-Medium.ttf",
+      "sha1": "709088b89172798ce4e769e44c674f096343f2d3"
+    },
+    {
+      "path": "src/shared/assets/fonts/Outfit-Regular.ttf",
+      "sha1": "47345c6be8b27ccd71fd732e924b55f1a0f24768"
+    },
+    {
+      "path": "src/shared/assets/fonts/Outfit-SemiBold.ttf",
+      "sha1": "ac759ec2b6469b4f98dcc233e19aea6d5e4771a3"
+    },
+    {
+      "path": "src/shared/assets/fonts/Outfit-Thin.ttf",
+      "sha1": "a3b6a94f2d657f0bc9c89da16ff08b8332fc7d8a"
+    }
+  ]
+}

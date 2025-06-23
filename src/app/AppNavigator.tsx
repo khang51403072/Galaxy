@@ -4,18 +4,19 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '../features/auth/screens/LoginScreen';
 import HomeScreen from '../features/home/HomeScreen';
 import { useAuthStore } from '../features/auth/stores/authStore';
-import shallow from 'zustand/shallow';
+import { useShallow } from 'zustand/react/shallow';
+import { XColors } from '../shared/constants/colors';
+import { StatusBar } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   const { isLoading, userName, restoreSession } = useAuthStore(
-    (s) => ({
-      isLoading: s.isLoading,
-      userName: s.userName,
-      restoreSession: s.restoreSession,
-    }),
-    shallow,
+    useShallow((state) => ({
+      isLoading: state.isLoading,
+      userName: state.userName,
+      restoreSession: state.restoreSession,
+    })),
   );
 
   useEffect(() => {
@@ -23,13 +24,13 @@ export default function AppNavigator() {
   }, [restoreSession]);
 
   if (isLoading) {
-    return null; // hoặc splash screen
+    return null; // 👈 có thể đổi thành splash screen sau
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer>      
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {userName ? (
+        {1!=1 ? (
           <Stack.Screen name="Home" component={HomeScreen} />
         ) : (
           <Stack.Screen name="Login" component={LoginScreen} />

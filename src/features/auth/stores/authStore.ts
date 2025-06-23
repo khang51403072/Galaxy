@@ -1,7 +1,8 @@
-import { create } from 'zustand';
+import { create } from 'zustand/react'; // ✅ dùng đúng hook version
 import * as Keychain from 'react-native-keychain';
+import { StateCreator } from 'zustand/vanilla';
 
-type AuthState = {
+export type AuthState = {
   userName: string | null;
   token: string | null;
   secureKey: string | null;
@@ -12,7 +13,7 @@ type AuthState = {
   restoreSession: () => Promise<void>;
 };
 
-export const useAuthStore = create<AuthState>((set) => ({
+const authStoreCreator: StateCreator<AuthState> = (set) => ({
   userName: null,
   token: null,
   secureKey: null,
@@ -20,21 +21,38 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (userName, token, secureKey) => {
     await Keychain.setGenericPassword(userName, JSON.stringify({ token, secureKey }));
-    set({ userName, token, secureKey });
+    set({ userName, token, secureKey, isLoading: false });
   },
 
   logout: async () => {
     await Keychain.resetGenericPassword();
-    set({ userName: null, token: null, secureKey: null });
+    set({
+      userName: null,
+      token: null,
+      secureKey: null,
+      isLoading: false,
+    });
   },
 
   restoreSession: async () => {
-    const credentials = await Keychain.getGenericPassword();
-    if (credentials) {
-      const { token, secureKey } = JSON.parse(credentials.password);
-      set({ userName: credentials.username, token, secureKey, isLoading: false });
-    } else {
+    try {
+      const credentials = await Keychain.getGenericPassword();
+      if (credentials) {
+        const { token, secureKey } = JSON.parse(credentials.password);
+        set({
+          userName: credentials.username,
+          token,
+          secureKey,
+          isLoading: false,
+        });
+      } else {
+        set({ isLoading: false });
+      }
+    } catch (err) {
+      console.error('Error restoring session:', err);
       set({ isLoading: false });
     }
   },
-}));
+});
+
+export const useAuthStore = create<AuthState>()(authStoreCreator); // ✅ đúng cú pháp TS
