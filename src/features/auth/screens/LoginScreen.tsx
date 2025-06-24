@@ -2,23 +2,30 @@ import React, { useState } from 'react';
 import { View, Alert, Dimensions, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import LoginForm from '../components/LoginForm';
 import { LoginInput } from '../types/AuthTypes';
-import { login as loginApi } from '../services/authApi';
 import { useAuthStore } from '../stores/authStore';
 import { XColors } from '../../../shared/constants/colors';
 import XIcon from '../../../shared/components/XIcon';
+import { useNavigation } from '@react-navigation/native';
+import { loginUser } from '../usecase/AuthUsecase';
 
 export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
-  const login = useAuthStore((s) => s.login);
+  const login = useAuthStore((s) => s.storeLogin);
   const screenHeight = Dimensions.get('window').height;
   const topSpacing = screenHeight * 0.1;
-  const handleLogin = async (data: LoginInput) => {
+  const navigation = useNavigation();
+
+  const handleLogin = async (data: { email: string; password: string }) => {
     try {
       setLoading(true);
-      const res = await loginApi(data.email, data.password);
-      await login(res.userName, res.token, res.secureKey);
+
+      await loginUser(data.email, data.password); // 👈 gọi usecase
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' as never }],
+      });
     } catch (err: any) {
-      Alert.alert('Đăng nhập thất bại', err.message);
+      Alert.alert('Đăng nhập thất bại', err.message || 'Có lỗi xảy ra');
     } finally {
       setLoading(false);
     }

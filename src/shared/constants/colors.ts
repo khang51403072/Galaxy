@@ -3,7 +3,7 @@ export const XColors = {
     primary: "#1D62D8",         // màu chủ đạo
     secondary: '#1D62D8',       // màu chủ đạo nhẹ hơn
     accent: '#FF4081',          // Màu nhấn (button)
-  
+    primary600: '#1E4FAF',
     // --- Text ---
     // textDark: '#333',
     // textLight: '#fff',
@@ -17,6 +17,7 @@ export const XColors = {
     background: '#FFFFFF',
     textInputPlaceholder: '#00000040',
     textInputText: '#000000',
+    textButton: '#FFFFFF',
     // border: '#ddd',
     // danger: '#FF3B30',
     // success: '#4CD964',

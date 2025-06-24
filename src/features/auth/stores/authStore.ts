@@ -6,9 +6,11 @@ export type AuthState = {
   userName: string | null;
   token: string | null;
   secureKey: string | null;
+  employeeId: string | null;
+  firstName: string | null;
+  lastName: string | null;
   isLoading: boolean;
-
-  login: (userName: string, token: string, secureKey: string) => Promise<void>;
+  storeLogin: (userName: string, token: string, secureKey: string, employeeId: string, firstName: string, lastName: string) => Promise<void>;
   logout: () => Promise<void>;
   restoreSession: () => Promise<void>;
 };
@@ -17,11 +19,14 @@ const authStoreCreator: StateCreator<AuthState> = (set) => ({
   userName: null,
   token: null,
   secureKey: null,
+  employeeId: null,
+  firstName: null,
+  lastName: null,
   isLoading: true,
 
-  login: async (userName, token, secureKey) => {
+  storeLogin: async (userName, token, secureKey, employeeId, firstName, lastName) => {
     await Keychain.setGenericPassword(userName, JSON.stringify({ token, secureKey }));
-    set({ userName, token, secureKey, isLoading: false });
+    set({ userName, token, secureKey, employeeId, firstName, lastName, isLoading: false });
   },
 
   logout: async () => {
@@ -30,6 +35,9 @@ const authStoreCreator: StateCreator<AuthState> = (set) => ({
       userName: null,
       token: null,
       secureKey: null,
+      employeeId: null,
+      firstName: null,
+      lastName: null,
       isLoading: false,
     });
   },
@@ -43,6 +51,9 @@ const authStoreCreator: StateCreator<AuthState> = (set) => ({
           userName: credentials.username,
           token,
           secureKey,
+          employeeId: null,
+          firstName: null,
+          lastName: null,
           isLoading: false,
         });
       } else {

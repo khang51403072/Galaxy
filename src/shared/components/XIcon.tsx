@@ -2,14 +2,17 @@ import React from 'react';
 import User from '../assets/icons/User.svg';
 import PasswordCheck from '../assets/icons/PasswordCheck.svg';
 import ShowPassword from '../assets/icons/ShowPassword.svg';
+import HidePassword from '../assets/icons/HidePassword.svg';
 import { StyleProp, ViewStyle } from 'react-native';
 import Logo from '../assets/icons/Logo.svg';
+import Pen from '../assets/icons/Pen.svg';
 export const iconMap = {
   user: User,
   passwordCheck: PasswordCheck,
   showPassword: ShowPassword,
-  hidePassword: ShowPassword,
+  hidePassword: HidePassword,
   logo: Logo,
+  pen: Pen,
 };
 
  type XIconProps = {
