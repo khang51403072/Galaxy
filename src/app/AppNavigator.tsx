@@ -8,9 +8,9 @@ import { useShallow } from 'zustand/react/shallow';
 import { XColors } from '../shared/constants/colors';
 import { StatusBar } from 'react-native';
 import { ROUTES, RootStackParamList } from './routes';
+import UpdateInfoForm from '../features/home/components/UpdateInfoForm';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
 
 export default function AppNavigator() {
   const { isLoading, userName, restoreSession } = useAuthStore(
@@ -34,7 +34,8 @@ export default function AppNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name={ROUTES.LOGIN} component={LoginScreen} />
         <Stack.Screen name={ROUTES.HOME} component={HomeScreen} />
-        
+        <Stack.Screen name={ROUTES.UPDATE_PROFILE} component={UpdateInfoForm} />
+        {/* <Stack.Screen name={ROUTES.CHANGE_PASSWORD} component={ChangePasswordScreen} /> */}
        
       </Stack.Navigator>
     </NavigationContainer>

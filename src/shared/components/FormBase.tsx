@@ -63,7 +63,7 @@ export default function FormBase({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 16,
+    gap: -1,
     width: '100%',
   },
   buttonRow: {

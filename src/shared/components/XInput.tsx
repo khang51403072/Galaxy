@@ -51,7 +51,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
       <View style={{ width: '100%' }}>
         {label && (
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-            <Text style={{ fontWeight: '600', fontSize: 14 }}>{label}</Text>
+            <Text style={TextStyles.inputLabel}>{label}</Text>
             {isRequired && <Text style={{ color: 'red', marginLeft: 2 }}>*</Text>}
           </View>
         )}
@@ -76,7 +76,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
               TextStyles.inputText,
               {
                 flex: 1,
-                paddingLeft: 12,
+                paddingLeft: 0,
                 paddingRight: 0,
                 paddingVertical: 0,
               },

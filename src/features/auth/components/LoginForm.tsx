@@ -106,9 +106,9 @@ export default function LoginForm({ onSubmit, loading, onCancel }: LoginFormProp
     </KeyboardAvoidingView>
   );
 }
-
 const styles = StyleSheet.create({
   inner: {
     justifyContent: 'center'
   },
 });
+
