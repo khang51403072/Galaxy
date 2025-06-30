@@ -1,39 +1,44 @@
-import React, { useEffect } from 'react';
-import { View, Text } from 'react-native';
-import { getProfile } from '../usecase/HomeUseCase';
-import { XColors } from '../../../shared/constants/colors';
+
+
+// src/navigation/MainTabs.tsx
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import DashBoardScreen from './DashBoardScreen';
 import XIcon from '../../../shared/components/XIcon';
-import XText from '../../../shared/components/XText';
-import TitleGroup from '../components/TitleGroup';
-import RowInfo from '../components/RowInfo';
-import XButton from '../../../shared/components/XButton';
+import { XColors } from '../../../shared/constants/colors';
+import XTabBar from '../../../shared/components/XTabBar';
+import ProfileScreen  from './ProfileScreen';
+
+const Tab = createBottomTabNavigator();
 
 export default function HomeScreen() {
-  
   return (
-    <View style={{ flex: 1,  alignItems: 'center' } }>
-      <View style={{width: '100%', height: '25%', backgroundColor: XColors.primary}}>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: XColors.primary,
+        tabBarInactiveTintColor: XColors.textInputText,
+        tabBarLabelStyle: { fontSize: 12 },
         
-      </View>
-      <View style={{width: '100%', paddingHorizontal: 16}}>
-        <TitleGroup titleIcon='Edit' title="Information" icon="pen" onPress={() => {}} />
-        <RowInfo titleLeft='Name' titleRight='John Doe' />
-        <RowInfo titleLeft='Name' titleRight='John Doe' />
-        <RowInfo titleLeft='Name' titleRight='John Doe' />
-        <RowInfo titleLeft='Name' titleRight='John Doe' />
-        <RowInfo titleLeft='Name' titleRight='John Doe' />
-        //===============================================
-        <TitleGroup titleIcon='Change' title="Password" icon="pen" onPress={() => {}} />
-        //===============================================
-        <TitleGroup  onPress={() => { } } title={"Work Details"} />
-        <RowInfo titleLeft='Name' titleRight='John Doe' />
-        <RowInfo titleLeft='Name' titleRight='John Doe' />
-        <RowInfo titleLeft='Name' titleRight='John Doe' />
-        <TitleGroup  onPress={() => { } } title={"Sign In With Face ID"} />
-        <XButton title='Log out' onPress={() => {}} useGradient={false} backgroundColor={XColors.primary} style={{borderRadius: 8}}/>
-        <XText variant='content300' style={{textAlign: 'center', marginTop: 16}}>Version 1.0.0</XText>
-      </View>
-      
-    </View>
+        tabBarIcon: ({ color, size }) => {
+          let iconName = 'home';
+          switch (route.name) {
+            case 'DashBoard':
+              iconName = 'home';
+              break;
+            case 'Profile':
+              iconName = 'profile';
+              break;
+          }
+          return <XIcon name={iconName as any} width={size} height={size} color={color} />;
+        },
+      })}
+      tabBar={(props) => <XTabBar {...props} />}
+    >
+      <Tab.Screen name="DashBoard" component={DashBoardScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
   );
 }

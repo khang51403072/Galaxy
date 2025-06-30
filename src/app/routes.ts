@@ -3,6 +3,8 @@ export const ROUTES = {
     LOGIN: 'Login',
     HOME: 'Home',
     PROFILE: 'Profile',
+    UPDATE_PROFILE: 'UpdateProfile',
+    CHANGE_PASSWORD: 'ChangePassword',
     // Thêm các route khác ở đây
   } as const;
   
@@ -13,6 +15,8 @@ export const ROUTES = {
     [ROUTES.LOGIN]: undefined;
     [ROUTES.HOME]: { userId?: string };
     [ROUTES.PROFILE]: { profileId?: string };
+    [ROUTES.UPDATE_PROFILE]: { profileId?: string };
+    [ROUTES.CHANGE_PASSWORD]: { profileId?: string };
     // Thêm params cho các route khác nếu cần
   };
   

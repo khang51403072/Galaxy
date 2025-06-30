@@ -18,6 +18,7 @@ export const XColors = {
     textInputPlaceholder: '#00000040',
     textInputText: '#000000',
     textButton: '#FFFFFF',
+    gray800:"#222222"
     // border: '#ddd',
     // danger: '#FF3B30',
     // success: '#4CD964',

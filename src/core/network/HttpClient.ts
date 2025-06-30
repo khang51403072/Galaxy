@@ -21,12 +21,11 @@ class HttpClient {
       // Gắn interceptor auth
       HttpClient.instance.interceptors.request.use(async (config) => {
         const token = await getToken();
-        xlog.info(`Request: ${config.method?.toUpperCase()} ${config.url}`, { tag: 'HTTP', extra: config });
         if (token && config.url !== "/galaxy-me/authen") {
           config.headers.Authorization = `Bearer ${token}`;
         }
-        delete config.xsrfCookieName;
-        delete config.xsrfHeaderName;
+        // delete config.xsrfCookieName;
+        // delete config.xsrfHeaderName;
         xlog.info(`Request: ${config.method?.toUpperCase()} ${config.url}`, { tag: 'HTTP', extra: config });
         return config;
       });

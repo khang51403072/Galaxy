@@ -23,6 +23,8 @@ export type LoginInput = {
   }
 
   export interface LoginEntity {
+    employeeId: string,
+    isOwner: boolean,
     activationCode: string;
     deviceId: string;
     userName: string;

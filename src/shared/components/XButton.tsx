@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { useTheme } from '../theme';
 
 type Props = {
   title: string;
@@ -28,14 +29,21 @@ export default function XButton({
   disabled = false,
   style,
   textStyle,
-  backgroundColor = '#4A90E2', // default màu xanh
+  backgroundColor,
   loading = false,
   useGradient = true,
 }: Props) {
+  const theme = useTheme();
+  
+  // Use theme colors if backgroundColor not provided
+  const buttonBackgroundColor = backgroundColor || theme.colors.primary;
+  const gradientColors = theme.colors.primaryGradient;
+  const textColor = theme.colors.textButton;
+
   const content = loading ? (
-    <ActivityIndicator color="#FFF" />
+    <ActivityIndicator color={textColor} />
   ) : (
-    <Text style={[styles.text, textStyle]}>{title.toUpperCase()}</Text>
+    <Text style={[styles.text, { color: textColor }, textStyle]}>{title.toUpperCase()}</Text>
   );
 
   return (
@@ -45,13 +53,16 @@ export default function XButton({
       disabled={disabled || loading}
       style={[
         styles.wrapper,
-        { backgroundColor: (!useGradient || disabled) ? backgroundColor : 'transparent' },
+        { 
+          backgroundColor: (!useGradient || disabled) ? buttonBackgroundColor : 'transparent',
+          borderRadius: theme.borderRadius.xl,
+        },
         style,
       ]}
     >
       {(useGradient && !disabled) ? (
         <LinearGradient
-          colors={["#3B96F6", "#1D62D8"]}
+          colors={gradientColors}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
           style={StyleSheet.absoluteFill}
@@ -67,29 +78,14 @@ export default function XButton({
 const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
-    borderRadius: 24, // height/2 = 48/2
-    // paddingVertical: 8,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    // ...Platform.select({
-    //   ios: {
-    //     shadowColor: '#000',
-    //     shadowOffset: { width: 0, height: 4 },
-    //     shadowOpacity: 0.2,
-    //     shadowRadius: 6,
-    //   },
-    //   android: {
-    //     elevation: 4,
-    //   },
-    // }),
   },
   disabledWrapper: {
     opacity: 0.5,
-    
   },
   text: {
-    color: '#FFF',
     fontSize: 16,
     fontWeight: '600',
   },
