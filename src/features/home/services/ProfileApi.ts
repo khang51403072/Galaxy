@@ -2,6 +2,8 @@ import { httpClient } from '../../../core/network/HttpClient';
 import { ApiResponse } from '../../../core/network/ApiResponse';
 import { useAuthStore } from '../../auth/stores/authStore';
 import { ProfileEntity } from '../types/UserTypes';
+import { ChangePasswordRequest, UpdateProfileRequest } from '../types/UpdateProfileTypes';
+import xlog from '../../../core/utils/xlog';
 
 // ===== TYPES =====
 
@@ -33,49 +35,27 @@ export const ProfileApi = {
   },
 
   // Update profile information
-  updateProfile: async (data: ProfileUpdate): Promise<ProfileUpdateResponse> => {
+  updateProfile: async (request: UpdateProfileRequest): Promise<ProfileResponse> => {
     try {
-      const res = await httpClient.post<ProfileUpdateResponse>('/galaxy-me/profile', {
-        "employeeId": useAuthStore.getState().employeeId,
-      });
+      const res = await httpClient.post<ProfileResponse>('/galaxy-me/save-profile', request);
       return res.data;
     } catch (error: any) {
       throw new Error(error.message || 'Không thể cập nhật profile');
     }
   },
 
+
+
   // Change password
-  changePassword: async (newPassword: string): Promise<ChangePasswordResponse> => {
+  changePassword: async (request: ChangePasswordRequest): Promise<ChangePasswordResponse> => {
     try {
-      const res = await httpClient.post<ChangePasswordResponse>('galaxy-me/reset-password', {
-        params: {
-          employeeId: useAuthStore.getState().employeeId,
-          newPassword: newPassword,
-        }
-      });
+      const res = await httpClient.post<ChangePasswordResponse>('galaxy-me/reset-password', request);
       return res.data;
     } catch (error: any) {
-      throw new Error(error.message || 'Không thể đổi mật khẩu');
+      xlog.error(`changePassword: ${error.message}`, { tag: 'HTTP', extra: error });
+      throw error;
     }
   },
 
-  // Upload avatar
-  uploadAvatar: async (file: File): Promise<AvatarUploadResponse> => {
-    try {
-      const formData = new FormData();
-      formData.append('avatar', file);
-      
-      const res = await httpClient.post<AvatarUploadResponse>('/galaxy-me/upload-avatar', formData, {
-        params: {
-          employeeId: useAuthStore.getState().employeeId,
-        },
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        }
-      });
-      return res.data;
-    } catch (error: any) {
-      throw new Error(error.message || 'Không thể upload avatar');
-    }
-  },
+  
 }; 

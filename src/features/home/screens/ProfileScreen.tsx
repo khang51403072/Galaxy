@@ -10,16 +10,25 @@ import LinearGradient from 'react-native-linear-gradient';
 import XAvatar from '../../../shared/components/XAvatar';
 import { pickImageFromLibrary, pickImageFromCamera, checkPermission } from '../../../shared/services/ImagePickerService';
 import { useAvatarStore, avatarSelectors } from '../stores/avatarStore';
-import { useUserStore } from '../stores/userStore';
+import { useUserStore, userSelectors } from '../stores/userStore';
 import { useShallow } from 'zustand/react/shallow';
 import XScreen from '../../../shared/components/XScreen';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../../app/routes';
 
 export default function ProfileScreen() {
-  // User store for profile data
-  const { profile, isLoading: profileLoading, getProfile, changePassword } = useUserStore();
   const navigation = useNavigation();
+  
+  // User store for profile data with selectors
+  const { profile, isLoading: profileLoading, getProfile, changePassword } = useUserStore(
+    useShallow((state) => ({
+      profile: userSelectors.selectProfile(state),
+      isLoading: userSelectors.selectIsLoading(state),
+      getProfile: userSelectors.selectGetProfile(state),
+      changePassword: userSelectors.selectChangePassword(state),
+    }))
+  );
+
   // Avatar store (existing)
   const { avatarUri, isLoading: avatarLoading, error } = useAvatarStore(
     useShallow((state) => ({
@@ -67,16 +76,6 @@ export default function ProfileScreen() {
       }
     } catch (error) {
       console.error('Error picking image:', error);
-    }
-  };
-
-  const handleChangePassword = async () => {
-    try {
-      // TODO: Show password input modal/form
-      // For now, just call with dummy data
-      await changePassword('oldPassword', 'newPassword');
-    } catch (error) {
-      console.error('Error changing password:', error);
     }
   };
 
@@ -153,7 +152,8 @@ export default function ProfileScreen() {
           titleIcon="Change" 
           title="Password" 
           icon="pen" 
-          onPress={handleChangePassword} 
+          onPress={() => {
+            navigation.navigate(ROUTES.CHANGE_PASSWORD as never)}}
           type="edit" 
         />
         <XDivider />

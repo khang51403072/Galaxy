@@ -5,7 +5,7 @@ export const lightColors = {
   secondary: '#1D62D8',
   accent: '#FF4081',
   primary600: '#1E4FAF',
-
+  gray200:"#E6E6E6",
   // Background Colors
   background: '#FFFFFF',
   surface: '#F8F9FA',
@@ -30,6 +30,8 @@ export const lightColors = {
 
   // Overlay
   overlay: 'rgba(0, 0, 0, 0.5)',
+  //button color
+  buttonInactive: '#1D62D840',
 };
 
 export const darkColors = {
@@ -64,6 +66,8 @@ export const darkColors = {
 
   // Overlay
   overlay: 'rgba(0, 0, 0, 0.7)',
+
+  buttonInactive: '#007AFF',
 };
 
 export type ColorScheme = typeof lightColors; 

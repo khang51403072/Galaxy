@@ -14,7 +14,7 @@ export const AuthApi = {
       });
       return res.data;
     } catch (error: any) {
-        throw new Error(error.message || 'Đăng nhập thất bại');
+        throw error;
     }
     
   },

@@ -21,6 +21,7 @@ type Props = {
   backgroundColor?: string;
   loading?: boolean;
   useGradient?: boolean;
+  radius?: number | keyof ReturnType<typeof useTheme>['borderRadius'];
 };
 
 export default function XButton({
@@ -31,14 +32,24 @@ export default function XButton({
   textStyle,
   backgroundColor,
   loading = false,
-  useGradient = true,
+  useGradient = false,
+  radius,
 }: Props) {
   const theme = useTheme();
-  
+
+  // Determine borderRadius
+  let borderRadius: number = Number(theme.borderRadius.md);
+  if (typeof radius === 'number') borderRadius = radius;
+  else if (radius && theme.borderRadius[radius]) borderRadius = Number(theme.borderRadius[radius]);
+
   // Use theme colors if backgroundColor not provided
   const buttonBackgroundColor = backgroundColor || theme.colors.primary;
+  const inactiveColor = theme.colors.buttonInactive;
   const gradientColors = theme.colors.primaryGradient;
   const textColor = theme.colors.textButton;
+
+  const isDisabled = disabled || loading;
+  const showGradient = useGradient && !isDisabled;
 
   const content = loading ? (
     <ActivityIndicator color={textColor} />
@@ -50,17 +61,21 @@ export default function XButton({
     <TouchableOpacity
       activeOpacity={1}
       onPress={onPress}
-      disabled={disabled || loading}
+      disabled={isDisabled}
       style={[
         styles.wrapper,
-        { 
-          backgroundColor: (!useGradient || disabled) ? buttonBackgroundColor : 'transparent',
-          borderRadius: theme.borderRadius.xl,
+        {
+          backgroundColor: isDisabled
+            ? inactiveColor
+            : showGradient
+            ? 'transparent'
+            : buttonBackgroundColor,
+          borderRadius: Number(borderRadius),
         },
         style,
       ]}
     >
-      {(useGradient && !disabled) ? (
+      {showGradient ? (
         <LinearGradient
           colors={gradientColors}
           start={{ x: 0.5, y: 0 }}
@@ -81,9 +96,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-  },
-  disabledWrapper: {
-    opacity: 0.5,
   },
   text: {
     fontSize: 16,
