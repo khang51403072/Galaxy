@@ -54,6 +54,8 @@ export default function FormBase({
             disabled={confirmDisabled}
             style={styles.button}
             textStyle={TextStyles.buttonText}
+            radius="xl"
+            useGradient={true}
           />
         )}
       </View>

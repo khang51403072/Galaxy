@@ -3,6 +3,7 @@ import * as Keychain from 'react-native-keychain';
 import { StateCreator } from 'zustand/vanilla';
 import { Result, isSuccess, isFailure } from '../../../shared/types/Result';
 import { AuthError } from '../types/AuthErrors';
+import { LoginResult } from '../usecase/AuthUsecase';
 
 export type AuthState = {
   userName: string | null;
@@ -16,7 +17,7 @@ export type AuthState = {
   isOwner: boolean | null;
   
   // Store actions
-  storeLogin: (userName: string, token: string, secureKey: string, userId: string, firstName: string, lastName: string, employeeId: string, isOwner: boolean, isLoading: boolean) => Promise<void>;
+  storeLogin: (loginResult: LoginResult) => Promise<void>;
   logout: () => Promise<void>;
   restoreSession: () => Promise<void>;
   
@@ -40,9 +41,9 @@ const authStoreCreator: StateCreator<AuthState> = (set, get) => ({
   isOwner: null,
 
 
-  storeLogin: async (userName, token, secureKey, userId, firstName, lastName, employeeId, isOwner) => {
-    await Keychain.setGenericPassword(userName, JSON.stringify({ token, secureKey }));
-    set({ userName, token, secureKey, userId, firstName, lastName,employeeId ,isOwner, isLoading: false });
+  storeLogin: async (loginResult: LoginResult) => {
+    await Keychain.setGenericPassword(loginResult.userName, JSON.stringify({ token: loginResult.token, password: loginResult.password, firstName: loginResult.firstName, lastName: loginResult.lastName, employeeId: loginResult.employeeId, isOwner: loginResult.isOwner, userName: loginResult.userName   }));
+    set({ userName: loginResult.userName, token: loginResult.token, secureKey: loginResult.password, userId: loginResult.userId, firstName: loginResult.firstName, lastName: loginResult.lastName,employeeId : loginResult.employeeId ,isOwner: loginResult.isOwner, isLoading: false });
   },
 
   logout: async () => {
@@ -99,15 +100,7 @@ const authStoreCreator: StateCreator<AuthState> = (set, get) => ({
         // Update store with login data
         const storeLogin = get().storeLogin;
         await storeLogin(
-          loginData.userName,
-          loginData.token,
-          password,
-          loginData.userId,
-          loginData.firstName,
-          loginData.lastName,
-          loginData.employeeId,
-          loginData.isOwner,
-          false
+          loginData
         );
         
         // Call success callback

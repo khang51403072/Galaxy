@@ -6,6 +6,50 @@ import XButton from './XButton';
 import XText from './XText';
 import { iconMap } from './XIcon';
 import {  useTheme } from '../theme';
+
+// Phone number formatting function
+const formatPhoneNumber = (text: string): string => {
+  // Remove all non-digit characters
+  const cleaned = text.replace(/\D/g, '');
+  
+  // Limit to 10 digits
+  const limited = cleaned.slice(0, 10);
+  
+  // Format based on length
+  if (limited.length === 0) return '';
+  if (limited.length <= 3) return `(${limited}`;
+  if (limited.length <= 6) return `(${limited.slice(0, 3)}) ${limited.slice(3)}`;
+  return `(${limited.slice(0, 3)}) ${limited.slice(3, 6)}-${limited.slice(6)}`;
+};
+
+// Phone number validation function
+const validatePhoneNumber = (text: string): boolean => {
+  const cleaned = text.replace(/\D/g, '');
+  return cleaned.length === 10;
+};
+
+/*
+Example usage for phone field:
+const phoneFields: XFormField[] = [
+  {
+    name: 'phone',
+    label: 'Phone Number',
+    placeholder: '(033) 668-8197',
+    type: 'phone',
+    rules: {
+      required: 'Phone number is required',
+      validate: (value) => {
+        const cleaned = value.replace(/\D/g, '');
+        if (cleaned.length !== 10) {
+          return 'Phone number must be 10 digits';
+        }
+        return true;
+      }
+    }
+  }
+];
+*/
+
 export type XFormField = {
   name: string;
   label?: string;
@@ -90,17 +134,31 @@ export default function XForm<T extends FieldValues = any>({
                 });
                 return input ? input : <></>;
               }
+
+              // Handle phone number formatting
+              const handlePhoneChange = (text: string) => {
+                if (field.type === 'phone') {
+                  const formatted = formatPhoneNumber(text);
+                  onChange(formatted);
+                } else {
+                  onChange(text);
+                }
+              };
+
+              // Set keyboard type for phone fields
+              const keyboardType = field.type === 'phone' ? 'phone-pad' : field.keyboardType;
+
               return (
                 <XInput
                   label={field.label}
                   placeholder={field.placeholder}
                   value={value}
-                  onChangeText={onChange}
+                  onChangeText={handlePhoneChange}
                   iconLeft={field.iconLeft}
                   iconRight={field.iconRight}
                   secureTextEntry={field.type === 'password' || field.secureTextEntry}
                   autoCapitalize={field.autoCapitalize}
-                  keyboardType={field.keyboardType}
+                  keyboardType={keyboardType}
                   errorMessage={errors[field.name]?.message as string}
                   {...getInputProps(idx)}
                 />

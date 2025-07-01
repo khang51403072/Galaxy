@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import XScreen from '../../../shared/components/XScreen';
 import XForm, { XFormField } from '../../../shared/components/XForm';
-import { useUserStore } from '../stores/userStore';
+import { useUserStore, userSelectors } from '../stores/userStore';
 import { useNavigation } from '@react-navigation/native';
 import { isEmailValid, isPhoneValid } from '../../../shared/utils/validators';
+import { useShallow } from 'zustand/react/shallow';
+import { useAuthStore } from '../../auth/stores/authStore';
+import { isSuccess } from '../../../shared/types/Result';
+import XDialog from '../../../shared/components/XDialog';
 
 const fields: XFormField[] = [
   {
@@ -23,6 +27,7 @@ const fields: XFormField[] = [
     placeholder: 'Enter your phone',
     // iconLeft: 'user',
     keyboardType: 'phone-pad',
+    type: 'phone',
     rules: {
       required: 'Phone is required',
       validate: (v: string) => isPhoneValid(v) || 'Phone is invalid',
@@ -32,6 +37,7 @@ const fields: XFormField[] = [
     name: 'email',
     label: 'Email',
     placeholder: 'Enter your email',
+    type: 'email',
     // iconLeft: 'user',
     keyboardType: 'email-address',
     autoCapitalize: 'none',
@@ -51,10 +57,21 @@ const fields: XFormField[] = [
   },
 ];
 
-export default function UpdateInfoForm() {
-  const { profile, isLoading, getProfile } = useUserStore();
+export default function UpdateProfileScreen() {
   const navigation = useNavigation();
+  const employeeId = useAuthStore((state) => state.employeeId);
+  
+  const { profile, isUpdating, updateProfile } = useUserStore(
+    useShallow((state) => ({
+      profile: userSelectors.selectProfile(state),
+      isUpdating: userSelectors.selectIsUpdating(state),
+      updateProfile: userSelectors.selectUpdateProfile(state),
+    }))
+  );
+
   const [errorMessage, setErrorMessage] = React.useState<string | undefined>(undefined);
+  const [visible, setVisible] = React.useState(false);
+  const [pendingData, setPendingData] = React.useState<any>(null);
 
   // Lấy giá trị mặc định từ profile
   const defaultValues = React.useMemo(() => ({
@@ -63,43 +80,54 @@ export default function UpdateInfoForm() {
     email: profile?.email || '',
     address: profile?.address?.address || '',
   }), [profile]);
-
+  
   const handleSubmit = async (data: any) => {
+    console.log('Form data:', data);
     setErrorMessage(undefined);
-    try {
-      const { updateProfile } = await import('../usecase/ProfileUseCase');
-      const { isSuccess } = await import('../../../shared/types/Result');
-      // Tách firstName, lastName từ name
-      const [firstName, ...lastArr] = data.name.trim().split(' ');
-      const lastName = lastArr.join(' ');
-      const updateData: any = {
-        firstName,
-        lastName,
-        phone: data.phone,
-        email: data.email,
-        address: { address: data.address },
-      };
-      const result = await updateProfile(updateData);
-      if (isSuccess(result)) {
-        await getProfile();
-        navigation.goBack();
-      } else {
-        setErrorMessage(result.error.message);
-      }
-    } catch (e: any) {
-      setErrorMessage(e?.message || 'Update failed');
-    }
+    const updateRequest = {
+      employeeId: employeeId || '',
+      fullName: data.name,
+      phone: data.phone,
+      email: data.email,
+      address: { 
+        address: data.address,
+        unitNumber: '',
+        city: '',
+        state: '',
+        zip: ''
+      },
+    };
+    setPendingData(updateRequest);
+    setVisible(true);
+    
   };
 
+  const handleConfirm = async () => {
+    const result = await updateProfile(pendingData);
+      
+    if (isSuccess(result)) {
+      // Success - back về Profile screen
+      navigation.goBack();
+    } else {
+      // Error - hiển thị error message
+      setErrorMessage(result.error.message);
+    }
+  };  
   return (
     <XScreen keyboardAvoiding dismissKeyboard title="Information" showHeader>
       <XForm
         fields={fields}
         onSubmit={handleSubmit}
-        loading={isLoading}
+        loading={isUpdating}
         confirmTitle="Update"
         errorMessage={errorMessage}
-        defaultValues={defaultValues}
+        defaultValues={defaultValues as any}
+      />
+      <XDialog
+        visible={visible}
+        content="Are you sure you want to update your information?"
+        onConfirm={handleConfirm}
+        onCancel={() => setVisible(false)}
       />
     </XScreen>
   );

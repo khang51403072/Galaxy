@@ -16,6 +16,7 @@ import { useTheme } from '../theme';
 import XText from './XText';
 import XButton from './XButton';
 import XAppBar from './XAppBar';
+import XAlert from './XAlert';
 
 interface XScreenProps {
   children: ReactNode;
@@ -123,29 +124,29 @@ export default function XScreen({
   }
 
   // Error screen
-  if (error && !loading) {
-    return (
-      <View style={[
-        styles.errorContainer,
-        { backgroundColor: screenBackgroundColor },
-        safeArea && {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        },
-        style,
-      ]}>
-        <XText variant="h2" style={{ marginBottom: theme.spacing.md }}>
-          Có lỗi xảy ra
-        </XText>
-        <XText variant="body" style={{ marginBottom: theme.spacing.lg, textAlign: 'center' }}>
-          {error}
-        </XText>
-        {onRetry && (
-          <XButton title="Thử lại" onPress={onRetry} />
-        )}
-      </View>
-    );
-  }
+  // if (error && !loading) {
+  //   return (
+  //     <View style={[
+  //       styles.errorContainer,
+  //       { backgroundColor: screenBackgroundColor },
+  //       safeArea && {
+  //         paddingTop: insets.top,
+  //         paddingBottom: insets.bottom,
+  //       },
+  //       style,
+  //     ]}>
+  //       <XText variant="h2" style={{ marginBottom: theme.spacing.md }}>
+  //         Có lỗi xảy ra
+  //       </XText>
+  //       <XText variant="body" style={{ marginBottom: theme.spacing.lg, textAlign: 'center' }}>
+  //         {error}
+  //       </XText>
+  //       {onRetry && (
+  //         <XButton title="Thử lại" onPress={onRetry} />
+  //       )}
+  //     </View>
+  //   );
+  // }
 
   // Main content
   const content = (
@@ -165,7 +166,15 @@ export default function XScreen({
       
       {/* Main content */}
       {children}
-      
+      {/* Alert */}
+      {error && (
+        <XAlert
+          visible={error!=null}
+          message={error}
+          type="error"
+          onClose={()=>{}}
+        />
+      )}
       {/* Footer */}
       {footer && (
         <View style={styles.footer}>
