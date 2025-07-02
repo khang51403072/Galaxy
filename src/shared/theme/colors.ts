@@ -6,6 +6,7 @@ export const lightColors = {
   accent: '#FF4081',
   primary600: '#1E4FAF',
   gray200:"#E6E6E6",
+  gray700:"#464646",
   // Background Colors
   background: '#FFFFFF',
   surface: '#F8F9FA',
@@ -32,6 +33,9 @@ export const lightColors = {
   overlay: 'rgba(0, 0, 0, 0.5)',
   //button color
   buttonInactive: '#1D62D840',
+  buttonFaceID: '#1D62D81A',
+  // Skeleton
+  skeleton: '#E1E9EE',
 };
 
 export const darkColors = {
@@ -41,7 +45,8 @@ export const darkColors = {
   secondary: '#4A90E2',
   accent: '#FF6B9D',
   primary600: '#5A9FE8',
-
+  gray200:"#E6E6E6",
+  gray700:"#464646",
   // Background Colors
   background: '#1A1A1A',
   surface: '#2C2C2C',
@@ -68,6 +73,9 @@ export const darkColors = {
   overlay: 'rgba(0, 0, 0, 0.7)',
 
   buttonInactive: '#007AFF',
+  buttonFaceID: '#1D62D81A',
+  // Skeleton
+  skeleton: '#2A2A2A',
 };
 
 export type ColorScheme = typeof lightColors; 

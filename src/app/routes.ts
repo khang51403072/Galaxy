@@ -1,4 +1,6 @@
 // Định nghĩa route name chuẩn cho toàn app
+import { ProfileEntity } from "../features/home/types/UserTypes";
+
 export const ROUTES = {
     LOGIN: 'Login',
     HOME: 'Home',
@@ -13,8 +15,8 @@ export const ROUTES = {
   // Type-safe cho params từng route
   export type RootStackParamList = {
     [ROUTES.LOGIN]: undefined;
-    [ROUTES.HOME]: { userId?: string };
-    [ROUTES.PROFILE]: { profileId?: string };
+    [ROUTES.HOME]: { updatedProfile?: ProfileEntity };
+    [ROUTES.PROFILE]: { updatedProfile?: ProfileEntity };
     [ROUTES.UPDATE_PROFILE]: { profileId?: string };
     [ROUTES.CHANGE_PASSWORD]: { profileId?: string };
     // Thêm params cho các route khác nếu cần

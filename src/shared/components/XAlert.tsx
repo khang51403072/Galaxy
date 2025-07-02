@@ -3,7 +3,6 @@ import { Modal, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from '../theme';
 
 interface XAlertProps {
-  visible: boolean;
   title?: string;
   message: string;
   type?: 'success' | 'error' | 'info';
@@ -23,25 +22,28 @@ const typeTitles = {
 };
 
 export default function XAlert({
-  visible,
+  
   title,
   message,
   type = 'info',
   onClose,
 }: XAlertProps) {
   const theme = useTheme();
-
+  const [visible, setVisible] = React.useState(message!=null);
   if (!visible) return null;
-
+  const handleClose = () => {
+    setVisible(false);
+    onClose?.();
+  }
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
       <View style={styles.overlay}>
         <View style={[styles.alert, { backgroundColor: typeColors[type] || theme.colors.primary }]}>
           <View style={{ flex: 1 }}>
             <Text style={styles.title}>{title || typeTitles[type]}</Text>
             <Text style={styles.message}>{message}</Text>
           </View>
-          <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+          <TouchableOpacity onPress={handleClose} style={styles.closeBtn}>
             <Text style={styles.closeText}>×</Text>
           </TouchableOpacity>
         </View>

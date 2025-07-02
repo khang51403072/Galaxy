@@ -1,21 +1,28 @@
 import xlog from '../../../core/utils/xlog';
 import { ProfileApi, ProfileUpdate } from '../services/ProfileApi';
-import { Result, success, failure } from '../../../shared/types/Result';
+import { Result, success, failure, isSuccess, isFailure } from '../../../shared/types/Result';
 import { ProfileEntity } from '../types/UserTypes';
 import { UserError } from '../types/UserError';
 import { ChangePasswordRequest, UpdateProfileRequest } from '../types/UpdateProfileTypes';
 import { UserRepository } from '../repositories/UserRepository';
 
-export async function getProfile(repository: UserRepository): Promise<Result<ProfileEntity, UserError>> {
-  return await repository.getProfile();
-}
+export class ProfileUseCase {
+  constructor(private userRepository: UserRepository) {}
 
-export async function updateProfile(data: UpdateProfileRequest, repository: UserRepository): Promise<Result<ProfileEntity, UserError>> {
-  return repository.updateProfile(data);
-}
+  async getProfile(): Promise<Result<ProfileEntity, UserError>> {
+    return await this.userRepository.getProfile();
+  }
 
+  async updateProfile(request: UpdateProfileRequest): Promise<Result<ProfileEntity, UserError>> {
+    return await this.userRepository.updateProfile(request);
+  }
 
-export async function changePassword(request: ChangePasswordRequest, repository: UserRepository): Promise<Result<void, UserError>> {
-  return repository.changePassword(request);
+  async changePassword(request: ChangePasswordRequest, oldPassword: string): Promise<Result<void, UserError>> {
+    if(oldPassword === request.newPassword) {
+      return failure(new UserError('New password is exist', 'NEW_PASSWORD_EXIST'));
+    }
+    
+    return await this.userRepository.changePassword(request);
+  }
 }
 

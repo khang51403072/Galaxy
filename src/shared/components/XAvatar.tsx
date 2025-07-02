@@ -19,8 +19,6 @@ export default function XAvatar({
   editable = true 
 }: XAvatarProps) {
   const { showActionSheetWithOptions } = useActionSheet();
-  const [imageLoading, setImageLoading] = useState(false);
-  const [imageError, setImageError] = useState(false);
 
   const avatarSize = {
     width: size,
@@ -46,20 +44,8 @@ export default function XAvatar({
     );
   };
 
-  const handleImageLoadStart = () => {
-    setImageLoading(true);
-    setImageError(false);
-  };
-
-  const handleImageLoadEnd = () => {
-    setImageLoading(false);
-  };
-
-  const handleImageError = () => {
-    setImageLoading(false);
-    setImageError(true);
-  };
-
+  
+  console.log( "uri xavatar", uri);
   return (
     <View style={styles.container}>
       <TouchableOpacity 
@@ -68,20 +54,14 @@ export default function XAvatar({
         disabled={!editable}
       >
         <View style={[styles.avatarWrapper, avatarSize]}>
-          {uri && !imageError ? (
+          {uri!=undefined ? (
             <View style={[styles.imageContainer, avatarSize]}>
               <Image 
                 source={{ uri }} 
                 style={[styles.avatarImage, avatarSize]}
-                onLoadStart={handleImageLoadStart}
-                onLoadEnd={handleImageLoadEnd}
-                onError={handleImageError}
+                
               />
-              {imageLoading && (
-                <View style={[styles.loadingOverlay, avatarSize]}>
-                  <ActivityIndicator color={XColors.primary} />
-                </View>
-              )}
+              
             </View>
           ) : (
             <View style={[styles.placeholder, avatarSize]}>

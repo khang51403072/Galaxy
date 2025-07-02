@@ -31,7 +31,7 @@ export const AVATAR_ACTIONS = {
 // ===== INITIAL STATE (Redux-like) =====
 const initialState: AvatarState = {
   avatarUri: null,
-  isLoading: true,
+  isLoading: false,
   error: null,
 };
 

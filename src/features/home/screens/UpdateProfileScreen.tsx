@@ -3,6 +3,7 @@ import XScreen from '../../../shared/components/XScreen';
 import XForm, { XFormField } from '../../../shared/components/XForm';
 import { useUserStore, userSelectors } from '../stores/userStore';
 import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from '../../../app/routes';
 import { isEmailValid, isPhoneValid } from '../../../shared/utils/validators';
 import { useShallow } from 'zustand/react/shallow';
 import { useAuthStore } from '../../auth/stores/authStore';
@@ -106,7 +107,8 @@ export default function UpdateProfileScreen() {
     const result = await updateProfile(pendingData);
       
     if (isSuccess(result)) {
-      // Success - back về Profile screen
+      // Success - back về Profile screen với data mới
+      setVisible(false);
       navigation.goBack();
     } else {
       // Error - hiển thị error message

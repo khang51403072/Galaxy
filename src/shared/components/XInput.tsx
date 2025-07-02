@@ -20,6 +20,7 @@ type XInputProps = TextInputProps & {
   label?: string;
   autoCompleteType?: React.ComponentProps<typeof TextInput>["autoComplete"];
   autoCorrect?: boolean;
+  display?: 'none' | 'flex';
 };
 
 const XInput = forwardRef<TextInput, XInputProps>(
@@ -40,6 +41,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
       label,
       autoCompleteType = 'off',
       autoCorrect = false,
+      display = 'flex',
       ...rest
     },
     ref

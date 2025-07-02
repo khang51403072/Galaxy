@@ -20,7 +20,12 @@ export const typography = {
     lineHeight: 24,
     letterSpacing: 0.2,
   },
-
+  h4: {
+    fontFamily: Fonts.Outfit500,
+    fontSize: 20,
+    lineHeight: 25,
+    letterSpacing: 0.25,
+  },
   // Body text
   body: {
     fontFamily: Fonts.Outfit400,
@@ -77,6 +82,12 @@ export const typography = {
     fontSize: 12,
     lineHeight: 16,
     letterSpacing: 0.12,
+  },
+  signInFaceID: {
+    fontFamily: Fonts.Outfit400,
+    fontSize: 18,
+    lineHeight: 22,
+    letterSpacing: 0.21,
   },
 
   // Caption

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import XScreen from '../../../shared/components/XScreen';
 import XForm, { XFormField } from '../../../shared/components/XForm';
 import { useUserStore, userSelectors } from '../stores/userStore';
@@ -9,44 +9,65 @@ import { useAuthStore } from '../../auth/stores/authStore';
 import { isSuccess } from '../../../shared/types/Result';
 import XDialog from '../../../shared/components/XDialog';
 import { ChangePasswordRequest } from '../types/UpdateProfileTypes';
+import { ROUTES } from '@/navigation/routes';
+import XIcon from '@/shared/components/XIcon';
 
-const fields: XFormField[] = [
-  {
-    name: 'oldPassword',
-    label: 'Old Password',
-    placeholder: 'Enter your old password',
-    // iconLeft: 'user',
-    autoCapitalize: 'none',
-    keyboardType: 'default',
-    type: 'password',
-    rules: {
-      required: 'Old password is required',
-     
-    },
-  },
-  {
-    name: 'newPassword',
-    label: 'New Password',
-    placeholder: 'Enter your new password',
-    // iconLeft: 'user',
-    keyboardType: 'default',
-    type: 'password',
-    autoCapitalize: 'none',
-    rules: {
-      required: 'New password is required',
-    },
-  },
- 
-];
+
 export default function ChangePasswordScreen() {
+  const [{
+    oldPassword,
+    newPassword
+  }, setShowPass] = React.useState({
+    oldPassword: true,
+    newPassword: true
+  });
+  const fields: XFormField[] = [
+    {
+      name: 'oldPassword',
+      label: 'Old Password',
+      placeholder: 'Enter your old password',
+      // iconLeft: 'user',
+      autoCapitalize: 'none',
+      keyboardType: 'default',
+      type: 'password',
+      rules: {
+        required: 'Old password is required',
+       
+      },
+      secureTextEntry: oldPassword,
+      iconRight: oldPassword ? "showPassword" : "hidePassword",
+      onIconRightPress: () => setShowPass({oldPassword: !oldPassword, newPassword: newPassword}),
+    },
+    {
+      name: 'newPassword',
+      label: 'New Password',
+      placeholder: 'Enter your new password',
+      // iconLeft: 'user',
+      keyboardType: 'default',
+      type: 'password',
+      autoCapitalize: 'none',
+      rules: {
+        required: 'New password is required',
+      },
+      secureTextEntry: newPassword,
+      iconRight: newPassword ? "showPassword" : "hidePassword",
+      onIconRightPress: () => setShowPass({oldPassword: oldPassword, newPassword: !newPassword}),
+    },
+   
+  ];
   const navigation = useNavigation();
   const [visible, setVisible] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState<string | undefined>(undefined);
+  const [defaultValues, setDefaultValues] = useState({
+    newPassword: '',
+    oldPassword: ''
+  });
+  
   const [pendingData, setPendingData] = React.useState<ChangePasswordRequest | undefined>(undefined);
-  const { isLoading, changePassword } = useUserStore(
+  const { isLoading, changePassword, error } = useUserStore(
     useShallow((state) => ({
       isLoading: userSelectors.selectIsLoading(state),
       changePassword: userSelectors.selectChangePassword(state),
+      error: userSelectors.selectError(state),
     }))
   );
   const {employeeId} = useAuthStore(useShallow((state)=>{
@@ -56,11 +77,14 @@ export default function ChangePasswordScreen() {
   })
 );
   const handleSubmit = async (data: any) => {
-    setErrorMessage(undefined);
     const changePasswordRequest: ChangePasswordRequest = {
       employeeId: employeeId || '',
       newPassword: data.newPassword,
     };
+    setDefaultValues({
+      newPassword: data.newPassword,
+      oldPassword: data.oldPassword
+    });
     setPendingData(changePasswordRequest);
     setVisible(true);
   };
@@ -72,13 +96,13 @@ export default function ChangePasswordScreen() {
     if (isSuccess(result)) {
       navigation.goBack();
     } else {
-      setErrorMessage(result.error?.message || 'Change password failed');
+      useUserStore.setState({ error: result.error?.message});
     }
   };
 
   return (
-    <XScreen title='Change Password' showHeader loading={isLoading} >
-      <XForm fields={fields} onSubmit={handleSubmit} errorMessage={errorMessage} />
+    <XScreen title='Change Password' showHeader loading={isLoading} error={error} >
+      <XForm fields={fields} onSubmit={handleSubmit} defaultValues={defaultValues} />
       <XDialog
         visible={visible}
         content= "Are you sure you want to change your password?"

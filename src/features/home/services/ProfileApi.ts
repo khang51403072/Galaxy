@@ -49,7 +49,7 @@ export const ProfileApi = {
   // Change password
   changePassword: async (request: ChangePasswordRequest): Promise<ChangePasswordResponse> => {
     try {
-      const res = await httpClient.post<ChangePasswordResponse>('galaxy-me/reset-password', request);
+      const res = await httpClient.post<ChangePasswordResponse>('/galaxy-me/reset-password', request);
       return res.data;
     } catch (error: any) {
       xlog.error(`changePassword: ${error.message}`, { tag: 'HTTP', extra: error });

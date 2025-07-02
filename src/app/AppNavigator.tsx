@@ -14,22 +14,6 @@ import ChangePasswordScreen from '../features/home/screens/ChangePasswordScreen'
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
-  const { isLoading, userName, restoreSession } = useAuthStore(
-    useShallow((state) => ({
-      isLoading: state.isLoading,
-      userName: state.userName,
-      restoreSession: state.restoreSession,
-    })),
-  );
-
-  useEffect(() => {
-    restoreSession();
-  }, [restoreSession]);
-
-  if (isLoading) {
-    return null; // 👈 có thể đổi thành splash screen sau
-  }
-
   return (
     <NavigationContainer>      
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -37,7 +21,6 @@ export default function AppNavigator() {
         <Stack.Screen name={ROUTES.HOME} component={HomeScreen} />
         <Stack.Screen name={ROUTES.UPDATE_PROFILE} component={UpdateProfileScreen} />
         {<Stack.Screen name={ROUTES.CHANGE_PASSWORD} component={ChangePasswordScreen} /> }
-       
       </Stack.Navigator>
     </NavigationContainer>
   );
