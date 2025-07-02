@@ -10,6 +10,7 @@ import Home from '../assets/icons/Home.svg';
 import Profile from '../assets/icons/Profile.svg';
 import Camera from '../assets/icons/Camera.svg';
 import BackArrow from '../assets/icons/BackArrow.svg';
+import FaceID from '../assets/icons/FaceID.svg';
 export const iconMap = {
   user: User,
   passwordCheck: PasswordCheck,
@@ -21,6 +22,7 @@ export const iconMap = {
   profile: Profile,
   camera: Camera,
   backArrow: BackArrow,
+  faceID: FaceID,
 };
 
  type XIconProps = {

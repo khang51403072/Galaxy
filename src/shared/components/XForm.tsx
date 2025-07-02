@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { View, TextInput, ReturnKeyTypeOptions, ScrollView } from 'react-native';
+import { View, TextInput, ReturnKeyTypeOptions, ScrollView, DimensionValue } from 'react-native';
 import { useForm, Controller, FieldValues, UseFormProps, RegisterOptions } from 'react-hook-form';
 import XInput from './XInput';
 import XButton from './XButton';
@@ -62,6 +62,7 @@ export type XFormField = {
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
   renderInput?: (props: any) => React.ReactElement; // custom render
+  onIconRightPress?: () => void;
 };
 
 type XFormProps<T extends FieldValues> = {
@@ -75,6 +76,7 @@ type XFormProps<T extends FieldValues> = {
   confirmDisabled?: boolean;
   errorMessage?: string;
   cancelTitle?: string;
+  maxHeight?: DimensionValue|undefined;
 };
 
 export default function XForm<T extends FieldValues = any>({
@@ -88,10 +90,11 @@ export default function XForm<T extends FieldValues = any>({
   confirmDisabled,
   errorMessage,
   cancelTitle = 'CANCEL',
+  maxHeight = '100%',
 }: XFormProps<T>) {
   const { control, handleSubmit, formState: { errors, isValid } } = useForm<T>({
     mode: 'onChange',
-    defaultValues,
+    defaultValues:defaultValues,
   });
   const theme = useTheme();
   // Tạo ref cho từng input để điều hướng next/done
@@ -104,16 +107,19 @@ export default function XForm<T extends FieldValues = any>({
       returnKeyType: (isLast ? 'done' : 'next') as ReturnKeyTypeOptions,
       blurOnSubmit: isLast,
       onSubmitEditing: isLast
-        ? handleSubmit(onSubmit)
+        ? handleSubmit((data) => {
+          onSubmit(data);
+          
+        })
         : () => inputRefs.current[idx + 1]?.focus(),
       ref: (ref: TextInput | null) => { inputRefs.current[idx] = ref; },
     };
   };
 
   return (
-    <View style={[{ flex: 1, backgroundColor: '#fff' }, style]}>
+    <View style={[{ flex: 1, backgroundColor: '#fff', maxHeight: maxHeight }, style]}>
       <ScrollView
-        style={{ flex: 1 }}
+        style={{ flex:1 }}
         contentContainerStyle={{ padding: theme.spacing.xs, paddingBottom: theme.spacing.sm }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -149,6 +155,7 @@ export default function XForm<T extends FieldValues = any>({
               const keyboardType = field.type === 'phone' ? 'phone-pad' : field.keyboardType;
 
               return (
+                
                 <XInput
                   label={field.label}
                   placeholder={field.placeholder}
@@ -156,12 +163,14 @@ export default function XForm<T extends FieldValues = any>({
                   onChangeText={handlePhoneChange}
                   iconLeft={field.iconLeft}
                   iconRight={field.iconRight}
-                  secureTextEntry={field.type === 'password' || field.secureTextEntry}
+                  secureTextEntry={field.type === 'password' && field.secureTextEntry}
                   autoCapitalize={field.autoCapitalize}
                   keyboardType={keyboardType}
                   errorMessage={errors[field.name]?.message as string}
+                  onIconRightPress={field.onIconRightPress}
                   {...getInputProps(idx)}
                 />
+               
               );
             }}
           />

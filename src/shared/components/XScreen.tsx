@@ -17,6 +17,24 @@ import XText from './XText';
 import XButton from './XButton';
 import XAppBar from './XAppBar';
 import XAlert from './XAlert';
+import { XSkeleton } from './XSkeleton';
+
+/**
+ * XScreen - A comprehensive screen wrapper component
+ * 
+ * Features:
+ * - Layout options (scrollable, keyboard avoiding, safe area)
+ * - Loading states (spinner, skeleton)
+ * - Error handling
+ * - Pull to refresh
+ * - Header support
+ * 
+ * Loading Usage:
+ * 1. With skeleton: <XScreen loading={true} skeleton={<CustomSkeleton />} />
+ * 2. With spinner: <XScreen loading={true} />
+ */
+
+
 
 interface XScreenProps {
   children: ReactNode;
@@ -36,6 +54,9 @@ interface XScreenProps {
   loading?: boolean;
   error?: string | null;
   onRetry?: () => void;
+  
+  // Skeleton loading (optional - if provided, shows skeleton instead of spinner)
+  skeleton?: ReactNode;
   
   // Pull to refresh
   onRefresh?: () => void;
@@ -72,6 +93,9 @@ export default function XScreen({
   error = null,
   onRetry,
   
+  // Skeleton loading (optional - if provided, shows skeleton instead of spinner)
+  skeleton,
+  
   // Pull to refresh
   onRefresh,
   refreshing = false,
@@ -96,15 +120,28 @@ export default function XScreen({
   const screenPaddingHorizontal = paddingHorizontal ?? screenPadding;
   const screenPaddingVertical = paddingVertical ?? screenPadding;
 
-  // Handle error display
-  React.useEffect(() => {
-    if (error) {
-      Alert.alert('Lỗi', error);
-    }
-  }, [error]);
+  
 
-  // Loading screen
+  // Loading screen (skeleton or spinner)
   if (loading) {
+    // If skeleton is provided, show skeleton; otherwise show spinner
+    if (skeleton) {
+      return (
+        <View style={[
+          styles.container,
+          { backgroundColor: screenBackgroundColor },
+          safeArea && {
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+          },
+          style,
+        ]}>
+          {skeleton}
+        </View>
+      );
+    }
+    
+    // Default loading spinner
     return (
       <View style={[
         styles.loadingContainer,
@@ -122,31 +159,6 @@ export default function XScreen({
       </View>
     );
   }
-
-  // Error screen
-  // if (error && !loading) {
-  //   return (
-  //     <View style={[
-  //       styles.errorContainer,
-  //       { backgroundColor: screenBackgroundColor },
-  //       safeArea && {
-  //         paddingTop: insets.top,
-  //         paddingBottom: insets.bottom,
-  //       },
-  //       style,
-  //     ]}>
-  //       <XText variant="h2" style={{ marginBottom: theme.spacing.md }}>
-  //         Có lỗi xảy ra
-  //       </XText>
-  //       <XText variant="body" style={{ marginBottom: theme.spacing.lg, textAlign: 'center' }}>
-  //         {error}
-  //       </XText>
-  //       {onRetry && (
-  //         <XButton title="Thử lại" onPress={onRetry} />
-  //       )}
-  //     </View>
-  //   );
-  // }
 
   // Main content
   const content = (
@@ -169,7 +181,7 @@ export default function XScreen({
       {/* Alert */}
       {error && (
         <XAlert
-          visible={error!=null}
+          
           message={error}
           type="error"
           onClose={()=>{}}
