@@ -11,6 +11,13 @@ import Profile from '../assets/icons/Profile.svg';
 import Camera from '../assets/icons/Camera.svg';
 import BackArrow from '../assets/icons/BackArrow.svg';
 import FaceID from '../assets/icons/FaceID.svg';
+import Bell from '../assets/icons/Bell.svg';
+import Ticket from '../assets/icons/Ticket.svg';
+import Appointment from '../assets/icons/Appointment.svg';
+import Payroll from '../assets/icons/Payroll.svg';
+import Report from '../assets/icons/Report.svg';
+import X from '../assets/icons/X.svg';
+import Search from '../assets/icons/Search.svg';
 export const iconMap = {
   user: User,
   passwordCheck: PasswordCheck,
@@ -23,6 +30,13 @@ export const iconMap = {
   camera: Camera,
   backArrow: BackArrow,
   faceID: FaceID,
+  bell: Bell,
+  ticket: Ticket,
+  appointment: Appointment,
+  payroll: Payroll,
+  report: Report,
+  x: X,
+  search: Search,
 };
 
  type XIconProps = {

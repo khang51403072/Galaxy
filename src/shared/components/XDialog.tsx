@@ -39,7 +39,7 @@ export default function XDialog({
         <View style={styles.overlay} />
       </TouchableWithoutFeedback>
       <View style={styles.centeredView} pointerEvents="box-none">
-        <View style={[styles.dialog, { backgroundColor: theme.colors.background }]}> 
+        <View style={[styles.dialog, { backgroundColor: theme.colors.white }]}> 
           <Text style={[styles.title, ]}>{title}</Text>
           <View style={styles.content}>{typeof content === 'string' ? <Text style={{ color: theme.colors.text }}>{content}</Text> : content}</View>
           <View style={styles.actions}>

@@ -12,8 +12,8 @@ const XTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const theme = useTheme();
   
   return (
-    <View style={styles.shadowContainer}>
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View style={styles.shadowContainer }>
+      <View style={[styles.container, { backgroundColor: theme.colors.white }]}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const label =

@@ -1,5 +1,5 @@
 // Định nghĩa route name chuẩn cho toàn app
-import { ProfileEntity } from "../features/home/types/UserTypes";
+import { ProfileEntity } from "../features/home/types/ProfileResponse";
 
 export const ROUTES = {
     LOGIN: 'Login',
@@ -7,6 +7,7 @@ export const ROUTES = {
     PROFILE: 'Profile',
     UPDATE_PROFILE: 'UpdateProfile',
     CHANGE_PASSWORD: 'ChangePassword',
+    TICKET: 'Ticket',
     // Thêm các route khác ở đây
   } as const;
   
@@ -19,6 +20,7 @@ export const ROUTES = {
     [ROUTES.PROFILE]: { updatedProfile?: ProfileEntity };
     [ROUTES.UPDATE_PROFILE]: { profileId?: string };
     [ROUTES.CHANGE_PASSWORD]: { profileId?: string };
+    [ROUTES.TICKET]: undefined;
     // Thêm params cho các route khác nếu cần
   };
   

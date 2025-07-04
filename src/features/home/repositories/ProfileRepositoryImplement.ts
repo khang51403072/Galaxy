@@ -1,11 +1,11 @@
-import { UserRepository } from './UserRepository';
+import { ProfileRepository } from './ProfileRepository';
 import { ProfileApi } from '../services/ProfileApi';
 import { Result, success, failure } from '../../../shared/types/Result';
-import { ProfileEntity } from '../types/UserTypes';
-import { ChangePasswordRequest, UpdateProfileRequest } from '../types/UpdateProfileTypes';
+import { ProfileEntity } from '../types/ProfileResponse';
+import { ChangePasswordRequest, UpdateProfileRequest } from '../types/ProfileRequest';
 import { UserError } from '../types/UserError';
 
-export class ApiUserRepository implements UserRepository {
+export class ProfileRepositoryImplement implements ProfileRepository {
   constructor(private profileApi: typeof ProfileApi) {}
 
   async getProfile(): Promise<Result<ProfileEntity, UserError>> {

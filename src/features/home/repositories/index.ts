@@ -1,2 +1,2 @@
-export type { UserRepository } from './UserRepository';
-export { ApiUserRepository } from './ApiUserRepository'; 
+export type { ProfileRepository } from './ProfileRepository';
+export { ProfileRepositoryImplement } from './ProfileRepositoryImplement'; 

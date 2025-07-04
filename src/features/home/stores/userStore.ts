@@ -1,8 +1,8 @@
 import { create } from 'zustand/react';
 import { StateCreator } from 'zustand/vanilla';
 import { Result, isSuccess, isFailure, failure } from '../../../shared/types/Result';
-import { ProfileEntity } from '../types/UserTypes';
-import { ChangePasswordRequest, UpdateProfileRequest } from '../types/UpdateProfileTypes';
+import { ProfileEntity } from '../types/ProfileResponse';
+import { ChangePasswordRequest, UpdateProfileRequest } from '../types/ProfileRequest';
 import { UserError } from '../types/UserError';
 import { keychainHelper } from '../../../shared/utils/keychainHelper';
 
@@ -45,8 +45,8 @@ const userStoreCreator: StateCreator<UserState> = (set, get) => {
       ProfileApi = profileApiModule.ProfileApi;
     }
     if(ApiUserRepository === null) {
-      const apiUserRepoModule = await import('../repositories/ApiUserRepository');
-      ApiUserRepository = apiUserRepoModule.ApiUserRepository;
+      const apiUserRepoModule = await import('../repositories/ProfileRepositoryImplement');
+      ApiUserRepository = apiUserRepoModule.ProfileRepositoryImplement;
     }
     
     // Tạo repository nếu chưa có

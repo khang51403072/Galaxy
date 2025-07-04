@@ -97,6 +97,31 @@ export const typography = {
     lineHeight: 16,
     letterSpacing: 0.12,
   },
+  // Caption
+  helloText300: {
+    fontFamily: Fonts.Outfit300,
+    fontSize: 18,
+    lineHeight: 22,
+    letterSpacing: 0.18,
+  },
+  helloText400: {
+    fontFamily: Fonts.Outfit400,
+    fontSize: 18,
+    lineHeight: 22,
+    letterSpacing: 0.18,
+  },
+  saleAndTip300: {
+    fontFamily: Fonts.Outfit300,
+    fontSize: 16,
+    lineHeight: 20,
+    letterSpacing: 0.18,
+  },
+  saleAndTip500: {
+    fontFamily: Fonts.Outfit500,
+    fontSize: 16,
+    lineHeight: 20,
+    letterSpacing: 0.18,
+  },
 } as const;
 
 export type Typography = typeof typography; 

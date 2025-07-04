@@ -1,13 +1,13 @@
 import xlog from '../../../core/utils/xlog';
 import { ProfileApi, ProfileUpdate } from '../services/ProfileApi';
 import { Result, success, failure, isSuccess, isFailure } from '../../../shared/types/Result';
-import { ProfileEntity } from '../types/UserTypes';
+import { ProfileEntity } from '../types/ProfileResponse';
 import { UserError } from '../types/UserError';
-import { ChangePasswordRequest, UpdateProfileRequest } from '../types/UpdateProfileTypes';
-import { UserRepository } from '../repositories/UserRepository';
+import { ChangePasswordRequest, UpdateProfileRequest } from '../types/ProfileRequest';
+import { ProfileRepository } from '../repositories/ProfileRepository';
 
 export class ProfileUseCase {
-  constructor(private userRepository: UserRepository) {}
+  constructor(private userRepository: ProfileRepository) {}
 
   async getProfile(): Promise<Result<ProfileEntity, UserError>> {
     return await this.userRepository.getProfile();

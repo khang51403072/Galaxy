@@ -21,6 +21,7 @@ type XInputProps = TextInputProps & {
   autoCompleteType?: React.ComponentProps<typeof TextInput>["autoComplete"];
   autoCorrect?: boolean;
   display?: 'none' | 'flex';
+  editable?: boolean;
 };
 
 const XInput = forwardRef<TextInput, XInputProps>(
@@ -42,6 +43,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
       autoCompleteType = 'off',
       autoCorrect = false,
       display = 'flex',
+      editable = true,
       ...rest
     },
     ref
@@ -74,6 +76,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
             ref={ref}
             placeholder={placeholder}
             placeholderTextColor={XColors.textInputPlaceholder}
+            editable={editable}
             style={[
               TextStyles.inputText,
               {

@@ -77,6 +77,7 @@ type XFormProps<T extends FieldValues> = {
   errorMessage?: string;
   cancelTitle?: string;
   maxHeight?: DimensionValue|undefined;
+  scrollEnabled?: boolean;
 };
 
 export default function XForm<T extends FieldValues = any>({
@@ -91,6 +92,7 @@ export default function XForm<T extends FieldValues = any>({
   errorMessage,
   cancelTitle = 'CANCEL',
   maxHeight = '100%',
+  scrollEnabled = true,
 }: XFormProps<T>) {
   const { control, handleSubmit, formState: { errors, isValid } } = useForm<T>({
     mode: 'onChange',
@@ -123,6 +125,7 @@ export default function XForm<T extends FieldValues = any>({
         contentContainerStyle={{ padding: theme.spacing.xs, paddingBottom: theme.spacing.sm }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        scrollEnabled={scrollEnabled}
       >
         {fields.map((field, idx) => (
           <Controller
