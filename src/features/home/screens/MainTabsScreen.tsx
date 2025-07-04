@@ -5,15 +5,14 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import DashBoardScreen from './DashBoardScreen';
 import XIcon from '../../../shared/components/XIcon';
 import { XColors } from '../../../shared/constants/colors';
 import XTabBar from '../../../shared/components/XTabBar';
-import ProfileScreen  from './ProfileScreen';
-
+import HomeScreen from './tabs/HomeScreen';
+import ProfileScreen from './tabs/ProfileScreen';
 const Tab = createBottomTabNavigator();
 
-export default function HomeScreen() {
+export default function MainTabsScreen() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -37,7 +36,7 @@ export default function HomeScreen() {
       })}
       tabBar={(props) => <XTabBar {...props} />}
     >
-      <Tab.Screen name="DashBoard" component={DashBoardScreen} />
+      <Tab.Screen name="DashBoard" component={HomeScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

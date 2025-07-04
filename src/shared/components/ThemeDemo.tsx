@@ -8,7 +8,7 @@ export default function ThemeDemo() {
   const theme = useTheme();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.white }]}>
       {/* Spacing demo */}
       <View style={[styles.section, { marginBottom: theme.spacing.lg }]}>
         <XText variant="h1" style={{ marginBottom: theme.spacing.md }}>

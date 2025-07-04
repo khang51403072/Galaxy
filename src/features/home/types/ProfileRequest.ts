@@ -1,4 +1,4 @@
-import { Address } from './UserTypes';
+import { Address } from './ProfileResponse';
 
 export interface UpdateProfileRequest {
   employeeId: string;

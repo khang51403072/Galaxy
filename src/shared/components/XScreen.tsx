@@ -115,7 +115,7 @@ export default function XScreen({
   const insets = useSafeAreaInsets();
   
   // Use theme colors if not provided
-  const screenBackgroundColor = backgroundColor || theme.colors.background;
+  const screenBackgroundColor = backgroundColor || theme.colors.white;
   const screenPadding = padding ?? theme.spacing.md;
   const screenPaddingHorizontal = paddingHorizontal ?? screenPadding;
   const screenPaddingVertical = paddingVertical ?? screenPadding;
@@ -240,6 +240,7 @@ export default function XScreen({
             {
               paddingHorizontal: screenPaddingHorizontal,
               // paddingVertical: screenPaddingVertical,
+              paddingBottom: 100,
             },
             contentStyle,
           ]}

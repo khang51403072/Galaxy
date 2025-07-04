@@ -1,0 +1,48 @@
+import { StyleProp, TouchableOpacity, View, ViewStyle } from "react-native";
+import { useTheme } from "../../../shared/theme/ThemeProvider";
+import { ColorScheme } from "../../../shared/theme/colors";
+import XIcon, { iconMap } from "../../../shared/components/XIcon";
+import XText from "../../../shared/components/XText";
+import { Fonts } from "../../../shared/constants/fonts";
+
+export default function CategoryCard({
+    title,
+    icon,
+    onPress,
+    color = 'white',
+    textColor = 'white',
+    style
+}: {
+    title: string;
+    icon: keyof typeof iconMap;
+    onPress: () => void;
+    color: string;
+    textColor: string;
+    style?: StyleProp<ViewStyle>;
+}) {
+    const theme = useTheme();
+  return (
+    <TouchableOpacity onPress={onPress} style={[
+        {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+
+    padding: 16,
+    backgroundColor: color,
+    borderRadius: theme.borderRadius.lg,
+    }, style as object]}>
+        <View style={
+            {
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+
+        padding: 16,
+        backgroundColor: color,
+        borderRadius: theme.borderRadius.lg,
+        }}>
+            <XIcon name={icon}  width={40} height={40} color={textColor} />
+            <XText variant='helloText400' style={{ marginTop: 10, color: textColor }}>{title}</XText>
+        </View>
+    </TouchableOpacity>
+  );
+}

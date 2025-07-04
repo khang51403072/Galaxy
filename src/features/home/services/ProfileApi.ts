@@ -1,8 +1,8 @@
 import { httpClient } from '../../../core/network/HttpClient';
 import { ApiResponse } from '../../../core/network/ApiResponse';
 import { useAuthStore } from '../../auth/stores/authStore';
-import { ProfileEntity } from '../types/UserTypes';
-import { ChangePasswordRequest, UpdateProfileRequest } from '../types/UpdateProfileTypes';
+import { ProfileEntity } from '../types/ProfileResponse';
+import { ChangePasswordRequest, UpdateProfileRequest } from '../types/ProfileRequest';
 import xlog from '../../../core/utils/xlog';
 
 // ===== TYPES =====

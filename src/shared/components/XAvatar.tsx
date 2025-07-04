@@ -43,9 +43,6 @@ export default function XAvatar({
       }
     );
   };
-
-  
-  console.log( "uri xavatar", uri);
   return (
     <View style={styles.container}>
       <TouchableOpacity 

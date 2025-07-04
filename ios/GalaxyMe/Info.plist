@@ -75,5 +75,7 @@
 
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Ứng dụng cần quyền lưu ảnh mới vào thư viện.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Ứng dụng cần sử dụng Face ID để xác thực đăng nhập.</string>
 </dict>
 </plist>

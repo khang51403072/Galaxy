@@ -10,7 +10,7 @@ import AppNavigator from './src/app/AppNavigator';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { ThemeProvider } from './src/shared/theme';
-
+import './src/shared/utils/extensions';
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
