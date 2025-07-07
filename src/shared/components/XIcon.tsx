@@ -18,6 +18,7 @@ import Payroll from '../assets/icons/Payroll.svg';
 import Report from '../assets/icons/Report.svg';
 import X from '../assets/icons/X.svg';
 import Search from '../assets/icons/Search.svg';
+import DownArrow from '../assets/icons/DownArrow.svg';
 export const iconMap = {
   user: User,
   passwordCheck: PasswordCheck,
@@ -37,6 +38,7 @@ export const iconMap = {
   report: Report,
   x: X,
   search: Search,
+  downArrow: DownArrow,
 };
 
  type XIconProps = {

@@ -7,15 +7,13 @@ import { ROUTES, RootStackParamList } from './routes';
 import UpdateProfileScreen from '../features/home/screens/subScreen/UpdateProfileScreen';
 import ChangePasswordScreen from '../features/home/screens/subScreen/ChangePasswordScreen';
 import TicketScreen from '../features/ticket/screens/TicketScreen';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <BottomSheetModalProvider>
+    
       <NavigationContainer>      
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name={ROUTES.LOGIN} component={LoginScreen} />
@@ -25,7 +23,6 @@ export default function AppNavigator() {
         <Stack.Screen name={ROUTES.TICKET} component={TicketScreen} /> 
       </Stack.Navigator>
     </NavigationContainer>
-    </BottomSheetModalProvider>
-    </GestureHandlerRootView>
+
   );
 }

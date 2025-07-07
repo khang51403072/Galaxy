@@ -15,3 +15,16 @@ export interface EmployeeEntity {
       return employee.nickName;
     }
   }
+
+export interface WorkOrderEntity {
+  nickName: string;
+  ticketNumber: number;
+  detail: string;
+  ticketDate: string;
+  serviceStartTime: string;
+  serviceEndTime: string;
+}
+
+
+
+  

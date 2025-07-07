@@ -1,18 +1,22 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import XIcon from './XIcon';
-import { useNavigation, useTheme } from '@react-navigation/native';
 import { XColors } from '../constants/colors';
 import { TextStyles } from '../constants/textStyles';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { useTheme } from '../theme/ThemeProvider';
+
 interface XAppBarProps {
   title: string;
   showBack?: boolean;
   onBackPress?: () => void;
 }
 
-export default function XAppBar({ title, showBack = true, onBackPress }: XAppBarProps) {
+export default function XAppBar({ title, showBack = true, onBackPress,}: XAppBarProps) {
   const navigation = useNavigation();
   const theme = useTheme(); 
+  const insets = useSafeAreaInsets();
   const handleBack = () => {
     if (onBackPress) {
       onBackPress();
@@ -20,9 +24,26 @@ export default function XAppBar({ title, showBack = true, onBackPress }: XAppBar
       navigation.goBack();
     }
   };
-
+  const styles = StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderBottomWidth: 1,
+      borderBottomColor: '#eee',
+      backgroundColor: '#fff',
+      paddingHorizontal: theme.spacing.lg, 
+      paddingBottom: theme.spacing.md,
+    },
+    backBtn: {
+      width: 20,
+      height: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    
+  }); 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container]}>
       {showBack ? (
         <TouchableOpacity   onPress={handleBack} style={styles.backBtn} >
           <XIcon name="backArrow"  color={XColors.gray800} width={20} height={20} />
@@ -36,21 +57,3 @@ export default function XAppBar({ title, showBack = true, onBackPress }: XAppBar
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 48,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    backgroundColor: '#fff',
-    paddingHorizontal: 8,
-  },
-  backBtn: {
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  
-}); 

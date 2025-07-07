@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import BottomSheet, { BottomSheetFlatList } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetFlatList, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import type BottomSheetType from '@gorhom/bottom-sheet';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -28,7 +28,7 @@ export default function XBottomSheetSearch({
   title = "Tìm kiếm"
 }: Props) {
   const sheetRef = useRef<BottomSheetType>(null);
-  const snapPoints = useMemo(() => ['90%'], []);
+  const snapPoints = useMemo(() => ['100%'], []);
   const [searchText, setSearchText] = useState('');
   const [filteredData, setFilteredData] = useState(data);
   const theme = useTheme();
@@ -65,51 +65,60 @@ export default function XBottomSheetSearch({
       <Text style={styles.itemText}>{item}</Text>
     </TouchableOpacity>
   );
-
+  
   return (
     <BottomSheet
-      ref={sheetRef}
-      index={visible ? 0 : -1}
-      snapPoints={snapPoints}
-      onClose={onClose}
-    >
-      <BottomSheetView style={{ flex: 1, backgroundColor: '#fff', minHeight: 300 }}>
-        <View style={styles.header}>
-          <Text style={styles.title}>{title}</Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <View style={{ alignItems: 'center', backgroundColor: theme.colors.backroundIconClose,  borderRadius: 20, padding: theme.spacing.sm, justifyContent: 'center' }}> 
-              <XIcon name="x" width={12} height={12} color={theme.colors.gray800} />  
-            </View>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.searchContainer}>
-          <TextInput
-            placeholder={placeholder}
-            value={searchText}
-            onChangeText={setSearchText}
-            style={styles.input}
-          />
-        </View>
-        <BottomSheetFlatList
-          data={filteredData}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={renderItem}
-          showsVerticalScrollIndicator={true}
-          nestedScrollEnabled={true}
-          keyboardShouldPersistTaps="handled"
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>
-                {searchText.trim() === '' ? 'Nhập từ khóa để tìm kiếm' : 'Không tìm thấy kết quả'}
-              </Text>
-            </View>
-          }
-          style={{ flex: 1 }}
-        />
-      </BottomSheetView>
-    </BottomSheet>
+  ref={sheetRef}
+  index={visible ? 0 : -1}
+  snapPoints={snapPoints}
+  onClose={onClose}
+  enablePanDownToClose
+>
+  {/* HEADER */}
+  <View style={styles.header}>
+    <XText variant="contentTitle" style={styles.title}>{title}</XText>
+    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+      <XIcon name="x" width={20} height={20} color="#999" />
+    </TouchableOpacity>
+  </View>
+  <View style={styles.searchInput}>
+  <XInput
+    placeholder={placeholder}
+    value={searchText}
+    onChangeText={setSearchText}
+    iconLeft="search"
+    blurOnSubmit={false}
+  />
+</View> 
+  {/* LIST */}
+  <BottomSheetFlatList
+    data={filteredData}
+    keyExtractor={(item, index) => index.toString()}
+    renderItem={renderItem}
+    showsVerticalScrollIndicator={true}
+    nestedScrollEnabled={true}
+    keyboardShouldPersistTaps="handled"
+    ListEmptyComponent={
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>
+          {searchText.trim() === '' ? 'Nhập từ khóa để tìm kiếm' : 'Không tìm thấy kết quả'}
+        </Text>
+      </View>
+    }
+    style={{ flex: 1 }}
+    contentContainerStyle={{ paddingBottom: 40 }}
+  />
+</BottomSheet>
+
   );
 }
+
+       
+       
+       
+       
+
+
 
 const styles = StyleSheet.create({
   header: {
@@ -119,6 +128,11 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
+  },
+  searchInput: {
+    paddingHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 4,
   },
   title: { fontSize: 18, fontWeight: 'bold' },
   searchContainer: { padding: 16 },
@@ -132,3 +146,4 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
 });
+
