@@ -18,6 +18,7 @@ import XButton from './XButton';
 import XAppBar from './XAppBar';
 import XAlert from './XAlert';
 import { XSkeleton } from './XSkeleton';
+import { FeTurbulence } from 'react-native-svg';
 
 /**
  * XScreen - A comprehensive screen wrapper component
@@ -102,7 +103,7 @@ export default function XScreen({
   
   // Header
   title,
-  showHeader = false,
+  showHeader = title ? true : false,
   
   // Footer
   footer,
@@ -115,7 +116,7 @@ export default function XScreen({
   const insets = useSafeAreaInsets();
   
   // Use theme colors if not provided
-  const screenBackgroundColor = backgroundColor || theme.colors.white;
+  const screenBackgroundColor = backgroundColor || theme.colors.background;
   const screenPadding = padding ?? theme.spacing.md;
   const screenPaddingHorizontal = paddingHorizontal ?? screenPadding;
   const screenPaddingVertical = paddingVertical ?? screenPadding;
@@ -162,37 +163,40 @@ export default function XScreen({
 
   // Main content
   const content = (
-    <View style={[
-      styles.content,
-      {
-        backgroundColor: screenBackgroundColor,
-        paddingHorizontal: screenPaddingHorizontal,
-        paddingVertical: screenPaddingVertical,
-      },
-      contentStyle,
-    ]}>
+    <View style={[styles.container, {  paddingBottom: safeArea ? insets.bottom : 0 }]}>
       {/* Header */}
       {showHeader && title && (
-        <XAppBar title={title} showBack={true} />
-      )}
+          <XAppBar title={title} showBack={true} />
+        )}
+      <View style={[
+        styles.content,
+        {
+          backgroundColor: screenBackgroundColor,
+          paddingHorizontal: screenPaddingHorizontal,
+          paddingVertical: screenPaddingVertical,
+        },
+        contentStyle,
+      ]}>
       
-      {/* Main content */}
-      {children}
-      {/* Alert */}
-      {error && (
-        <XAlert
-          
-          message={error}
-          type="error"
-          onClose={()=>{}}
-        />
-      )}
-      {/* Footer */}
-      {footer && (
-        <View style={styles.footer}>
-          {footer}
-        </View>
-      )}
+        
+        {/* Main content */}
+        {children}
+        {/* Alert */}
+        {error && (
+          <XAlert
+            
+            message={error}
+            type="error"
+            onClose={()=>{}}
+          />
+        )}
+        {/* Footer */}
+        {/* {footer && (
+          <View style={styles.footer}>
+            {footer}
+          </View>
+        )} */}
+      </View>
     </View>
   );
 
@@ -202,11 +206,7 @@ export default function XScreen({
       <KeyboardAvoidingView
         style={[
           styles.container,
-          { backgroundColor: screenBackgroundColor },
-          safeArea && {
-            paddingTop: insets.top,
-            paddingBottom: insets.bottom,
-          },
+          { backgroundColor: screenBackgroundColor,paddingTop: safeArea ? insets.top  : 0 },
           style,
         ]}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -227,11 +227,8 @@ export default function XScreen({
     return (
       <View style={[
         styles.container,
-        { backgroundColor: screenBackgroundColor },
-        safeArea && {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        },
+        { backgroundColor: screenBackgroundColor ,paddingTop: safeArea ? insets.top  : 0},
+        
         style,
       ]}>
         <ScrollView
@@ -240,7 +237,7 @@ export default function XScreen({
             {
               paddingHorizontal: screenPaddingHorizontal,
               // paddingVertical: screenPaddingVertical,
-              paddingBottom: 100,
+              paddingBottom: safeArea ? insets.bottom+100 : 0,
             },
             contentStyle,
           ]}
@@ -263,12 +260,7 @@ export default function XScreen({
           {/* Main content */}
           {children}
           
-          {/* Footer */}
-          {footer && (
-            <View style={styles.footer}>
-              {footer}
-            </View>
-          )}
+          
         </ScrollView>
       </View>
     );
@@ -278,7 +270,7 @@ export default function XScreen({
   return (
     <View style={[
       styles.container,
-      { backgroundColor: screenBackgroundColor },
+      { backgroundColor: theme.colors.white },
       safeArea && {
         paddingTop: insets.top,
         paddingBottom: insets.bottom,

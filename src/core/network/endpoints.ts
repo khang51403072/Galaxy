@@ -14,4 +14,8 @@ export const API_ENDPOINTS = {
     VIEW_CHART_OWNER: 'galaxy-me/view-chart-owner',
     EMPLOYEE_LOOKUP: 'galaxy-me/employees-lookup',
   },
+  TICKET: {
+    GET_WORK_ORDERS: 'galaxy-me/get-work-orders',
+    GET_WORK_ORDER_OWNER: 'galaxy-me/work-orders-owner',
+  }
 } as const; 
