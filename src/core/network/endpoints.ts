@@ -17,5 +17,16 @@ export const API_ENDPOINTS = {
   TICKET: {
     GET_WORK_ORDERS: 'galaxy-me/get-work-orders',
     GET_WORK_ORDER_OWNER: 'galaxy-me/work-orders-owner',
+  },
+  PAYROLL: {
+    GET_PAYROLL: 'galaxy-me/payroll',
+    GET_PAYROLL_OWNER: 'galaxy-me/payroll-owner',
+  },
+  REPORT: {
+    REPORT_TECHNICIAN: 'galaxy-me/employee-summary',
+    REPORT_SALES: 'galaxy-me/sales-summary',
+    REPORT_TIME_SHEET: 'galaxy-me/attendances-close-out',
+    REPORT_BATCH_HISTORY: 'galaxy-me/batch-history-owner',
   }
+  
 } as const; 

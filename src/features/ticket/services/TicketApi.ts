@@ -15,8 +15,8 @@ export const TicketApi = {
     const res = await httpClient.post<WorkOrderResponse>(API_ENDPOINTS.TICKET.GET_WORK_ORDERS, request);
     return res.data;
   },
-  getWorkOrderOwner: async () => {
-    const res = await httpClient.post<WorkOrderResponse>(API_ENDPOINTS.TICKET.GET_WORK_ORDER_OWNER);
+  getWorkOrderOwner: async (request: TicketRequest) => {
+    const res = await httpClient.post<WorkOrderResponse>(API_ENDPOINTS.TICKET.GET_WORK_ORDER_OWNER, request);
     return res.data;
   }
 

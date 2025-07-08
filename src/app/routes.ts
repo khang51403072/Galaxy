@@ -8,6 +8,8 @@ export const ROUTES = {
     UPDATE_PROFILE: 'UpdateProfile',
     CHANGE_PASSWORD: 'ChangePassword',
     TICKET: 'Ticket',
+    PAYROLL: 'Payroll',
+    REPORT: 'Report',
     // Thêm các route khác ở đây
   } as const;
   
@@ -21,6 +23,8 @@ export const ROUTES = {
     [ROUTES.UPDATE_PROFILE]: { profileId?: string };
     [ROUTES.CHANGE_PASSWORD]: { profileId?: string };
     [ROUTES.TICKET]: undefined;
+    [ROUTES.PAYROLL]: undefined;
+    [ROUTES.REPORT]: undefined;
     // Thêm params cho các route khác nếu cần
   };
   

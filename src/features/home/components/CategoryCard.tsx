@@ -43,6 +43,19 @@ export default function CategoryCard({
             <XIcon name={icon}  width={40} height={40} color={textColor} />
             <XText variant='helloText400' style={{ marginTop: 10, color: textColor }}>{title}</XText>
         </View>
+        <XIcon
+            name="iconCategory"
+            width={48}
+            height={48}
+            color="#FFFFFF"
+            style={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            opacity: 0.8,
+           
+            }}
+        />
     </TouchableOpacity>
   );
 }

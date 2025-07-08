@@ -39,19 +39,23 @@ export const ticketSelectors = {
     selectSelectedEmployee: (state: TicketState) => state.selectedEmployee,
 }
 
-const ticketCreator : StateCreator<TicketState> = (set, get) => {
+const initialTicketState = {
+    employeeLookup: [],
+    workOrders: [],
+    workOrderOwners: [],
+    isLoading: false,
+    error: null,
+    visible: false,
+    startDate: new Date(),
+    endDate: new Date(),
+    selectedEmployee: null,
+};
+
+const ticketCreator : StateCreator<TicketState & { reset: () => void }> = (set, get) => {
     let ticketRepository = new TicketRepositoryImplement(TicketApi);
     let ticketUsecase = new TicketUsecase(ticketRepository);
     return {
-        employeeLookup: [],
-        workOrders: [],
-        workOrderOwners: [],
-        isLoading: false,
-        error: null,
-        visible: false,
-        startDate: new Date(),
-        endDate: new Date(),
-        selectedEmployee: null,
+        ...initialTicketState,
         getEmployeeLookup: async () : Promise<Result<EmployeeEntity[], TicketError>> => {
             set({ isLoading: true });
             const result = await ticketUsecase.getEmployeeLookup();
@@ -87,7 +91,17 @@ const ticketCreator : StateCreator<TicketState> = (set, get) => {
         },
         getWorkOrderOwners: async (dateStart: Date, dateEnd: Date, employeeId?: string) : Promise<Result<WorkOrderEntity[], TicketError>> => {
             set({ isLoading: true });
-            const result = await ticketUsecase.getWorkOrderOwner();
+            const json = await keychainHelper.getObject();
+            if(json==null) {
+                set({ error: 'User not found' });
+                set({ isLoading: false });
+                return failure(new TicketError('User not found', 'USER_NOT_FOUND'));
+            }
+            const result = await ticketUsecase.getWorkOrderOwner({
+                employeeId: employeeId??json?.employeeId??'',
+                dateStart: toYYYYMMDD(dateStart, '-'),
+                dateEnd: toYYYYMMDD(dateEnd, '-'),
+            });
             if(isSuccess(result)) {
                 set({ workOrderOwners: result.value });
             } else {
@@ -96,10 +110,11 @@ const ticketCreator : StateCreator<TicketState> = (set, get) => {
             set({ isLoading: false });
             return result;
         },
+        reset: () => set({ ...initialTicketState }),
     }
 }
 
-export const useTicketStore = create<TicketState> (ticketCreator);
+export const useTicketStore = create<TicketState & { reset: () => void }> (ticketCreator);
 
 
 

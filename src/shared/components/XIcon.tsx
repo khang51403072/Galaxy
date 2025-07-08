@@ -19,6 +19,7 @@ import Report from '../assets/icons/Report.svg';
 import X from '../assets/icons/X.svg';
 import Search from '../assets/icons/Search.svg';
 import DownArrow from '../assets/icons/DownArrow.svg';
+import IconCategory from '../assets/icons/IconCategory.svg';
 export const iconMap = {
   user: User,
   passwordCheck: PasswordCheck,
@@ -39,6 +40,7 @@ export const iconMap = {
   x: X,
   search: Search,
   downArrow: DownArrow,
+  iconCategory: IconCategory,
 };
 
  type XIconProps = {

@@ -163,7 +163,7 @@ export default function XScreen({
 
   // Main content
   const content = (
-    <View style={[styles.container, {  paddingBottom: safeArea ? insets.bottom : 0 }]}>
+    <View style={[styles.container, ]}>
       {/* Header */}
       {showHeader && title && (
           <XAppBar title={title} showBack={true} />
@@ -173,7 +173,7 @@ export default function XScreen({
         {
           backgroundColor: screenBackgroundColor,
           paddingHorizontal: screenPaddingHorizontal,
-          paddingVertical: screenPaddingVertical,
+         
         },
         contentStyle,
       ]}>
@@ -273,7 +273,7 @@ export default function XScreen({
       { backgroundColor: theme.colors.white },
       safeArea && {
         paddingTop: insets.top,
-        paddingBottom: insets.bottom,
+       
       },
       style,
     ]}>

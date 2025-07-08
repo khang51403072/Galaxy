@@ -6,5 +6,5 @@ import { TicketRequest } from '../types/TicketRequest';
 export interface TicketRepository {
   getEmployeeLookup(): Promise<Result<EmployeeEntity[], TicketError>>;
   getWorkOrders(request: TicketRequest): Promise<Result<WorkOrderEntity[], TicketError>>;
-  getWorkOrderOwner(): Promise<Result<WorkOrderEntity[], TicketError>>;
+  getWorkOrderOwner(request: TicketRequest): Promise<Result<WorkOrderEntity[], TicketError>>;
 } 

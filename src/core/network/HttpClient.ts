@@ -21,6 +21,8 @@ class HttpClient {
       // Gắn interceptor auth
       HttpClient.instance.interceptors.request.use(async (config) => {
         const token = await getToken();
+        config.headers["origin"] = "galaxyme";
+        config.headers["XSOFTS-SECRET-KEY"] = "qjqAqGHfyUkLnLmizi78A7EwxDMP6tCfzULDv6PKw7rbPSWpQcuABHAmTAXRzZEa";
         if (token && config.url !== "/galaxy-me/authen") {
           config.headers.Authorization = `Bearer ${token}`;
         }
