@@ -8,11 +8,12 @@ import { ticketSelectors, TicketState, useTicketStore } from "../stores/ticketSt
 import { useShallow } from "zustand/react/shallow";
 import { getDisplayName } from "../types/TicketResponse";
 import XDatePicker from "../../../shared/components/XDatePicker";
-import RenderHTML from "react-native-render-html";
+import WebView from "react-native-webview";
+import XIcon from "../../../shared/components/XIcon";
 
 export default function  TicketScreen() {
     const {width} = useWindowDimensions();
-    const {isLoading, employeeLookup, getEmployeeLookup, error, visible, getWorkOrders, workOrders} = useTicketStore(useShallow(
+    const {isLoading, employeeLookup, getEmployeeLookup, error, visible, getWorkOrders, workOrders, startDate, endDate, selectedEmployee} = useTicketStore(useShallow(
         (state: TicketState) => ({
             workOrders: ticketSelectors.selectWorkOrders(state),
             workOrderOwners: ticketSelectors.selectWorkOrderOwners(state),
@@ -22,38 +23,56 @@ export default function  TicketScreen() {
             getWorkOrders: ticketSelectors.selectGetWorkOrders(state),
             error: ticketSelectors.selectError(state),
             visible: ticketSelectors.selectVisible(state),
+            startDate: ticketSelectors.selectStartDate(state),
+            endDate: ticketSelectors.selectEndDate(state),
+            selectedEmployee: ticketSelectors.selectSelectedEmployee(state),
         })
     ));
-    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+    
    
   return (
     <XScreen title="Tickets" loading={isLoading} error={error} style={{ flex: 1 ,  }}> 
       <TouchableOpacity onPress={async () => {
         useTicketStore.setState({visible: true});
         await getEmployeeLookup();
-        await getWorkOrders();
+   
       }}>
-        <XInput editable={false} placeholder="Choose Technician"  label="Technician" pointerEvents="none"/>
+        <XInput value={selectedEmployee != null ? getDisplayName(selectedEmployee) : ""} editable={false} placeholder="Choose Technician"  label="Technician" pointerEvents="none"/>
       </TouchableOpacity>
-      <View style={{flexDirection: 'row', gap: 16}}>
+      <View style={{ flexDirection: 'row', gap: 16, alignItems: 'flex-end' }}>
         <XDatePicker
           label="Date"
-          value={selectedDate??new Date()}
-          onChange={setSelectedDate}
+          value={startDate ?? new Date()}
+          onChange={(date) => useTicketStore.setState({startDate: date})}
           placeholder="Chọn ngày sinh"
           minimumDate={new Date(1900, 0, 1)}
           maximumDate={new Date()}
-          style={{flex: 1}}
+          style={{ flex: 1 }}
         />
         <XDatePicker
           label="Date"
-          value={selectedDate??new Date()}
-          onChange={setSelectedDate}
+          value={endDate ?? new Date()}
+          onChange={(date) => useTicketStore.setState({endDate: date})}
           placeholder="Chọn ngày sinh"
           minimumDate={new Date(1900, 0, 1)}
           maximumDate={new Date()}
-          style={{flex: 1}}
+          style={{ flex: 1 }}
         />
+        <TouchableOpacity
+          style={{
+            height: 48,
+            width: 48,
+            borderRadius: 8,
+            backgroundColor: '#2563eb',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          onPress={ async () => {
+            await getWorkOrders(startDate, endDate, selectedEmployee?.id);
+          }} // Định nghĩa hàm onSearch theo nhu cầu
+        >
+          <XIcon name="search" width={24} height={24} color="#fff" />
+        </TouchableOpacity>
       </View>
 
       <XBottomSheetSearch
@@ -71,18 +90,20 @@ export default function  TicketScreen() {
 
       //tạo 1 flatlist với data là workOrders
       <FlatList
-      data={workOrders}
-      keyExtractor={(item, idx) => item.ticketNumber?.toString() || idx.toString()}
-      renderItem={({ item }) => (
-        <View style={{ marginVertical: 8, backgroundColor: '#fff', borderRadius: 8, padding: 8 }}>
-          <RenderHTML
-            contentWidth={width - 32}
-            source={{ html: item.detail }}
-          />
-        </View>
-      )}
-      contentContainerStyle={{ padding: 16 }}
-    />
+        data={workOrders}
+        keyExtractor={(item, idx) => item.ticketNumber?.toString() || idx.toString()}
+        renderItem={({ item }) => (
+          <View style={{ marginVertical: 8, backgroundColor: '#fff', borderRadius: 8, padding: 8, overflow: 'hidden' }}>
+            <WebView
+              originWhitelist={['*']}
+              source={{ html: item.detail }}
+              style={{ width: '100%', height: 150 }} // Điều chỉnh height phù hợp
+              scrollEnabled={false}
+            />
+          </View>
+        )}
+        contentContainerStyle={{ padding: 16 }}
+      />
     </XScreen>
   );
 };
