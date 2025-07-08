@@ -4,7 +4,8 @@
   
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@ext/*": ["./src/shared/utils/extensions/*"]
     }
   }
 }

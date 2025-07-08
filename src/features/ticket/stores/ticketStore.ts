@@ -7,17 +7,21 @@ import { TicketError } from "../types/TicketError";
 import { failure, isSuccess, Result } from "../../../shared/types/Result";
 import { createStore, StateCreator } from "zustand/vanilla";
 import { keychainHelper } from "../../../shared/utils/keychainHelper";
+import { toYYYYMMDD } from "../../../shared/utils/extensions/dateExtension";
 
 export type TicketState = {
     employeeLookup: EmployeeEntity[];
     workOrders: WorkOrderEntity[];
     workOrderOwners: WorkOrderEntity[];
     isLoading: boolean;
+    startDate: Date;
+    endDate: Date;
+    selectedEmployee: EmployeeEntity | null;
     error: string | null;
     visible: boolean;
     getEmployeeLookup: () => Promise<Result<EmployeeEntity[], TicketError>>;
-    getWorkOrders: () => Promise<Result<WorkOrderEntity[], TicketError>>;
-    getWorkOrderOwners: () => Promise<Result<WorkOrderEntity[], TicketError>>;
+    getWorkOrders: (dateStart: Date, dateEnd: Date, employeeId?: string) => Promise<Result<WorkOrderEntity[], TicketError>>;
+    getWorkOrderOwners: (dateStart: Date, dateEnd: Date, employeeId?: string) => Promise<Result<WorkOrderEntity[], TicketError>>;
 }
 
 export const ticketSelectors = {
@@ -30,6 +34,9 @@ export const ticketSelectors = {
     selectGetWorkOrders: (state: TicketState) => state.getWorkOrders,
     selectGetWorkOrderOwners: (state: TicketState) => state.getWorkOrderOwners,
     selectVisible: (state: TicketState) => state.visible,
+    selectStartDate: (state: TicketState) => state.startDate,
+    selectEndDate: (state: TicketState) => state.endDate,
+    selectSelectedEmployee: (state: TicketState) => state.selectedEmployee,
 }
 
 const ticketCreator : StateCreator<TicketState> = (set, get) => {
@@ -42,6 +49,9 @@ const ticketCreator : StateCreator<TicketState> = (set, get) => {
         isLoading: false,
         error: null,
         visible: false,
+        startDate: new Date(),
+        endDate: new Date(),
+        selectedEmployee: null,
         getEmployeeLookup: async () : Promise<Result<EmployeeEntity[], TicketError>> => {
             set({ isLoading: true });
             const result = await ticketUsecase.getEmployeeLookup();
@@ -53,7 +63,7 @@ const ticketCreator : StateCreator<TicketState> = (set, get) => {
             set({ isLoading: false });
             return result;
         },
-        getWorkOrders: async () : Promise<Result<WorkOrderEntity[], TicketError>> => {
+        getWorkOrders: async (dateStart: Date, dateEnd: Date, employeeId?: string) : Promise<Result<WorkOrderEntity[], TicketError>> => {
             set({ isLoading: true });
             const json = await keychainHelper.getObject();
             if(json==null) {
@@ -63,9 +73,9 @@ const ticketCreator : StateCreator<TicketState> = (set, get) => {
             }
             
             const result = await ticketUsecase.getWorkOrders({
-                employeeId: json?.employeeId??'',
-                dateStart: "2025-06-01",
-                dateEnd: "2025-07-07",
+                employeeId: employeeId??json?.employeeId??'',
+                dateStart: toYYYYMMDD(dateStart, '-'),
+                dateEnd: toYYYYMMDD(dateEnd, '-'),
             });
             if(isSuccess(result)) {
                 set({ workOrders: result.value });
@@ -75,7 +85,7 @@ const ticketCreator : StateCreator<TicketState> = (set, get) => {
             set({ isLoading: false });
             return result;
         },
-        getWorkOrderOwners: async () : Promise<Result<WorkOrderEntity[], TicketError>> => {
+        getWorkOrderOwners: async (dateStart: Date, dateEnd: Date, employeeId?: string) : Promise<Result<WorkOrderEntity[], TicketError>> => {
             set({ isLoading: true });
             const result = await ticketUsecase.getWorkOrderOwner();
             if(isSuccess(result)) {
