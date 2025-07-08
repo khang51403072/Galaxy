@@ -287,8 +287,8 @@ export default function HomeScreen() {
           <CategoryCard style={{ width: '48%' }} onPress={() => {}} title='Appointment' icon='appointment' color={theme.colors.purple} textColor={theme.colors.white} />
         </View>
         <View style={{ marginTop: theme.spacing.md, flexDirection: 'row' , width: '100%', justifyContent: 'space-between'}}>
-          <CategoryCard style={{ width: '48%' }} onPress={() => {}} title='Payroll' icon='payroll' color={theme.colors.indigoBlue} textColor={theme.colors.white} />
-          <CategoryCard style={{ width: '48%' }} onPress={() => {}} title='Report' icon='report' color={theme.colors.blue} textColor={theme.colors.white} />
+          <CategoryCard style={{ width: '48%' }} onPress={() => {navigation.navigate(ROUTES.PAYROLL as never)}} title='Payroll' icon='payroll' color={theme.colors.indigoBlue} textColor={theme.colors.white} />
+          <CategoryCard style={{ width: '48%' }} onPress={() => {navigation.navigate(ROUTES.REPORT as never)}} title='Report' icon='report' color={theme.colors.blue} textColor={theme.colors.white} />
           
         </View>
       </View>

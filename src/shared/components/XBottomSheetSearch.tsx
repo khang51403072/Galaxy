@@ -9,12 +9,14 @@ import { TextStyles } from '../constants/textStyles';
 import XIcon from './XIcon';
 import XText from './XText';
 import { useTheme } from '../theme/ThemeProvider';
+import { EmployeeEntity, getDisplayName } from '../../features/ticket/types/TicketResponse';
+import XAvatar from './XAvatar';
 
 interface Props {
   visible: boolean;
   onClose: () => void;
-  data: string[];
-  onSelect: (item: string) => void;
+  data: EmployeeEntity[];
+  onSelect: (item: EmployeeEntity) => void;
   placeholder?: string;
   title?: string;
 }
@@ -46,50 +48,53 @@ export default function XBottomSheetSearch({
       setFilteredData(data);
     } else {
       setFilteredData(
-        data.filter(item => item.toLowerCase().includes(searchText.toLowerCase()))
+        data.filter(item => getDisplayName(item).toLowerCase().includes(searchText.toLowerCase()))
       );
     }
   }, [searchText, data]);
 
-  const handleSelect = (item: string) => {
+  const handleSelect = (item: EmployeeEntity) => {
     onSelect(item);
     setSearchText('');
     onClose();
   };
 
-  const renderItem = ({ item }: { item: string }) => (
+  const renderItem = ({ item }: { item: EmployeeEntity }) => (
     <TouchableOpacity 
       style={styles.itemContainer} 
       onPress={() => handleSelect(item)}
     >
-      <Text style={styles.itemText}>{item}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <XAvatar uri={item.avatar} size={40} />
+        <Text style={styles.itemText}>{getDisplayName(item)}</Text>
+      </View>
     </TouchableOpacity>
   );
   
   return (
     <BottomSheet
-  ref={sheetRef}
-  index={visible ? 0 : -1}
-  snapPoints={snapPoints}
-  onClose={onClose}
-  enablePanDownToClose
->
-  {/* HEADER */}
-  <View style={styles.header}>
-    <XText variant="contentTitle" style={styles.title}>{title}</XText>
-    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-      <XIcon name="x" width={20} height={20} color="#999" />
-    </TouchableOpacity>
-  </View>
-  <View style={styles.searchInput}>
-  <XInput
-    placeholder={placeholder}
-    value={searchText}
-    onChangeText={setSearchText}
-    iconLeft="search"
-    blurOnSubmit={false}
-  />
-</View> 
+      ref={sheetRef}
+      index={visible ? 0 : -1}
+      snapPoints={snapPoints}
+      onClose={onClose}
+      enablePanDownToClose
+    >
+      {/* HEADER */}
+      <View style={styles.header}>
+        <XText variant="contentTitle" style={styles.title}>{title}</XText>
+        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <XIcon name="x" width={20} height={20} color="#999" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.searchInput}>
+      <XInput
+        placeholder={placeholder}
+        value={searchText}
+        onChangeText={setSearchText}
+        iconLeft="search"
+        blurOnSubmit={false}
+      />
+    </View> 
   {/* LIST */}
   <BottomSheetFlatList
     data={filteredData}

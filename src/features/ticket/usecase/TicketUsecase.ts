@@ -17,7 +17,7 @@ export class TicketUsecase {
     return await this.ticketRepository.getWorkOrders(request);
   }
 
-  async getWorkOrderOwner(): Promise<Result<WorkOrderEntity[], any>> {
-    return await this.ticketRepository.getWorkOrderOwner();
+  async getWorkOrderOwner(request: TicketRequest): Promise<Result<WorkOrderEntity[], any>> {
+    return await this.ticketRepository.getWorkOrderOwner(request);
   }
 } 

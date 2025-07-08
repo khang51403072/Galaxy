@@ -148,8 +148,7 @@ export default function LoginScreen() {
     <XScreen
       keyboardAvoiding={false}
       dismissKeyboard={true}
-    
-      
+      backgroundColor={theme.colors.white}
       loading={isLoading}
       error={error}
     >

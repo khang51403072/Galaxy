@@ -34,9 +34,9 @@ export class TicketRepositoryImplement implements TicketRepository {
     }
   }
 
-  async getWorkOrderOwner(): Promise<Result<WorkOrderEntity[], TicketError>> {
+  async getWorkOrderOwner(request: TicketRequest): Promise<Result<WorkOrderEntity[], TicketError>> {
     try {
-      const response = await this.ticketApi.getWorkOrderOwner();
+      const response = await this.ticketApi.getWorkOrderOwner(request);
       if (!response.result || !response.data) {
         return failure(new TicketError(response.errorMsg, 'WORKORDER_OWNER_ERROR'));
       }

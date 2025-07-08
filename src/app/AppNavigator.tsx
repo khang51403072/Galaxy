@@ -7,6 +7,8 @@ import { ROUTES, RootStackParamList } from './routes';
 import UpdateProfileScreen from '../features/home/screens/subScreen/UpdateProfileScreen';
 import ChangePasswordScreen from '../features/home/screens/subScreen/ChangePasswordScreen';
 import TicketScreen from '../features/ticket/screens/TicketScreen';
+import PayrollScreen from '../features/payroll/screens/PayrollScreen';
+import ReportScreen from '../features/report/screens/ReportScreen';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -21,6 +23,8 @@ export default function AppNavigator() {
         <Stack.Screen name={ROUTES.UPDATE_PROFILE} component={UpdateProfileScreen} />
         <Stack.Screen name={ROUTES.CHANGE_PASSWORD} component={ChangePasswordScreen} /> 
         <Stack.Screen name={ROUTES.TICKET} component={TicketScreen} /> 
+        <Stack.Screen name={ROUTES.PAYROLL} component={PayrollScreen} /> 
+        <Stack.Screen name={ROUTES.REPORT} component={ReportScreen} /> 
       </Stack.Navigator>
     </NavigationContainer>
 
