@@ -3,7 +3,7 @@ import { ChartEntity, HomeEntity } from "../types/HomeResponse"
 import { HomeError } from "../types/HomeError";
 import { isSuccess, Result } from "../../../shared/types/Result";
 import { HomeAPI } from "../services/HomeApi";
-import { keychainHelper } from "../../../shared/utils/keychainHelper";
+import { keychainHelper, KeychainObject } from "../../../shared/utils/keychainHelper";
 import { HomeUseCase } from "../usecase/HomeUseCase";
 import { HomeRepository } from "../repositories/HomeRepository";
 import { ApiHomeRepository } from "../repositories/ApiHomeRepository";
@@ -19,6 +19,7 @@ export type homeState = {
     error: string | null;
     chartData: ChartEntity[] | null;
     toggleSwitch: 'week' | 'month';
+    json: KeychainObject | null;
     getHomeData: () => Promise<Result<HomeEntity, HomeError>>;
     getChartData: () => Promise<Result<ChartEntity[], HomeError>>;
 }
@@ -34,6 +35,7 @@ export const homeSelectors = {
     selectGetChartData: (state: homeState) => state.getChartData,
     selectIsLoadingChart: (state: homeState) => state.isLoadingChart,
     selectToggleSwitch: (state: homeState) => state.toggleSwitch,
+    selectJson: (state: homeState) => state.json,
 }
 
 // ===== HomeCreator =====
@@ -58,10 +60,11 @@ const homeStoreCreator: StateCreator<homeState> = (set, get) => {
         isLoadingChart: false,
         toggleSwitch: 'week',
         error: null,
+        json: keychainHelper.getObject,
         getHomeData: async () => {
             set({ isLoading: true, error: null });
             const json = await keychainHelper.getObject();
-            const result = await homeUsecase?.getHomeData({employeeId: json?.employeeId || ''});
+            const result = json?.isOwner ? await homeUsecase?.getHomeDataOwner({employeeId: json?.employeeId || ''}) : await homeUsecase?.getHomeData({employeeId: json?.employeeId || ''});
             if(isSuccess(result)) set({ homeData: result.value, isLoading: false, error: null, isOwner: json?.isOwner });
             else set({ error: result.error.message, isLoading: false });
             return result;

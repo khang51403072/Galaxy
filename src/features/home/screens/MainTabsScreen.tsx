@@ -7,7 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import XIcon from '../../../shared/components/XIcon';
 import { XColors } from '../../../shared/constants/colors';
-import XTabBar from '../../../shared/components/XTabBar';
+import XBottomTabBar from '../../../shared/components/XBottomTabBar';
 import HomeScreen from './tabs/HomeScreen';
 import ProfileScreen from './tabs/ProfileScreen';
 const Tab = createBottomTabNavigator();
@@ -34,7 +34,7 @@ export default function MainTabsScreen() {
           return <XIcon name={iconName as any} width={size} height={size} color={color} />;
         },
       })}
-      tabBar={(props) => <XTabBar {...props} />}
+      tabBar={(props) => <XBottomTabBar {...props} />}
     >
       <Tab.Screen name="DashBoard" component={HomeScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />

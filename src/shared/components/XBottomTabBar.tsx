@@ -8,7 +8,7 @@ import XIcon from './XIcon';
 import XText from './XText';
 import { useTheme } from '../theme';
 
-const XTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
+const XBottomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const theme = useTheme();
   
   return (
@@ -103,4 +103,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default XTabBar;
+export default XBottomTabBar;

@@ -22,7 +22,7 @@ type EmployeeLookupResponse = ApiResponse<EmployeeEntity[]>;
 
 export const HomeAPI = {
   // Get dashboard statistics
-  getHomeData: async (request: HomeOwnerRequest): Promise<HomeDataResponse> => {
+  getHomeDataOwner: async (request: HomeOwnerRequest): Promise<HomeDataResponse> => {
     try {
       const res = await httpClient.post<HomeDataResponse>(API_ENDPOINTS.HOME.HOME_OWNER, request);
       return res.data;
@@ -49,6 +49,13 @@ export const HomeAPI = {
     }
   },
 
-  
+  getHomeData: async (request: HomeOwnerRequest): Promise<HomeDataResponse> => {
+    try {
+      const res = await httpClient.post<HomeDataResponse>(API_ENDPOINTS.HOME.HOME, request);
+      return res.data;
+    } catch (error: any) {
+      throw error;
+    }
+  },
 
 }; 

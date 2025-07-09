@@ -20,6 +20,10 @@ import X from '../assets/icons/X.svg';
 import Search from '../assets/icons/Search.svg';
 import DownArrow from '../assets/icons/DownArrow.svg';
 import IconCategory from '../assets/icons/IconCategory.svg';
+import ClockIn from '../assets/icons/ClockIn.svg';
+import ClockOut from '../assets/icons/ClockOut.svg';
+import NoData from '../assets/icons/NoData.svg';
+
 export const iconMap = {
   user: User,
   passwordCheck: PasswordCheck,
@@ -41,6 +45,9 @@ export const iconMap = {
   search: Search,
   downArrow: DownArrow,
   iconCategory: IconCategory,
+  clockIn: ClockIn,
+  clockOut: ClockOut,
+  noData: NoData,
 };
 
  type XIconProps = {

@@ -15,6 +15,11 @@ module.exports = (async () => {
       assetExts: assetExts.filter(ext => ext !== 'svg'),
       // Thêm svg vào sourceExts để bundler hiểu import .svg
       sourceExts: [...sourceExts, 'svg'],
+      // Alias configuration
+      alias: {
+        '@': './src',
+        '@ext': './src/shared/utils/extensions',
+      },
     },
   });
 })();

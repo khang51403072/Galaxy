@@ -12,11 +12,13 @@ import { useTheme } from "../../../shared/theme/ThemeProvider";
 import { payrollSelectors, PayrollState, usePayrollStore } from "../stores/payrollStore";
 import { getDisplayName } from "../../ticket/types/TicketResponse";
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { keychainHelper } from "@/shared/utils/keychainHelper";
 
 export default function  TicketScreen() {
     const theme = useTheme();
-    const { employeeLookup, isLoading, payrolls, payrollOwners, getPayroll, getPayrollOwner, error, visible, selectedEmployee, startDate, endDate, getEmployeeLookup} = usePayrollStore(useShallow(
+    const { json, employeeLookup, isLoading, payrolls, payrollOwners, getPayroll, getPayrollOwner, error, visible, selectedEmployee, startDate, endDate, getEmployeeLookup} = usePayrollStore(useShallow(
         (state: PayrollState) => ({
+            json: state.json,
             employeeLookup: state.employeeLookup,
             payrolls: payrollSelectors.selectPayrolls(state),
             payrollOwners: payrollSelectors.selectPayrollOwners(state),
@@ -41,39 +43,50 @@ export default function  TicketScreen() {
     // TabView state
     const [index, setIndex] = useState(0);
     const [routes] = useState([
-      { key: 'technician', title: 'Technician' },
       { key: 'owner', title: 'Owner' },
+      { key: 'technician', title: 'Technician' },
     ]);
 
     const renderScene = SceneMap({
       technician: () => (
+        payrolls.length > 0 ? 
         <WebView
           originWhitelist={['*']}
-          source={{ html: payrollOwners }}
+          source={{ html: payrolls }}
           style={{ width: '100%', flex: 1 }}
           scrollEnabled={true}
         />
+        : <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
+            <XIcon name="noData" width={48} height={48} />
+            <XText variant="content400">No data</XText>
+          </View>
       ),
       owner: () => (
+        payrollOwners.length > 0 ? 
         <WebView
           originWhitelist={['*']}
           source={{ html: payrollOwners }}
           style={{ width: '100%', flex: 1 }}
           scrollEnabled={true}
         />
+        : <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
+            <XIcon name="noData" width={48} height={48} />
+            <XText variant="content400">No data</XText>
+          </View>
       ),
     });
     const layout = useWindowDimensions();
   return (
-    <XScreen title="Tickets" loading={isLoading} error={error} style={{ flex: 1 }}> 
+    <XScreen title="Payroll" loading={isLoading} error={error} style={{ flex: 1 }}> 
       {/* View header */}
       <View style={{ flexDirection: 'column', paddingTop: theme.spacing.md, borderBottomWidth: 1, borderBottomColor: theme.colors.border, paddingBottom: theme.spacing.sm,}}>
+        {json?.isOwner ? 
         <TouchableOpacity style={{}} onPress={async () => {
           usePayrollStore.setState({visible: true});
           await getEmployeeLookup();
         }}>
           <XInput value={selectedEmployee != null ? getDisplayName(selectedEmployee) : ""} editable={false} placeholder="Choose Technician"  label="Technician" pointerEvents="none"/>
-        </TouchableOpacity>
+        </TouchableOpacity>:null}
         <View style={{ flexDirection: 'row', gap: 16, alignItems: 'flex-end' }}>
           <XDatePicker
             label="Date"
@@ -103,8 +116,19 @@ export default function  TicketScreen() {
               alignItems: 'center',
             }}
             onPress={ async () => {
-              // await getPayroll(startDate ?? new Date(), endDate ?? new Date(), selectedEmployee?.id);
-              await getPayrollOwner(startDate ?? new Date(), endDate ?? new Date(), selectedEmployee?.id);
+              if(json?.isOwner){
+                if(selectedEmployee != null){
+                Promise.all([
+                    getPayrollOwner(""),
+                    getPayroll(selectedEmployee?.id??""),
+                  ]);
+                }else{
+                  await getPayrollOwner("");
+                }
+                
+              }else{
+                await getPayroll(json?.employeeId??"");
+              }
             }} // Định nghĩa hàm onSearch theo nhu cầu
           >
             <XIcon name="search" width={24} height={24} color="#fff" />
@@ -128,23 +152,39 @@ export default function  TicketScreen() {
       /> 
 
       {!visible && (
+        json?.isOwner ? 
         <TabView
-        navigationState={{ index, routes }}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{ width: layout.width }}
-        renderTabBar={props => (
-          <TabBar
-            {...props}
-            indicatorStyle={{ backgroundColor: theme.colors.primary }}
-            style={{ backgroundColor: '#fff' }}
-            inactiveColor={theme.colors.gray200}
-            activeColor={theme.colors.primary}
-            
-          />
-        )}
-        style={{ flex: 1 }}
-      />
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={{ width: layout.width }}
+          renderTabBar={props => (
+            <TabBar
+              {...props}
+              indicatorStyle={{ backgroundColor: theme.colors.primary }}
+              style={{ backgroundColor: '#fff' }}
+              inactiveColor={theme.colors.gray200}
+              activeColor={theme.colors.primary}
+              
+            />
+          )}
+          style={{ flex: 1 }}
+        />
+        :
+        
+          payrolls.length > 0 
+          ? <WebView
+              originWhitelist={['*']}
+              source={{ html: payrolls }}
+              style={{ width: '100%', flex: 1 }}
+              scrollEnabled={true}
+            />
+          : <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
+              <XIcon name="noData" width={48} height={48} />
+              <XText variant="content400">No data</XText>
+            </View>
+        
+        
       )}
     </XScreen>
   );
