@@ -6,8 +6,7 @@ import { EmployeeEntity, WorkOrderEntity } from "../types/TicketResponse";
 import { TicketError } from "../types/TicketError";
 import { failure, isSuccess, Result } from "../../../shared/types/Result";
 import { createStore, StateCreator } from "zustand/vanilla";
-import { keychainHelper } from "../../../shared/utils/keychainHelper";
-import { toYYYYMMDD } from "../../../shared/utils/extensions/dateExtension";
+import { keychainHelper, KeychainObject } from "../../../shared/utils/keychainHelper";
 
 export type TicketState = {
     employeeLookup: EmployeeEntity[];
@@ -19,9 +18,10 @@ export type TicketState = {
     selectedEmployee: EmployeeEntity | null;
     error: string | null;
     visible: boolean;
+    json: KeychainObject | null;
     getEmployeeLookup: () => Promise<Result<EmployeeEntity[], TicketError>>;
-    getWorkOrders: (dateStart: Date, dateEnd: Date, employeeId?: string) => Promise<Result<WorkOrderEntity[], TicketError>>;
-    getWorkOrderOwners: (dateStart: Date, dateEnd: Date, employeeId?: string) => Promise<Result<WorkOrderEntity[], TicketError>>;
+    getWorkOrders: () => Promise<Result<WorkOrderEntity[], TicketError>>;
+    getWorkOrderOwners: (employeeId: string) => Promise<Result<WorkOrderEntity[], TicketError>>;
 }
 
 export const ticketSelectors = {
@@ -37,6 +37,7 @@ export const ticketSelectors = {
     selectStartDate: (state: TicketState) => state.startDate,
     selectEndDate: (state: TicketState) => state.endDate,
     selectSelectedEmployee: (state: TicketState) => state.selectedEmployee,
+    selectJson: (state: TicketState) => state.json,
 }
 
 const initialTicketState = {
@@ -46,9 +47,10 @@ const initialTicketState = {
     isLoading: false,
     error: null,
     visible: false,
-    startDate: new Date(),
-    endDate: new Date(),
+    startDate: new Date(Date.now()),
+    endDate: new Date(Date.now()),
     selectedEmployee: null,
+    json: null,
 };
 
 const ticketCreator : StateCreator<TicketState & { reset: () => void }> = (set, get) => {
@@ -67,8 +69,9 @@ const ticketCreator : StateCreator<TicketState & { reset: () => void }> = (set, 
             set({ isLoading: false });
             return result;
         },
-        getWorkOrders: async (dateStart: Date, dateEnd: Date, employeeId?: string) : Promise<Result<WorkOrderEntity[], TicketError>> => {
+        getWorkOrders: async () : Promise<Result<WorkOrderEntity[], TicketError>> => {
             set({ isLoading: true });
+            console.log('getWorkOrders', get().startDate, get().endDate, get().selectedEmployee?.id);
             const json = await keychainHelper.getObject();
             if(json==null) {
                 set({ error: 'User not found' });
@@ -77,9 +80,9 @@ const ticketCreator : StateCreator<TicketState & { reset: () => void }> = (set, 
             }
             
             const result = await ticketUsecase.getWorkOrders({
-                employeeId: employeeId??json?.employeeId??'',
-                dateStart: toYYYYMMDD(dateStart, '-'),
-                dateEnd: toYYYYMMDD(dateEnd, '-'),
+                employeeId: get().selectedEmployee?.id??json?.employeeId??'',
+                dateStart: get().startDate.toYYYYMMDD('-'),
+                dateEnd: get().endDate.toYYYYMMDD('-'),
             });
             if(isSuccess(result)) {
                 set({ workOrders: result.value });
@@ -89,7 +92,7 @@ const ticketCreator : StateCreator<TicketState & { reset: () => void }> = (set, 
             set({ isLoading: false });
             return result;
         },
-        getWorkOrderOwners: async (dateStart: Date, dateEnd: Date, employeeId?: string) : Promise<Result<WorkOrderEntity[], TicketError>> => {
+        getWorkOrderOwners: async (employeeId: string) : Promise<Result<WorkOrderEntity[], TicketError>> => {
             set({ isLoading: true });
             const json = await keychainHelper.getObject();
             if(json==null) {
@@ -98,9 +101,9 @@ const ticketCreator : StateCreator<TicketState & { reset: () => void }> = (set, 
                 return failure(new TicketError('User not found', 'USER_NOT_FOUND'));
             }
             const result = await ticketUsecase.getWorkOrderOwner({
-                employeeId: employeeId??json?.employeeId??'',
-                dateStart: toYYYYMMDD(dateStart, '-'),
-                dateEnd: toYYYYMMDD(dateEnd, '-'),
+                employeeId: employeeId,
+                dateStart: get().startDate.toYYYYMMDD('-'),
+                dateEnd: get().endDate.toYYYYMMDD('-'),
             });
             if(isSuccess(result)) {
                 set({ workOrderOwners: result.value });
@@ -110,7 +113,12 @@ const ticketCreator : StateCreator<TicketState & { reset: () => void }> = (set, 
             set({ isLoading: false });
             return result;
         },
-        reset: () => set({ ...initialTicketState }),
+        reset: () => {
+            set({ ...initialTicketState });
+            keychainHelper.getObject().then((json) => {
+                set({json: json});
+            });
+        },
     }
 }
 

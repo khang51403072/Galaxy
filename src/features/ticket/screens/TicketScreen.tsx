@@ -15,20 +15,21 @@ import { useTheme } from "../../../shared/theme/ThemeProvider";
 export default function  TicketScreen() {
     const {width} = useWindowDimensions();
     const theme = useTheme();
-    const {isLoading, employeeLookup, getEmployeeLookup, error, visible, getWorkOrders, getWorkOrderOwners, workOrderOwners, startDate, endDate, selectedEmployee} = useTicketStore(useShallow(
+    const {json,isLoading, employeeLookup, getEmployeeLookup, error, visible, getWorkOrders, getWorkOrderOwners, workOrderOwners, workOrders, startDate, endDate, selectedEmployee} = useTicketStore(useShallow(
         (state: TicketState) => ({
-            workOrders: ticketSelectors.selectWorkOrders(state),
-            workOrderOwners: ticketSelectors.selectWorkOrderOwners(state),
-            isLoading: ticketSelectors.selectIsLoading(state),
-            employeeLookup: ticketSelectors.selectEmployeeLookup(state),
-            getEmployeeLookup: ticketSelectors.selectGetEmployeeLookup(state),
-            getWorkOrders: ticketSelectors.selectGetWorkOrders(state),
-            error: ticketSelectors.selectError(state),
-            visible: ticketSelectors.selectVisible(state),
-            startDate: ticketSelectors.selectStartDate(state),
-            endDate: ticketSelectors.selectEndDate(state),
-            selectedEmployee: ticketSelectors.selectSelectedEmployee(state),
-            getWorkOrderOwners: ticketSelectors.selectGetWorkOrderOwners(state),
+            json: state.json,
+            getWorkOrderOwners: state.getWorkOrderOwners,
+            getEmployeeLookup: state.getEmployeeLookup,
+            getWorkOrders: state.getWorkOrders,
+            isLoading: state.isLoading,
+            error: state.error,
+            visible: state.visible,
+            startDate: state.startDate,
+            endDate: state.endDate,
+            selectedEmployee: state.selectedEmployee,
+            workOrderOwners: state.workOrderOwners,
+            workOrders: state.workOrders,
+            employeeLookup: state.employeeLookup,
         })
     ));
     
@@ -42,13 +43,13 @@ export default function  TicketScreen() {
     <XScreen title="Tickets" loading={isLoading} error={error} style={{ flex: 1 }}> 
       {/* View header */}
       <View style={{ flexDirection: 'column', paddingTop: theme.spacing.md, borderBottomWidth: 1, borderBottomColor: theme.colors.border, paddingBottom: theme.spacing.sm,}}>
+      {json?.isOwner ? 
         <TouchableOpacity style={{}} onPress={async () => {
           useTicketStore.setState({visible: true});
           await getEmployeeLookup();
-    
         }}>
           <XInput value={selectedEmployee != null ? getDisplayName(selectedEmployee) : ""} editable={false} placeholder="Choose Technician"  label="Technician" pointerEvents="none"/>
-        </TouchableOpacity>
+        </TouchableOpacity>:null}
         <View style={{ flexDirection: 'row', gap: 16, alignItems: 'flex-end' }}>
           <XDatePicker
             label="Date"
@@ -78,7 +79,11 @@ export default function  TicketScreen() {
               alignItems: 'center',
             }}
             onPress={ async () => {
-              await getWorkOrderOwners(startDate, endDate, selectedEmployee?.id);
+              if(json?.isOwner){
+                await getWorkOrderOwners(selectedEmployee?.id??"");
+              }else{
+                await getWorkOrders();
+              }
             }} // Định nghĩa hàm onSearch theo nhu cầu
           >
             <XIcon name="search" width={24} height={24} color="#fff" />
@@ -101,11 +106,19 @@ export default function  TicketScreen() {
         title="Technician "
       /> 
 
-      {!visible && <FlatList
-        data={workOrderOwners}
+      {!visible && 
+      
+      workOrders.length == 0 && workOrderOwners.length == 0 ? 
+      <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
+        <XIcon name="noData" width={48} height={48} />
+        <XText variant="content400">No data</XText>
+      </View>
+      :
+      <FlatList
+        data={json?.isOwner ? workOrderOwners : workOrders}
         keyExtractor={(item, idx) => item.ticketNumber?.toString() || idx.toString()}
         renderItem={({ item }) => (
-          <View style={{ marginVertical: 8, backgroundColor: '#fff', borderRadius: 8, padding: 8, overflow: 'hidden' }}>
+          <View style={{ marginVertical: 8, backgroundColor: '#fff', borderRadius: 8, padding: 8, overflow: 'hidden', ...theme.shadows.sm }}>
             <WebView
               originWhitelist={['*']}
               source={{ html: item.detail }}
@@ -115,7 +128,8 @@ export default function  TicketScreen() {
           </View>
         )}
         contentContainerStyle={{ padding: 16 }}
-      />}
+      />
+      }
     </XScreen>
   );
 };

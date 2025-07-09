@@ -24,6 +24,15 @@ export class ApiHomeRepository implements HomeRepository {
     }
   }
 
+  async getHomeDataOwner(request: HomeOwnerRequest): Promise<Result<HomeEntity, HomeError>> {
+    try {
+      const response = await this.homeApi.getHomeDataOwner(request);
+      return success(response.data??{} as HomeEntity);
+    } catch (error: any) {
+      return failure(new HomeError(error.message, 'SERVER_ERROR'));
+    }
+  }
+
   async getChartData(request: HomeChartRequest): Promise<Result<ChartEntity[], HomeError>> {
     try {
       const response = await this.homeApi.getChartData(request);

@@ -20,7 +20,7 @@ import { ChartEntity } from '../../types/HomeResponse';
 import { XSkeleton } from '../../../../shared/components/XSkeleton';
 
 export default function HomeScreen() {
-  const { homeData, isLoading, error, getHomeData, getChartData,  isLoadingChart, toggleSwitch } = useHomeStore(
+  const { homeData, isLoading, error, getHomeData, getChartData,  isLoadingChart, toggleSwitch, json } = useHomeStore(
     useShallow((state) => ({
       homeData: homeSelectors.selectHomeData(state),
       isLoading: homeSelectors.selectIsLoading(state),
@@ -30,6 +30,7 @@ export default function HomeScreen() {
       isOwner: homeSelectors.selectIsOwner(state),
       isLoadingChart: homeSelectors.selectIsLoadingChart(state),
       toggleSwitch: homeSelectors.selectToggleSwitch(state),
+      json: homeSelectors.selectJson(state),
     }))
   );
   
@@ -105,6 +106,7 @@ export default function HomeScreen() {
     );
   };
   const loadData = async () => {
+    
     await getHomeData();
     const result = await getChartData();
     if(isSuccess(result)) {
@@ -115,7 +117,6 @@ export default function HomeScreen() {
   const loadData2Chart = (data: ChartEntity[]) => {
     if(toggleSwitch == 'week') {
       setChartData(data.map(item => {
-        console.log("chart data "+toggleSwitch, item.dayOfWeek)
         return {
           
           label: item.dayOfWeek.substring(0, 3),
@@ -155,6 +156,13 @@ export default function HomeScreen() {
         </View>
         
         <XSkeleton width="100%" height={200} borderRadius={8} />
+        {/* Skeleton cho toggle switch */}
+        <View style={{ width: '100%', alignItems: 'center', marginTop: theme.spacing.md }}>
+          <XSkeleton width={60} height={32} borderRadius={16} style={{ width: "60%",
+          height: 32,
+          paddingHorizontal: theme.spacing.xs,
+          paddingVertical: theme.spacing.xs, }}/>
+        </View>
       </View>
     )
   }

@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
     UPLOAD_AVATAR: 'galaxy-me/upload-avatar',
   },
   HOME: {
+    HOME: 'galaxy-me/home',
     HOME_OWNER: 'galaxy-me/home-owner',
     VIEW_CHART: 'galaxy-me/view-chart',
     VIEW_CHART_OWNER: 'galaxy-me/view-chart-owner',
@@ -27,6 +28,7 @@ export const API_ENDPOINTS = {
     REPORT_SALES: 'galaxy-me/sales-summary',
     REPORT_TIME_SHEET: 'galaxy-me/attendances-close-out',
     REPORT_BATCH_HISTORY: 'galaxy-me/batch-history-owner',
+    CLOSE_OUT: 'galaxy-me/close-out',
   }
   
 } as const; 

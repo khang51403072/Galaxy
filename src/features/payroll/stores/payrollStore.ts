@@ -9,7 +9,7 @@ import { TicketUsecase } from '../../ticket/usecase/TicketUsecase';
 import { TicketApi } from '../../ticket/services/TicketApi';
 import { TicketRepositoryImplement } from '../../ticket/repositories/TicketRepositoryImplement';
 import { CommonRequest } from '../../../types/CommonRequest';
-import { keychainHelper } from '../../../shared/utils/keychainHelper';
+import { keychainHelper, KeychainObject } from '../../../shared/utils/keychainHelper';
 export type PayrollState = {
   employeeLookup: EmployeeEntity[];
   payrolls: string;
@@ -20,8 +20,9 @@ export type PayrollState = {
   selectedEmployee: EmployeeEntity | null;
   startDate: Date | null;
   endDate: Date | null;
-  getPayroll: (dateStart: Date, dateEnd: Date, employeeId?: string) => Promise<Result<string, TicketError>>;
-  getPayrollOwner: (dateStart: Date, dateEnd: Date, employeeId?: string) => Promise<Result<string, TicketError>>;
+  json: KeychainObject | null;
+  getPayroll: (employeeId: string) => Promise<Result<string, TicketError>>;
+  getPayrollOwner: (employeeId: string) => Promise<Result<string, TicketError>>;
   getEmployeeLookup: () => Promise<Result<EmployeeEntity[], TicketError>>;
   reset: () => void;
 };
@@ -50,7 +51,7 @@ const initialState = {
   startDate: null,
   endDate: null,
   employeeLookup: [],
-  
+  json: null,
 };
 
 const payrollCreator: StateCreator<PayrollState> = (set, get) => {
@@ -71,20 +72,13 @@ const payrollCreator: StateCreator<PayrollState> = (set, get) => {
         set({ isLoading: false });
         return result;
     },
-    getPayroll: async (dateStart: Date, dateEnd: Date, employeeId?: string) => {
+    getPayroll: async (employeeId: string) => {
         set({ isLoading: true, error: null });
-        if(employeeId == null) {
-            const json = await keychainHelper.getObject();
-            if(json==null) {
-                set({ error: 'User not found' });
-                set({ isLoading: false });
-                return failure(new TicketError('User not found', 'USER_NOT_FOUND'));
-            }
-            employeeId = json.employeeId;
-        }
+        
+        
         let commonRequest: CommonRequest = {
-            dateStart: dateStart.toYYYYMMDD('-'),
-            dateEnd: dateEnd.toYYYYMMDD('-'),
+            dateStart: get().startDate?.toYYYYMMDD('-'),
+            dateEnd: get().endDate?.toYYYYMMDD('-'),
             employeeId: employeeId??"",
         }
         const result = await payrollUsecase.getPayroll(commonRequest);
@@ -95,21 +89,12 @@ const payrollCreator: StateCreator<PayrollState> = (set, get) => {
         }
         return result;
     },
-    getPayrollOwner: async (dateStart: Date, dateEnd: Date, employeeId?: string) => {
+    getPayrollOwner: async (employeeId: string) => {
         set({ isLoading: true, error: null });
-        if(employeeId == null) {
-            const json = await keychainHelper.getObject();
-            if(json==null) {
-                set({ error: 'User not found' });
-                set({ isLoading: false });
-                return failure(new TicketError('User not found', 'USER_NOT_FOUND'));
-            }
-            employeeId = json.employeeId;
-        }
         let commonRequest: CommonRequest = {
-        dateStart: dateStart.toYYYYMMDD('-'),
-        dateEnd: dateEnd.toYYYYMMDD('-'),
-        employeeId: employeeId??"",
+            dateStart: get().startDate?.toYYYYMMDD('-'),
+            dateEnd: get().endDate?.toYYYYMMDD('-'),
+            employeeId: employeeId??"",
         }
         const result = await payrollUsecase.getPayrollOwner(commonRequest);
         if(isSuccess(result)) {
@@ -120,7 +105,12 @@ const payrollCreator: StateCreator<PayrollState> = (set, get) => {
         
         return result;
     },
-    reset: () => set({ ...initialState }),
+    reset: () => {
+        set({ ...initialState });
+        keychainHelper.getObject().then((json) => {
+            set({json: json});
+          });
+    },
   };
 };
 

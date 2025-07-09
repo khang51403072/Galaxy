@@ -19,6 +19,7 @@ export const lightColors = {
   blue: '#30A6DD',
   cyan:"#1CD8D9",
   backroundIconClose: '#00000014',
+  backgroundTabBarReport: '#00000014',
   // Text Colors
   text: '#000000',
   textSecondary: '#666666',
