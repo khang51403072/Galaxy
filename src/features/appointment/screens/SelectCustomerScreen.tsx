@@ -1,0 +1,90 @@
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import XScreen from '@/shared/components/XScreen';
+import XText from '@/shared/components/XText';
+import XInput from '@/shared/components/XInput';
+import XIcon from '@/shared/components/XIcon';
+import { View, FlatList, TouchableOpacity } from 'react-native';
+import { useCreateAppointmentStore, createAppointmentSelectors } from '../stores/createAppointmentStore';
+import { useShallow } from 'zustand/react/shallow';
+import { CustomerEntity } from '../types/CustomerResponse';
+
+export default function SelectCustomerScreen({ navigation }: any) {
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const {customerList, getCustomerLookup} = useCreateAppointmentStore(useShallow((state) => ({
+    customerList: createAppointmentSelectors.selectCustomerList(state),
+    getCustomerLookup: createAppointmentSelectors.selectGetCustomerLookup(state),
+  })));
+
+  // Sử dụng đúng property của CustomerEntity, ví dụ: firstName, cellPhone
+  const filteredCustomers = useMemo(() => {
+    if (!search) return customerList || [];
+    return customerList?.filter(
+      c =>
+        c.cellPhone?.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search, customerList]);
+
+  const onSelectCustomer = (customer: CustomerEntity) => {
+    // TODO: handle select (ví dụ: set vào store, navigate back, ...)
+    console.log('Selected customer:', customer);
+    navigation.goBack();
+  };
+
+  // Chỉ cho nhập số vào input
+  const handleSearch = (text: string) => {
+    // Loại bỏ ký tự không phải số
+    const onlyNumber = text.replace(/[^0-9]/g, '');
+    setSearch(onlyNumber);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (onlyNumber.length === 0) {
+      setPage(1);
+      getCustomerLookup(page, 10, '');
+      return;
+    }
+    if (onlyNumber.length >= 3) {
+      debounceRef.current = setTimeout(() => {
+        setPage(1);
+        getCustomerLookup(page, 10, onlyNumber);
+      }, 500);
+    }
+  };
+
+  useEffect(() => {
+    getCustomerLookup(page, 10, '');
+  }, []);
+
+  return (
+    <XScreen title="Select Customer" dismissKeyboard={true} >
+      <View style={{ paddingHorizontal: 16, paddingTop: 8 }}>
+        <XInput
+          placeholder="Nhập số điện thoại..."
+          value={search}
+          onChangeText={handleSearch}
+          iconLeft="search"
+          keyboardType="phone-pad"
+          iconRight={search ? "x" : undefined}
+          onIconRightPress={() => {
+            setSearch('');
+            // Không cần gọi lại API ở đây nữa vì handleSearch đã xử lý khi input rỗng
+          }}
+        />
+        <FlatList
+          data={filteredCustomers}
+          keyExtractor={item => item.id?.toString() || item.cellPhone}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => onSelectCustomer(item)}
+              style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#eee' }}
+            >
+              <XText style={{ fontSize: 16 }}>{item.firstName} {item.lastName}</XText>
+              <XText style={{ color: '#888', fontSize: 14 }}>{item.cellPhone}</XText>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+    </XScreen>
+  );
+} 

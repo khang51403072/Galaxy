@@ -23,6 +23,12 @@ import IconCategory from '../assets/icons/IconCategory.svg';
 import ClockIn from '../assets/icons/ClockIn.svg';
 import ClockOut from '../assets/icons/ClockOut.svg';
 import NoData from '../assets/icons/NoData.svg';
+import Clock from '../assets/icons/Clock.svg';
+import CurrencyCircleDollar from '../assets/icons/CurrencyCircleDollar.svg';
+import Customer from '../assets/icons/Customer.svg';
+import Date from '../assets/icons/Date.svg';
+import Time from '../assets/icons/Time.svg';
+import Menu from '../assets/icons/Menu.svg';
 
 export const iconMap = {
   user: User,
@@ -48,6 +54,12 @@ export const iconMap = {
   clockIn: ClockIn,
   clockOut: ClockOut,
   noData: NoData,
+  clock: Clock,
+  currencyCircleDollar: CurrencyCircleDollar,
+  customer: Customer,
+  date: Date,
+  time: Time,
+  menu: Menu,
 };
 
  type XIconProps = {

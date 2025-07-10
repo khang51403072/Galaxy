@@ -10,6 +10,9 @@ export const ROUTES = {
     TICKET: 'Ticket',
     PAYROLL: 'Payroll',
     REPORT: 'Report',
+    APPOINTMENT: 'Appointment',
+    CREATE_APPOINTMENT: 'CreateAppointment',
+    SELECT_CUSTOMER: 'SelectCustomer',
     // Thêm các route khác ở đây
   } as const;
   
@@ -25,6 +28,9 @@ export const ROUTES = {
     [ROUTES.TICKET]: undefined;
     [ROUTES.PAYROLL]: undefined;
     [ROUTES.REPORT]: undefined;
+    [ROUTES.APPOINTMENT]: undefined;
+    [ROUTES.CREATE_APPOINTMENT]: undefined;
+    [ROUTES.SELECT_CUSTOMER]: undefined;
     // Thêm params cho các route khác nếu cần
   };
   

@@ -203,7 +203,7 @@ export default function  TicketScreen() {
             renderTabBar={props => (
               <CustomTabBar
                 {...props}
-                indicatorStyle={{ backgroundColor: 'transparent' }}
+                indicatorStyle={null}
                 style={{ paddingVertical: theme.spacing.xs, borderRadius: theme.borderRadius.sm, backgroundColor: theme.colors.backgroundTabBarReport }}
                 renderTabBarItem={({ route, focused, jumpTo , ...props}) => (
                   <TouchableOpacity
