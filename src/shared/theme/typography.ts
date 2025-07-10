@@ -122,6 +122,77 @@ export const typography = {
     lineHeight: 20,
     letterSpacing: 0.18,
   },
+
+  // Date selector
+  dateSelectorMonth: {
+    fontFamily: Fonts.Outfit400,
+    fontSize: 18,
+    lineHeight: 23,
+    letterSpacing: 0.14,
+  },
+  dateSelectorDay: {
+    fontFamily: Fonts.Outfit400,
+    fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: 0.14,
+  },
+  dateSelectorWeekDay: {
+    fontFamily: Fonts.Outfit300,
+    fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: 0.14,
+  },
+  // Tab bar
+  appointmentTabBarSelectedTitle  : {
+    fontFamily: Fonts.Outfit500,
+    fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: 0.14,
+  },
+  appointmentTabBarUnselectedTitle: {
+    fontFamily: Fonts.Outfit500,
+    fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: 0.14,
+  },
+
+  appointmentTabBarSelectedCount  : {
+    fontFamily: Fonts.Outfit400,
+    fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: 0.14,
+  },
+  appointmentTabBarUnselectedCount: {
+    fontFamily: Fonts.Outfit400,
+    fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: 0.14,
+  },
+  // Appointment item
+  appointmentItemNormalText: {
+    fontFamily: Fonts.Outfit300,
+    fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: 0.4,
+  },
+  appointmentItemServiceName: {
+    fontFamily: Fonts.Outfit400,
+    fontSize: 17,
+    lineHeight: 21,
+    letterSpacing: 0.14,
+  },
+  appointmentItemStatus: {
+    fontFamily: Fonts.Outfit500,
+    fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: 0.14,
+  },
+  createAppointmentContent: {
+    fontFamily: Fonts.Outfit400,
+    fontSize: 18,
+    lineHeight: 24,
+    letterSpacing: 0.18,
+  },
 } as const;
 
 export type Typography = typeof typography; 

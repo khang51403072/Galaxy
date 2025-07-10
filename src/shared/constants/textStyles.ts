@@ -67,4 +67,11 @@ export const TextStyles = StyleSheet.create({
     letterSpacing: 0.12,
     color: XColors.textInputPlaceholder,
   },
+  createAppointmentContent: {
+    fontFamily: Fonts.Outfit400,
+    fontSize: 18,
+    lineHeight: 24,
+    letterSpacing: 0.18,
+    color: XColors.textInputText,
+  },
 });

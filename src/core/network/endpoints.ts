@@ -29,6 +29,17 @@ export const API_ENDPOINTS = {
     REPORT_TIME_SHEET: 'galaxy-me/attendances-close-out',
     REPORT_BATCH_HISTORY: 'galaxy-me/batch-history-owner',
     CLOSE_OUT: 'galaxy-me/close-out',
+  },
+  APPOINTMENT: {
+    APPOINTMENT_LIST: 'galaxy-me/appointment',
+    APPOINTMENT_LIST_OWNER: 'galaxy-me/appointment-owner',
+    GET_CATEGORIES: 'galaxy-me/get-categories',
+    GET_MENU_ITEMS: 'galaxy-me/get-menu-items',
+    GET_APPT_RESOURCE: 'galaxy-me/get-appointment-resources',
+    GET_CUSTOMERS: 'galaxy-me/get-customers',
+    SAVE_CUSTOMER: 'galaxy-me/save-customer',
+    SAVE_APPOINTMENT: 'galaxy-me/save-appointment',
+    APPT_DETAILS: 'galaxy-me/appointment-details',
   }
   
 } as const; 

@@ -9,6 +9,9 @@ import ChangePasswordScreen from '../features/home/screens/subScreen/ChangePassw
 import TicketScreen from '../features/ticket/screens/TicketScreen';
 import PayrollScreen from '../features/payroll/screens/PayrollScreen';
 import ReportScreen from '../features/report/screens/ReportScreen';
+import AppointmentScreen from '../features/appointment/screens/AppointmentScreen';
+import CreateAppointmentScreen from '@/features/appointment/screens/CreateAppointmentScreen';
+import SelectCustomerScreen from '@/features/appointment/screens/SelectCustomerScreen';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -25,6 +28,9 @@ export default function AppNavigator() {
         <Stack.Screen name={ROUTES.TICKET} component={TicketScreen} /> 
         <Stack.Screen name={ROUTES.PAYROLL} component={PayrollScreen} /> 
         <Stack.Screen name={ROUTES.REPORT} component={ReportScreen} /> 
+        <Stack.Screen name={ROUTES.APPOINTMENT} component={AppointmentScreen} /> 
+        <Stack.Screen name={ROUTES.CREATE_APPOINTMENT} component={CreateAppointmentScreen} /> 
+        <Stack.Screen name={ROUTES.SELECT_CUSTOMER} component={SelectCustomerScreen} /> 
       </Stack.Navigator>
     </NavigationContainer>
 
