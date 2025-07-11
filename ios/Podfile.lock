@@ -2338,6 +2338,8 @@ PODS:
     - React-perflogger (= 0.80.0)
     - React-utils (= 0.80.0)
     - SocketRocket
+  - RNDeviceInfo (14.0.4):
+    - React-Core
   - RNGestureHandler (2.27.1):
     - boost
     - DoubleConversion
@@ -2782,6 +2784,7 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
@@ -2960,6 +2963,8 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNDeviceInfo:
+    :path: "../node_modules/react-native-device-info"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNKeychain:
@@ -3059,6 +3064,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 3267432b637c9b38e86961b287f784ee1b08dde0
   ReactCodegen: 5d41e1df061200130dd326e55cdfdf94b0289c6e
   ReactCommon: b028d09a66e60ebd83ca59d8cc9a1216360db147
+  RNDeviceInfo: d863506092aef7e7af3a1c350c913d867d795047
   RNGestureHandler: 5e1a1605659c22098719fc2e8aee453fe728f52e
   RNKeychain: 9c0d0b73682506249067e6b0a13ef65635c241fa
   RNPermissions: 4249fc75f24d357e98c6cfc1f30edc1f7ed1cfb0

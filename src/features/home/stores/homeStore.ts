@@ -20,6 +20,7 @@ export type homeState = {
     chartData: ChartEntity[] | null;
     toggleSwitch: 'week' | 'month';
     json: KeychainObject | null;
+    updateJson: (json: KeychainObject) => Promise<void>;
     getHomeData: () => Promise<Result<HomeEntity, HomeError>>;
     getChartData: () => Promise<Result<ChartEntity[], HomeError>>;
 }
@@ -60,7 +61,7 @@ const homeStoreCreator: StateCreator<homeState> = (set, get) => {
         isLoadingChart: false,
         toggleSwitch: 'week',
         error: null,
-        json: keychainHelper.getObject,
+        json: null,
         getHomeData: async () => {
             set({ isLoading: true, error: null });
             const json = await keychainHelper.getObject();
@@ -83,6 +84,10 @@ const homeStoreCreator: StateCreator<homeState> = (set, get) => {
             if(isSuccess(result)) set({ chartData: result.value, isLoadingChart: false, error: null });
             else set({ error: result.error.message, isLoadingChart: false });
             return result;
+        },
+        updateJson: async (json: KeychainObject) => {
+            await keychainHelper.saveObject(json);
+            set({ json: json });
         }
     }
 }

@@ -15,11 +15,3 @@ export async function getToken(): Promise<string | null> {
 }
 
 
-export async function clearToken(): Promise<string | null> {
-  try {
-    await Keychain.resetGenericPassword();
-  } catch (err) {
-    console.error('Failed to get token', err);
-  }
-  return null;
-}

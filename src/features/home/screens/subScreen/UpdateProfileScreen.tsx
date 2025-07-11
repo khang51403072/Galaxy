@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import XScreen from '../../../../shared/components/XScreen';
 import XForm, { XFormField } from '../../../../shared/components/XForm';
-import { useUserStore, userSelectors } from '../../stores/userStore';
+import { useUserStore, userSelectors } from '../../stores/profileStore';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../../../app/routes';
 import { isEmailValid, isPhoneValid } from '../../../../shared/utils/validators';
@@ -9,6 +9,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useAuthStore } from '../../../auth/stores/authStore';
 import { isSuccess } from '../../../../shared/types/Result';
 import XDialog from '../../../../shared/components/XDialog';
+import { goBack } from '@/app/NavigationService';
 
 const fields: XFormField[] = [
   {
@@ -109,7 +110,7 @@ export default function UpdateProfileScreen() {
     if (isSuccess(result)) {
       // Success - back về Profile screen với data mới
       setVisible(false);
-      navigation.goBack();
+      goBack();
     } else {
       // Error - hiển thị error message
       setErrorMessage(result.error.message);

@@ -18,8 +18,6 @@ export type AuthState = {
   error: string | null;
   // Store actions
   storeLogin: (loginResult: LoginResult) => Promise<void>;
-  restoreSession: () => Promise<void>;
-  
   // Business actions with loading state
   login: (email: string, password: string) => Promise<Result<LoginResult, AuthError>>;
   
@@ -43,33 +41,6 @@ const authStoreCreator: StateCreator<AuthState> = (set, get) => ({
     set({ userName: loginResult.userName, token: loginResult.token, secureKey: loginResult.password, userId: loginResult.userId, firstName: loginResult.firstName, lastName: loginResult.lastName,employeeId : loginResult.employeeId ,isOwner: loginResult.isOwner, });
   },
 
- 
-
-  restoreSession: async () => {
-    // try {
-    //   const credentials = await Keychain.getGenericPassword();
-    //   if (credentials) {
-    //     const { token, secureKey, employeeId, firstName, lastName, userId, isOwner } = JSON.parse(credentials.password);
-    //     set({
-    //       userName: credentials.username,
-    //       token,
-    //       secureKey,
-    //       employeeId,
-    //       firstName,
-    //       lastName,
-    //       userId,
-    //       isOwner,
-    //       isLoading: false,
-    //     });
-    //   } else {
-    //     set({ isLoading: false });
-    //   }
-    // } catch (err) {
-    //   console.error('Error restoring session:', err);
-    //   set({ isLoading: false });
-    // }
-  },
-
   // New business action with loading state and Result pattern
   login: async (email: string, password: string): Promise<Result<LoginResult, AuthError>> => {
     set({isLoading: true})
@@ -88,7 +59,6 @@ const authStoreCreator: StateCreator<AuthState> = (set, get) => ({
       await storeLogin(
         loginData
       );
-      
       // Call success callback
     }
     set({isLoading: false})

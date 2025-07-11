@@ -5,12 +5,14 @@ import { ProfileEntity } from '../types/ProfileResponse';
 import { ChangePasswordRequest, UpdateProfileRequest } from '../types/ProfileRequest';
 import { UserError } from '../types/UserError';
 import { keychainHelper } from '../../../shared/utils/keychainHelper';
-
+import { useHomeStore } from './homeStore';
 export type UserState = {
   profile: ProfileEntity | null;
   isLoading: boolean;
   isUpdating: boolean;
   error: string | null;
+  isUseFaceId: boolean;
+  setIsUseFaceId: (isUseFaceId: boolean) => void;
   // Business actions
   getProfile: () => Promise<Result<ProfileEntity, UserError>>;
   updateProfile: (request: UpdateProfileRequest) => Promise<Result<ProfileEntity, UserError>>;
@@ -23,11 +25,13 @@ export const userSelectors = {
   selectProfile: (state: UserState) => state.profile,
   selectIsLoading: (state: UserState) => state.isLoading,
   selectIsUpdating: (state: UserState) => state.isUpdating,
+  selectIsUseFaceId: (state: UserState) => state.isUseFaceId,
   selectGetProfile: (state: UserState) => state.getProfile,
   selectUpdateProfile: (state: UserState) => state.updateProfile,
   selectChangePassword: (state: UserState) => state.changePassword,
   selectError: (state: UserState) => state.error,
   selectLogout: (state: UserState) => state.logout,
+  selectSetIsUseFaceId: (state: UserState) => state.setIsUseFaceId,
 };
 
 const userStoreCreator: StateCreator<UserState> = (set, get) => {
@@ -60,6 +64,7 @@ const userStoreCreator: StateCreator<UserState> = (set, get) => {
     isLoading: false,
     isUpdating: false,
     error: null,
+    isUseFaceId: useHomeStore.getState().json?.isUseFaceId || false,
   // Business action with loading state and Result pattern
   getProfile: async (): Promise<Result<ProfileEntity, UserError>> => {
     set({ isLoading: true });
@@ -105,7 +110,11 @@ const userStoreCreator: StateCreator<UserState> = (set, get) => {
     
     return changeResult;
   },
-
+  setIsUseFaceId: (isUseFaceId: boolean) => {
+    set({ isUseFaceId: isUseFaceId });
+    console.log('isUseFaceId', {...useHomeStore.getState().json, isUseFaceId: isUseFaceId});
+    useHomeStore.getState().updateJson({...useHomeStore.getState().json, isUseFaceId: isUseFaceId});
+  },
   logout: async () => {
     set({ isLoading: true });
     const json = await keychainHelper.getObject();

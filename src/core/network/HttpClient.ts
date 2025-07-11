@@ -1,7 +1,8 @@
 // core/network/HttpClient.ts
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { clearToken, getToken } from './AuthInterceptor';
+import { getToken } from './AuthInterceptor';
 import xlog from '../utils/xlog';
+import { getPersistentDeviceId } from '@/shared/utils/appConfig';
 
 class HttpClient {
   private static instance: AxiosInstance;
@@ -23,6 +24,7 @@ class HttpClient {
       HttpClient.instance.interceptors.request.use(async (config) => {
         const token = await getToken();
         config.headers["origin"] = "galaxyme";
+        config.headers["deviceId"] = await getPersistentDeviceId();
         config.headers["XSOFTS-SECRET-KEY"] = "qjqAqGHfyUkLnLmizi78A7EwxDMP6tCfzULDv6PKw7rbPSWpQcuABHAmTAXRzZEa";
         if (token && config.url !== "/galaxy-me/authen") {
           config.headers.Authorization = `Bearer ${token}`;
@@ -49,7 +51,7 @@ class HttpClient {
           if (error.response?.status === 401) {
             // TODO: refresh token ở đây nếu cần
             xlog.warn('Token expired', { tag: 'HTTP' });
-            await clearToken();
+           
             // redirect về login nếu cần
           }
           return Promise.reject(error);

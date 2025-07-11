@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import XScreen from '../../../../shared/components/XScreen';
 import XForm, { XFormField } from '../../../../shared/components/XForm';
-import { useUserStore, userSelectors } from '../../stores/userStore';
+import { useUserStore, userSelectors } from '../../stores/profileStore';
 import { useNavigation } from '@react-navigation/native';
 import { isEmailValid, isPhoneValid } from '../../../../shared/utils/validators';
 import { useShallow } from 'zustand/react/shallow';
