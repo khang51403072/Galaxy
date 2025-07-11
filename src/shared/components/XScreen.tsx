@@ -19,6 +19,7 @@ import XAppBar from './XAppBar';
 import XAlert from './XAlert';
 import { XSkeleton } from './XSkeleton';
 import { FeTurbulence } from 'react-native-svg';
+import LoadingAnimation from './LoadingAnimation';
 
 /**
  * XScreen - A comprehensive screen wrapper component
@@ -144,20 +145,21 @@ export default function XScreen({
     
     // Default loading spinner
     return (
-      <View style={[
-        styles.loadingContainer,
-        { backgroundColor: screenBackgroundColor },
-        safeArea && {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        },
-        style,
-      ]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-        <XText variant="body" style={{ marginTop: theme.spacing.md }}>
-          Đang tải...
-        </XText>
-      </View>
+      <LoadingAnimation />
+      // <View style={[
+      //   styles.loadingContainer,
+      //   { backgroundColor: screenBackgroundColor },
+      //   safeArea && {
+      //     paddingTop: insets.top,
+      //     paddingBottom: insets.bottom,
+      //   },
+      //   style,
+      // ]}>
+      //   <ActivityIndicator size="large" color={theme.colors.primary} />
+      //   <XText variant="body" style={{ marginTop: theme.spacing.md }}>
+      //     Đang tải...
+      //   </XText>
+      // </View>
     );
   }
 

@@ -2,6 +2,7 @@
 import { ProfileEntity } from "../features/home/types/ProfileResponse";
 
 export const ROUTES = {
+    SPLASH: 'Splash',
     LOGIN: 'Login',
     HOME: 'Home',
     PROFILE: 'Profile',
@@ -20,6 +21,7 @@ export const ROUTES = {
   
   // Type-safe cho params từng route
   export type RootStackParamList = {
+    [ROUTES.SPLASH]: undefined;
     [ROUTES.LOGIN]: undefined;
     [ROUTES.HOME]: { updatedProfile?: ProfileEntity };
     [ROUTES.PROFILE]: { updatedProfile?: ProfileEntity };

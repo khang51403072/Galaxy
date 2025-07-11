@@ -12,15 +12,17 @@ import ReportScreen from '../features/report/screens/ReportScreen';
 import AppointmentScreen from '../features/appointment/screens/AppointmentScreen';
 import CreateAppointmentScreen from '@/features/appointment/screens/CreateAppointmentScreen';
 import SelectCustomerScreen from '@/features/appointment/screens/SelectCustomerScreen';
+import SplashScreen from '../shared/components/SplashScreen';
+import { navigationRef } from './NavigationService';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
   return (
-    
-      <NavigationContainer>      
+    <NavigationContainer ref={navigationRef}>      
       <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name={ROUTES.SPLASH} component={SplashScreen} />
         <Stack.Screen name={ROUTES.LOGIN} component={LoginScreen} />
         <Stack.Screen name={ROUTES.HOME} component={MainTabsScreen} />
         <Stack.Screen name={ROUTES.UPDATE_PROFILE} component={UpdateProfileScreen} />
@@ -33,6 +35,5 @@ export default function AppNavigator() {
         <Stack.Screen name={ROUTES.SELECT_CUSTOMER} component={SelectCustomerScreen} /> 
       </Stack.Navigator>
     </NavigationContainer>
-
   );
 }

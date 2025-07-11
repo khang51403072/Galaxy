@@ -10,7 +10,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import XAvatar from '../../../../shared/components/XAvatar';
 import { pickImageFromLibrary, pickImageFromCamera, checkPermission } from '../../../../shared/services/ImagePickerService';
 import { useAvatarStore, avatarSelectors } from '../../stores/avatarStore';
-import { useUserStore, userSelectors } from '../../stores/userStore';
+import { useUserStore, userSelectors } from '../../stores/profileStore';
 import { useShallow } from 'zustand/react/shallow';
 import XScreen from '../../../../shared/components/XScreen';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
@@ -19,19 +19,22 @@ import { ProfileSkeleton } from '../../components/ProfileSkeleton';
 import { isFailure } from '../../../../shared/types/Result';
 import { useTheme } from '../../../../shared/theme/ThemeProvider';
 import { keychainHelper } from '../../../../shared/utils/keychainHelper';
+import { navigate, reset } from '@/app/NavigationService';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const theme = useTheme();
   // User store for profile data with selectors
-  const { profile, isLoading: profileLoading, getProfile, changePassword, logout } = useUserStore(
+  const { profile, isLoading: profileLoading, getProfile, changePassword, logout, setIsUseFaceId, isUseFaceId } = useUserStore(
     useShallow((state) => ({
       profile: userSelectors.selectProfile(state),
       isLoading: userSelectors.selectIsLoading(state),
       getProfile: userSelectors.selectGetProfile(state),
       changePassword: userSelectors.selectChangePassword(state),
       logout: userSelectors.selectLogout(state),
+      setIsUseFaceId: userSelectors.selectSetIsUseFaceId(state),
+      isUseFaceId: userSelectors.selectIsUseFaceId(state),
     }))
   );
 
@@ -159,22 +162,20 @@ export default function ProfileScreen() {
       {/* Content Section */}
       <View style={{ width: '100%', paddingHorizontal: 16 }}>
         <TitleGroup titleIcon="Edit" title="Information" icon="pen" onPress={() => {
-          navigation.navigate(ROUTES.UPDATE_PROFILE as never)
+          navigate(ROUTES.UPDATE_PROFILE)
           }
         } type="edit"/>
         <RowInfo titleLeft="Name" titleRight={getDisplayName()} />
-        <RowInfo titleLeft="DOB" titleRight={'Loading...'} />
         <RowInfo titleLeft="Phone" titleRight={profile?.phone || 'Loading...'} />
         <RowInfo titleLeft="Email" titleRight={profile?.email || 'Loading...'} />
         <RowInfo titleLeft="Address" titleRight={getFullAddress()} />
         <XDivider />
-
         <TitleGroup 
           titleIcon="Change" 
           title="Password" 
           icon="pen" 
           onPress={() => {
-            navigation.navigate(ROUTES.CHANGE_PASSWORD as never)}}
+            navigate(ROUTES.CHANGE_PASSWORD)}}
           type="edit" 
         />
         <XDivider />
@@ -184,16 +185,15 @@ export default function ProfileScreen() {
         <RowInfo titleLeft="Income" titleRight={getFormattedIncome() || 'Loading...'} />
         <RowInfo titleLeft="Store" titleRight={profile?.storeName || 'Loading...'} />
         <XDivider />
-        <TitleGroup title="Sign In With Face ID" onPress={() => {}} type="switch" switchValue={true} onToggleChange={() => {}} />
+        <TitleGroup title="Sign In With Face ID" onPress={() => {}} type="switch" switchValue={isUseFaceId} onToggleChange={() => {
+        setIsUseFaceId(!isUseFaceId);
+        }} />
         
         <XButton
           title="Log out"
             onPress={async () => {
               await logout();
-              navigation.reset({
-                index: 0,
-                routes: [{ name: ROUTES.LOGIN as never }],
-              });
+              reset([{ name: ROUTES.LOGIN }], 0);
             }}
           useGradient={false}
           backgroundColor={XColors.primary}

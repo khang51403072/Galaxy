@@ -18,9 +18,11 @@ import HomeSkeleton from '../../components/HomeSkeleton';
 import { isSuccess } from '../../../../shared/types/Result';
 import { ChartEntity } from '../../types/HomeResponse';
 import { XSkeleton } from '../../../../shared/components/XSkeleton';
+import { navigate } from '@/app/NavigationService';
+import { keychainHelper } from '@/shared/utils/keychainHelper';
 
 export default function HomeScreen() {
-  const { homeData, isLoading, error, getHomeData, getChartData,  isLoadingChart, toggleSwitch, json } = useHomeStore(
+  const { homeData, isLoading, error, getHomeData, getChartData,  isLoadingChart, toggleSwitch, json   } = useHomeStore(
     useShallow((state) => ({
       homeData: homeSelectors.selectHomeData(state),
       isLoading: homeSelectors.selectIsLoading(state),
@@ -31,6 +33,7 @@ export default function HomeScreen() {
       isLoadingChart: homeSelectors.selectIsLoadingChart(state),
       toggleSwitch: homeSelectors.selectToggleSwitch(state),
       json: homeSelectors.selectJson(state),
+      
     }))
   );
   
@@ -106,7 +109,8 @@ export default function HomeScreen() {
     );
   };
   const loadData = async () => {
-    
+    const json = await keychainHelper.getObject();
+    useHomeStore.setState({ json: json });
     await getHomeData();
     const result = await getChartData();
     if(isSuccess(result)) {
@@ -177,6 +181,7 @@ export default function HomeScreen() {
       }
     });
   }, [toggleSwitch]);
+
   return (
     <XScreen
       loading={isLoading}
@@ -291,12 +296,12 @@ export default function HomeScreen() {
           Category
         </XText>
         <View style={{ flexDirection: 'row' , width: '100%', justifyContent: 'space-between'}}>
-          <CategoryCard style={{ width: '48%' }} onPress={() => {navigation.navigate(ROUTES.TICKET as never)}} title='Tickets' icon='ticket' color={theme.colors.skyBlue} textColor={theme.colors.white} />
-          <CategoryCard style={{ width: '48%' }} onPress={() => {navigation.navigate(ROUTES.APPOINTMENT as never)}} title='Appointment' icon='appointment' color={theme.colors.purple} textColor={theme.colors.white} />
+          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.TICKET)}} title='Tickets' icon='ticket' color={theme.colors.skyBlue} textColor={theme.colors.white} />
+          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.APPOINTMENT)}} title='Appointment' icon='appointment' color={theme.colors.purple} textColor={theme.colors.white} />
         </View>
         <View style={{ marginTop: theme.spacing.md, flexDirection: 'row' , width: '100%', justifyContent: 'space-between'}}>
-          <CategoryCard style={{ width: '48%' }} onPress={() => {navigation.navigate(ROUTES.PAYROLL as never)}} title='Payroll' icon='payroll' color={theme.colors.indigoBlue} textColor={theme.colors.white} />
-          <CategoryCard style={{ width: '48%' }} onPress={() => {navigation.navigate(ROUTES.REPORT as never)}} title='Report' icon='report' color={theme.colors.blue} textColor={theme.colors.white} />
+          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.PAYROLL)}} title='Payroll' icon='payroll' color={theme.colors.indigoBlue} textColor={theme.colors.white} />
+          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.REPORT)}} title='Report' icon='report' color={theme.colors.blue} textColor={theme.colors.white} />
           
         </View>
       </View>

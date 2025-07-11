@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import XScreen from '../../../../shared/components/XScreen';
 import XForm, { XFormField } from '../../../../shared/components/XForm';
-import { useUserStore, userSelectors } from '../../stores/userStore';
+import { useUserStore, userSelectors } from '../../stores/profileStore';
 import { useNavigation } from '@react-navigation/native';
 import { useShallow } from 'zustand/react/shallow';
 import { useAuthStore } from '../../../auth/stores/authStore';
 import { isSuccess } from '../../../../shared/types/Result';
 import XDialog from '../../../../shared/components/XDialog';
 import { ChangePasswordRequest } from '../../types/ProfileRequest';
+import { goBack } from '@/app/NavigationService';
 
 
 export default function ChangePasswordScreen() {
@@ -91,7 +92,7 @@ export default function ChangePasswordScreen() {
     setVisible(false);
     const result = await changePassword(pendingData as ChangePasswordRequest);
     if (isSuccess(result)) {
-      navigation.goBack();
+      goBack();
     } else {
       useUserStore.setState({ error: result.error?.message});
     }

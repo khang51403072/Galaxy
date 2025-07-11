@@ -18,6 +18,7 @@ import XBottomSheetSearch from '../../../shared/components/XBottomSheetSearch';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { checkBiometricAvailable, simpleBiometricAuth } from '../../../shared/services/BiometricService';
 import XAlert from '../../../shared/components/XAlert';
+import { reset } from '@/app/NavigationService';
 
 export default function LoginScreen() {
   const { login, isLoading, error } = useAuthStore();
@@ -86,6 +87,11 @@ export default function LoginScreen() {
   });
 
   const handleFaceIdLogin = async () => {
+    const json = await keychainHelper.getObject(); 
+    console.log('json isUseFaceId', json?.isUseFaceId);
+    if(!json?.isUseFaceId) {
+      return;
+    }
     const { available, biometryType } = await checkBiometricAvailable();
     if (!available) {
       // Hiển thị thông báo không hỗ trợ
@@ -95,7 +101,7 @@ export default function LoginScreen() {
     const success = await simpleBiometricAuth();
     if (success) {
       // TODO: Tự động đăng nhập (ví dụ: lấy token đã lưu, gọi API, v.v.)
-      const json = await keychainHelper.getObject();  
+       
       if(json!=null) {
         handleLogin({username: json.userName, password: json.password});
       }
@@ -107,10 +113,7 @@ export default function LoginScreen() {
     const loginResult = await login(data.username, data.password);
     if(isSuccess(loginResult)) {
       console.log('loginResult go to home', loginResult);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: ROUTES.HOME as never }],
-      });
+      reset([{ name: ROUTES.HOME }], 0);
     }
     else{
       setDefaultValues({

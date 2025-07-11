@@ -29,6 +29,9 @@ import Customer from '../assets/icons/Customer.svg';
 import Date from '../assets/icons/Date.svg';
 import Time from '../assets/icons/Time.svg';
 import Menu from '../assets/icons/Menu.svg';
+import LogoWhite from '../assets/icons/LogoWhite.svg';
+import Group1 from '../assets/icons/Group1.svg';
+import Group2 from '../assets/icons/Group2.svg';
 
 export const iconMap = {
   user: User,
@@ -60,6 +63,9 @@ export const iconMap = {
   date: Date,
   time: Time,
   menu: Menu,
+  LogoWhite: LogoWhite,
+  group1: Group1,
+  group2: Group2,
 };
 
  type XIconProps = {
