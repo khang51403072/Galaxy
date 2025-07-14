@@ -1,11 +1,12 @@
 import { create } from 'zustand/react';
-import { StateCreator } from 'zustand/vanilla';
 import { Result, isSuccess, isFailure, failure } from '../../../shared/types/Result';
 import { ProfileEntity } from '../types/ProfileResponse';
 import { ChangePasswordRequest, UpdateProfileRequest } from '../types/ProfileRequest';
 import { UserError } from '../types/UserError';
 import { keychainHelper } from '../../../shared/utils/keychainHelper';
 import { useHomeStore } from './homeStore';
+import { ProfileUseCase } from '../usecase/ProfileUseCase';
+
 export type UserState = {
   profile: ProfileEntity | null;
   isLoading: boolean;
@@ -13,14 +14,12 @@ export type UserState = {
   error: string | null;
   isUseFaceId: boolean;
   setIsUseFaceId: (isUseFaceId: boolean) => void;
-  // Business actions
   getProfile: () => Promise<Result<ProfileEntity, UserError>>;
   updateProfile: (request: UpdateProfileRequest) => Promise<Result<ProfileEntity, UserError>>;
-  changePassword: (request: ChangePasswordRequest) => Promise<Result<ProfileEntity, UserError>>;
+  changePassword: (request: ChangePasswordRequest) => Promise<Result<void, UserError>>;
   logout: () => Promise<void>;
 };
 
-// Selectors
 export const userSelectors = {
   selectProfile: (state: UserState) => state.profile,
   selectIsLoading: (state: UserState) => state.isLoading,
@@ -34,71 +33,29 @@ export const userSelectors = {
   selectSetIsUseFaceId: (state: UserState) => state.setIsUseFaceId,
 };
 
-const userStoreCreator: StateCreator<UserState> = (set, get) => {
-  let repository: any = null;
-  let ProfileApi: any = null;
-  let ApiUserRepository: any = null;
-  let getProfileUseCase: any = null;
-  let updateProfileUseCase: any = null;
-  let changePasswordUseCase: any = null;
-
-  // Helper function để load modules
-  const loadModules = async () => {
-    if(ProfileApi === null) {
-      const profileApiModule = await import('../services/ProfileApi');
-      ProfileApi = profileApiModule.ProfileApi;
-    }
-    if(ApiUserRepository === null) {
-      const apiUserRepoModule = await import('../repositories/ProfileRepositoryImplement');
-      ApiUserRepository = apiUserRepoModule.ProfileRepositoryImplement;
-    }
-    
-    // Tạo repository nếu chưa có
-    if(repository === null) {
-      repository = new ApiUserRepository(ProfileApi);
-    }
-  };
-
-  return {
-    profile: null,
-    isLoading: false,
-    isUpdating: false,
-    error: null,
-    isUseFaceId: useHomeStore.getState().json?.isUseFaceId || false,
-  // Business action with loading state and Result pattern
+// Refactor: nhận profileUseCase từ ngoài vào
+export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, get: any) => ({
+  profile: null,
+  isLoading: false,
+  isUpdating: false,
+  error: null,
+  isUseFaceId: useHomeStore.getState().json?.isUseFaceId || false,
   getProfile: async (): Promise<Result<ProfileEntity, UserError>> => {
     set({ isLoading: true });
-      await loadModules();
-      if(getProfileUseCase === null) {
-        const profileUseCaseModule = await import('../usecase/ProfileUseCase');
-        getProfileUseCase = new profileUseCaseModule.ProfileUseCase(repository);
-      }
-      const profileResult = await getProfileUseCase.getProfile();
-      set({ isLoading: false });
-      return profileResult;
+    const profileResult = await profileUseCase.getProfile();
+    set({ isLoading: false });
+    return profileResult;
   },
-
   updateProfile: async (request: UpdateProfileRequest): Promise<Result<ProfileEntity, UserError>> => {
     set({ isUpdating: true });
-    await loadModules();
-    if(updateProfileUseCase === null) {
-      const profileUseCaseModule = await import('../usecase/ProfileUseCase');
-      updateProfileUseCase = new profileUseCaseModule.ProfileUseCase(repository);
-    }
-    const updateResult = await updateProfileUseCase.updateProfile(request);
+    const updateResult = await profileUseCase.updateProfile(request);
     set({ isUpdating: false });
     return updateResult;
   },
-
-  changePassword: async (request: ChangePasswordRequest): Promise<Result<ProfileEntity, UserError>> => {
+  changePassword: async (request: ChangePasswordRequest): Promise<Result<void, UserError>> => {
     set({ isLoading: true });
-    await loadModules();
-    if(changePasswordUseCase === null) {
-      const profileUseCaseModule = await import('../usecase/ProfileUseCase');
-      changePasswordUseCase = new profileUseCaseModule.ProfileUseCase(repository);
-    }
     const json = await keychainHelper.getObject();
-    const changeResult = await changePasswordUseCase.changePassword(request, json?.password);
+    const changeResult = await profileUseCase.changePassword(request, json?.password);
     set({ isLoading: false });
     if(isSuccess(changeResult)) {
       const json = await keychainHelper.getObject();
@@ -107,12 +64,10 @@ const userStoreCreator: StateCreator<UserState> = (set, get) => {
         await keychainHelper.saveObject(json);
       }
     }
-    
     return changeResult;
   },
   setIsUseFaceId: (isUseFaceId: boolean) => {
     set({ isUseFaceId: isUseFaceId });
-    console.log('isUseFaceId', {...useHomeStore.getState().json, isUseFaceId: isUseFaceId});
     useHomeStore.getState().updateJson({...useHomeStore.getState().json, isUseFaceId: isUseFaceId});
   },
   logout: async () => {
@@ -121,17 +76,19 @@ const userStoreCreator: StateCreator<UserState> = (set, get) => {
     if(json) {
       const userName = json.userName;
       const password = json.password;
-      
       const firstName = json.firstName;
       const lastName = json.lastName;
       const avatarUri = json.avatarUri;
+      const isUseFaceId = get().isUseFaceId??false;
       await keychainHelper.reset();
-      await keychainHelper.saveObject({userName: userName, password: password, firstName: firstName, lastName: lastName, avatarUri: avatarUri});
+      await keychainHelper.saveObject({userName: userName, password: password, firstName: firstName, lastName: lastName, avatarUri: avatarUri, isUseFaceId: isUseFaceId});
     }
     set({ profile: null, isLoading: false });
-
   },
-};
-};
+});
 
-export const useUserStore = create<UserState>()(userStoreCreator); 
+// Khởi tạo real usecase ở production
+import { ProfileRepositoryImplement } from '../repositories/ProfileRepositoryImplement';
+import { ProfileApi } from '../services/ProfileApi';
+const realProfileUseCase = new ProfileUseCase(new ProfileRepositoryImplement(ProfileApi));
+export const useUserStore = create<UserState>()(createUserStore(realProfileUseCase)); 

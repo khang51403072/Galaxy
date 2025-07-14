@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Button, Dimensions, TouchableOpacity, View } from 'react-native';
 import LoginForm from '../components/LoginForm';
 import { useAuthStore } from '../stores/authStore';
@@ -22,9 +22,6 @@ import { reset } from '@/app/NavigationService';
 
 export default function LoginScreen() {
   const { login, isLoading, error } = useAuthStore();
-  const screenHeight = Dimensions.get('window').height;
-  const topSpacing = screenHeight * 0.1;
-  const navigation = useNavigation();
   const theme = useTheme();
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [isShowUsername, setIsShowUsername] = useState(true);
@@ -61,7 +58,6 @@ export default function LoginScreen() {
       renderInput: ({ value, onChangeText, errorMessage, ...rest }) => (
         <View style={{ borderRadius: 8, }}>
           <XInput
-            
             value={value}
             onChangeText={onChangeText}
             placeholder="Enter your password"
@@ -86,33 +82,24 @@ export default function LoginScreen() {
     password: '',
   });
 
-  const handleFaceIdLogin = async () => {
-    const json = await keychainHelper.getObject(); 
-    console.log('json isUseFaceId', json?.isUseFaceId);
-    if(!json?.isUseFaceId) {
-      return;
-    }
-    const { available, biometryType } = await checkBiometricAvailable();
+  const handleFaceIdLogin = useCallback(async () => {
+    const json = await keychainHelper.getObject();
+    if (!json?.isUseFaceId) return;
+    const { available } = await checkBiometricAvailable();
     if (!available) {
-      // Hiển thị thông báo không hỗ trợ
-      console.log('Thiết bị không hỗ trợ Face ID/Touch ID');
+      useAuthStore.setState({ error: 'Thiết bị không hỗ trợ Face ID/Touch ID' });
       return;
     }
     const success = await simpleBiometricAuth();
-    if (success) {
-      // TODO: Tự động đăng nhập (ví dụ: lấy token đã lưu, gọi API, v.v.)
-       
-      if(json!=null) {
-        handleLogin({username: json.userName, password: json.password});
-      }
-    } else {
-      console.log('Xác thực thất bại!');
-    }
-  };
-  const handleLogin = async (data: { username: string; password: string }) => {
+    if (success && json) {
+      handleLogin({ username: json.userName, password: json.password });
+    } 
+    return;
+  }, [login]);
+
+  const handleLogin = useCallback(async (data: { username: string; password: string }) => {
     const loginResult = await login(data.username, data.password);
     if(isSuccess(loginResult)) {
-      console.log('loginResult go to home', loginResult);
       reset([{ name: ROUTES.HOME }], 0);
     }
     else{
@@ -122,14 +109,15 @@ export default function LoginScreen() {
       });
       useAuthStore.setState({ error: loginResult.error?.message });
     }
-  };
+  }, [login]);
+  
+ 
 
   useEffect(() => {
+    let timeout: NodeJS.Timeout;
     useAuthStore.setState({ isLoading: true });
     keychainHelper.getObject().then(json => {
-      
       if(json!=null && json.userName!=null) {
-        console.log('json', json?.userName);
         setIsShowUsername(false);
         setDefaultValues({
             username: json?.userName,
@@ -137,15 +125,64 @@ export default function LoginScreen() {
           });
         setFullName(json?.firstName + ' ' + json?.lastName);
         setAvatarUri(json?.avatarUri || null);
-        setTimeout(() => {
+         timeout = setTimeout(() => {
           handleFaceIdLogin();
         }, 500);
       }
       useAuthStore.setState({ isLoading: false });
-      
     });
+    return () => clearTimeout(timeout);
   }, []);
 
+  const backgroundLogo = <XIcon
+    name="logo"
+    width={200}
+    height={200}
+    color="#999"
+    style={{
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      opacity: 0.8,
+    }}
+  />
+  const faceIdLoginButton = 
+  <TouchableOpacity onPress={handleFaceIdLogin}>
+    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
+      <View style={{padding: 10, backgroundColor: theme.colors.buttonFaceID, borderRadius: 10}}>
+        <XIcon name="faceID" height={20} width={20} color="#999" />
+      </View>
+      <XText variant="signInFaceID" style={{ marginLeft: 10 }}>
+        Sign in with Face ID
+      </XText>
+    </View>
+  </TouchableOpacity>
+  const avatarAndImage = 
+  <View style={{ alignItems: 'center', marginBottom: 20, flexDirection: 'column' }}>
+    <XAvatar
+      size={120}
+      editable={false}
+      uri={avatarUri || undefined}
+    />
+    <XText variant="h4" style={{ textAlign: 'center', marginTop: 20,color: theme.colors.gray700 }}>
+      {fullName}
+    </XText>
+  </View>
+
+  const appName = 
+  <XText variant="h1" style={{ textAlign: 'center', marginBottom: 20 }}>
+    GALAXY ME
+  </XText>
+
+  const loginForm = 
+  <XForm 
+    fields={fields} 
+    style={{width: '100%'}} 
+    onSubmit={handleLogin} 
+    defaultValues={defaultValues} 
+    maxHeight={isShowUsername ? "30%" : "20%"} 
+    scrollEnabled={false}
+  />
   
   return (
     <XScreen
@@ -164,64 +201,12 @@ export default function LoginScreen() {
         paddingHorizontal: 20,
         marginTop: "10%",
       }}>
-        <XText variant="h1" style={{ textAlign: 'center', marginBottom: 20 }}>
-              GALAXY ME
-        </XText>
-        
-        {fullName!='' && (
-          <>
-            <View style={{ alignItems: 'center', marginBottom: 20, flexDirection: 'column' }}>
-              <XAvatar
-                size={120}
-                editable={false}
-                uri={avatarUri || undefined}
-              />
-              <XText variant="h4" style={{ textAlign: 'center', marginTop: 20,color: theme.colors.gray700 }}>
-                {fullName}
-              </XText>
-            </View>
-            
-          </>
-        )}
-        <XForm 
-          fields={fields} 
-          style={{width: '100%'}} 
-          onSubmit={handleLogin} 
-          defaultValues={defaultValues} 
-          maxHeight={isShowUsername ? "30%" : "20%"} 
-          scrollEnabled={false}
-        />
-        
-        {fullName!='' && (
-        <TouchableOpacity onPress={() => {
-            console.log('sign in with face id');
-            handleFaceIdLogin();
-          }}
-        >
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
-              
-              <View style={{padding: 10, backgroundColor: theme.colors.buttonFaceID, borderRadius: 10}}>
-                <XIcon name="faceID" height={20} width={20} color="#999" />
-              </View>
-              <XText variant="signInFaceID" style={{ marginLeft: 10 }}>
-                Sign in with Face ID
-              </XText>
-          </View>
-        </TouchableOpacity>)}
+        {appName}
+        {fullName!='' && avatarAndImage}        
+        {loginForm}
+        {fullName!='' && faceIdLoginButton}
       </View>  
-      {/* Background logo */}
-      <XIcon
-        name="logo"
-        width={200}
-        height={200}
-        color="#999"
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          opacity: 0.8,
-        }}
-      />
+      {backgroundLogo}
       
     </XScreen>
   );

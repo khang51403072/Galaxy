@@ -11,15 +11,15 @@ import XDatePicker from "../../../shared/components/XDatePicker";
 import WebView from "react-native-webview";
 import XIcon from "../../../shared/components/XIcon";
 import { useTheme } from "../../../shared/theme/ThemeProvider";
+import { useEmployeeStore, employeeSelectors } from '@/shared/stores/employeeStore';
 
 export default function  TicketScreen() {
     const {width} = useWindowDimensions();
     const theme = useTheme();
-    const {json,isLoading, employeeLookup, getEmployeeLookup, error, visible, getWorkOrders, getWorkOrderOwners, workOrderOwners, workOrders, startDate, endDate, selectedEmployee} = useTicketStore(useShallow(
+    const {json,isLoading, error, visible, getWorkOrders, getWorkOrderOwners, workOrderOwners, workOrders, startDate, endDate, selectedEmployee} = useTicketStore(useShallow(
         (state: TicketState) => ({
             json: state.json,
             getWorkOrderOwners: state.getWorkOrderOwners,
-            getEmployeeLookup: state.getEmployeeLookup,
             getWorkOrders: state.getWorkOrders,
             isLoading: state.isLoading,
             error: state.error,
@@ -29,9 +29,12 @@ export default function  TicketScreen() {
             selectedEmployee: state.selectedEmployee,
             workOrderOwners: state.workOrderOwners,
             workOrders: state.workOrders,
-            employeeLookup: state.employeeLookup,
         })
     ));
+    // Dùng EmployeeStore dùng chung
+    const employees = useEmployeeStore(employeeSelectors.selectEmployees);
+    const fetchEmployees = useEmployeeStore(employeeSelectors.selectFetchEmployees);
+    const isEmployeeLoading = useEmployeeStore(employeeSelectors.selectIsLoading);
     
     useEffect(() => {
       return () => {
@@ -46,7 +49,7 @@ export default function  TicketScreen() {
       {json?.isOwner ? 
         <TouchableOpacity style={{}} onPress={async () => {
           useTicketStore.setState({visible: true});
-          await getEmployeeLookup();
+          await fetchEmployees();
         }}>
           <XInput value={selectedEmployee != null ? getDisplayName(selectedEmployee) : ""} editable={false} placeholder="Choose Technician"  label="Technician" pointerEvents="none"/>
         </TouchableOpacity>:null}
@@ -93,12 +96,11 @@ export default function  TicketScreen() {
       
 
       <XBottomSheetSearch
-        
         visible={visible}
         onClose={() => {
           useTicketStore.setState({visible: false});
         }}
-        data={employeeLookup}
+        data={employees}
         onSelect={(item) => {
           useTicketStore.setState({selectedEmployee: item});
         }}
@@ -107,7 +109,6 @@ export default function  TicketScreen() {
       /> 
 
       {!visible && 
-      
       workOrders.length == 0 && workOrderOwners.length == 0 ? 
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
         <XIcon name="noData" width={48} height={48} />
