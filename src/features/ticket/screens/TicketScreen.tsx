@@ -12,35 +12,40 @@ import WebView from "react-native-webview";
 import XIcon from "../../../shared/components/XIcon";
 import { useTheme } from "../../../shared/theme/ThemeProvider";
 import { useEmployeeStore, employeeSelectors } from '@/shared/stores/employeeStore';
+import { homeSelectors, useHomeStore } from "@/features/home/stores/homeStore";
 
 export default function  TicketScreen() {
-    const {width} = useWindowDimensions();
-    const theme = useTheme();
-    const {json,isLoading, error, visible, getWorkOrders, getWorkOrderOwners, workOrderOwners, workOrders, startDate, endDate, selectedEmployee} = useTicketStore(useShallow(
-        (state: TicketState) => ({
-            json: state.json,
-            getWorkOrderOwners: state.getWorkOrderOwners,
-            getWorkOrders: state.getWorkOrders,
-            isLoading: state.isLoading,
-            error: state.error,
-            visible: state.visible,
-            startDate: state.startDate,
-            endDate: state.endDate,
-            selectedEmployee: state.selectedEmployee,
-            workOrderOwners: state.workOrderOwners,
-            workOrders: state.workOrders,
-        })
-    ));
-    // Dùng EmployeeStore dùng chung
-    const employees = useEmployeeStore(employeeSelectors.selectEmployees);
-    const fetchEmployees = useEmployeeStore(employeeSelectors.selectFetchEmployees);
-    const isEmployeeLoading = useEmployeeStore(employeeSelectors.selectIsLoading);
+  const {width} = useWindowDimensions();
+  const theme = useTheme();
+  const jsonHome = useHomeStore(homeSelectors.selectJson);
+
+  const {setJson, json,isLoading, error, visible, getWorkOrders, getWorkOrderOwners, workOrderOwners, workOrders, startDate, endDate, selectedEmployee} = useTicketStore(useShallow(
+      (state: TicketState) => ({
+          json: state.json,
+          getWorkOrderOwners: state.getWorkOrderOwners,
+          getWorkOrders: state.getWorkOrders,
+          isLoading: state.isLoading,
+          error: state.error,
+          visible: state.visible,
+          startDate: state.startDate,
+          endDate: state.endDate,
+          selectedEmployee: state.selectedEmployee,
+          workOrderOwners: state.workOrderOwners,
+          workOrders: state.workOrders,
+          setJson: state.setJson
+      })
+  ));
+  // Dùng EmployeeStore dùng chung
+  const employees = useEmployeeStore(employeeSelectors.selectEmployees);
+  const fetchEmployees = useEmployeeStore(employeeSelectors.selectFetchEmployees);
+  const isEmployeeLoading = useEmployeeStore(employeeSelectors.selectIsLoading);
     
-    useEffect(() => {
-      return () => {
-        useTicketStore.getState().reset();
-      };
-    }, []);
+  useEffect(() => {
+    useTicketStore.getState().reset();
+    console.log("json", json)
+    if(jsonHome) setJson(jsonHome)
+      console.log("jsonHome", jsonHome)
+  }, []);
 
   return (
     <XScreen title="Tickets" loading={isLoading} error={error} style={{ flex: 1 }}> 

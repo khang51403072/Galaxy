@@ -7,6 +7,7 @@ import { HomeUseCase } from "../usecase/HomeUseCase";
 import { create } from "zustand";
 
 // ===== STATE =====
+export type ChartDisplayData = { label: string, value: number[] };
 export type homeState = {
     homeData?: HomeEntity | null;
     isOwner: boolean | null;
@@ -14,11 +15,13 @@ export type homeState = {
     isLoadingChart: boolean;
     error: string | null;
     chartData: ChartEntity[] | null;
+    chartDisplayData: ChartDisplayData[];
     toggleSwitch: 'week' | 'month';
     json: KeychainObject | null;
     updateJson: (json: KeychainObject) => Promise<void>;
     getHomeData: () => Promise<Result<HomeEntity, HomeError>>;
     getChartData: () => Promise<Result<ChartEntity[], HomeError>>;
+    setChartDisplayData: (data: ChartDisplayData[]) => void;
 }
 
 // ===== Selector =====
@@ -32,6 +35,7 @@ export const homeSelectors = {
     selectIsLoadingChart: (state: homeState) => state.isLoadingChart,
     selectToggleSwitch: (state: homeState) => state.toggleSwitch,
     selectJson: (state: homeState) => state.json,
+    selectChartDisplayData: (state: homeState) => state.chartDisplayData,
 }
 
 // ===== HomeStore DI Creator =====
@@ -44,17 +48,22 @@ export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeStat
     toggleSwitch: 'week',
     error: null,
     json: null,
+    chartDisplayData: [],
     getHomeData: async () => {
-        set({ isLoading: true, error: null });
-        const json = await keychainHelper.getObject();
-        const result = json?.isOwner ? await homeUsecase.getHomeDataOwner({employeeId: json?.employeeId || ''}) : await homeUsecase.getHomeData({employeeId: json?.employeeId || ''});
-        if(isSuccess(result)) set({ homeData: result.value, isLoading: false, error: null, isOwner: json?.isOwner });
-        else set({ error: result.error.message, isLoading: false });
+        const js = await keychainHelper.getObject();
+        set({ isLoading: true, error: null, json: js });
+        const result = js?.isOwner 
+            ? await homeUsecase.getHomeDataOwner({employeeId: js.employeeId || ''}) 
+            : await homeUsecase.getHomeData({employeeId: js?.employeeId || ''});
+        if(isSuccess(result)) 
+            set({ homeData: result.value, isLoading: false, error: null, isOwner: js?.isOwner });
+        else 
+            set({ error: result.error.message, isLoading: false });
         return result;
     },
     getChartData: async () => {
         set({ isLoadingChart: true, error: null });
-        const json = await keychainHelper.getObject();
+        const json = get().json
         let result : Result<ChartEntity[], HomeError>;
         let chartType = get().toggleSwitch === 'week' ? 7 : 30;
         if(json?.isOwner) {
@@ -69,7 +78,8 @@ export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeStat
     updateJson: async (json: KeychainObject) => {
         await keychainHelper.saveObject(json);
         set({ json: json });
-    }
+    },
+    setChartDisplayData: (data) => set({ chartDisplayData: data }),
 });
 
 // Khởi tạo real usecase ở production

@@ -20,6 +20,7 @@ export type PayrollState = {
   getPayroll: (employeeId: string) => Promise<Result<string, TicketError>>;
   getPayrollOwner: (employeeId: string) => Promise<Result<string, TicketError>>;
   reset: () => void;
+  setJson: (json: KeychainObject) => void;
 };
 
 export const payrollSelectors = {
@@ -52,10 +53,11 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase
   ...initialState,
   getPayroll: async (employeeId: string) => {
       set({ isLoading: true, error: null });
+      const json = get().json;
       let commonRequest: CommonRequest = {
           dateStart: get().startDate?.toYYYYMMDD('-'),
           dateEnd: get().endDate?.toYYYYMMDD('-'),
-          employeeId: employeeId??"",
+          employeeId: employeeId??json?.employeeId??"",
       }
       const result = await payrollUsecase.getPayroll(commonRequest);
       if(isSuccess(result)) {
@@ -67,10 +69,11 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase
   },
   getPayrollOwner: async (employeeId: string) => {
       set({ isLoading: true, error: null });
+      const json = get().json;
       let commonRequest: CommonRequest = {
           dateStart: get().startDate?.toYYYYMMDD('-'),
           dateEnd: get().endDate?.toYYYYMMDD('-'),
-          employeeId: employeeId??"",
+          employeeId: employeeId??json?.employeeId??"",
       }
       const result = await payrollUsecase.getPayrollOwner(commonRequest);
       if(isSuccess(result)) {
@@ -80,11 +83,10 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase
       }
       return result;
   },
+  setJson: (json: KeychainObject) => set({ json }),
   reset: () => {
       set({ ...initialState });
-      keychainHelper.getObject().then((json) => {
-          set({json: json});
-        });
+      // Không lấy lại json từ keychainHelper nữa, json sẽ được truyền từ ngoài vào
   },
 });
 

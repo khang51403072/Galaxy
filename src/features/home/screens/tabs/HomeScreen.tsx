@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { XColors } from '../../../../shared/constants/colors';
 import XText from '../../../../shared/components/XText';
@@ -22,7 +22,7 @@ import { navigate } from '@/app/NavigationService';
 import { keychainHelper } from '@/shared/utils/keychainHelper';
 
 export default function HomeScreen() {
-  const { homeData, isLoading, error, getHomeData, getChartData,  isLoadingChart, toggleSwitch, json   } = useHomeStore(
+  const { homeData, isLoading, error, getHomeData, getChartData,  isLoadingChart, toggleSwitch, json, chartDisplayData, setChartDisplayData } = useHomeStore(
     useShallow((state) => ({
       homeData: homeSelectors.selectHomeData(state),
       isLoading: homeSelectors.selectIsLoading(state),
@@ -33,21 +33,71 @@ export default function HomeScreen() {
       isLoadingChart: homeSelectors.selectIsLoadingChart(state),
       toggleSwitch: homeSelectors.selectToggleSwitch(state),
       json: homeSelectors.selectJson(state),
-      
+      chartDisplayData: homeSelectors.selectChartDisplayData(state),
+      setChartDisplayData: state.setChartDisplayData,
     }))
   );
   
-  const theme = useTheme();
-  const navigation = useNavigation();
-  
+  const theme = useTheme();  
 
-  const [chartData, setChartData] = useState<{label: string, value: number[]}[]>([
-    { label: 'Mon', value: [20, 40] },
-    { label: 'Tue', value: [35, 25] },
-    { label: 'Wed', value: [30, 50] },
-    { label: 'Thu', value: [80, 60] },
-    { label: 'Fri', value: [20, 30] },
-  ]);
+  // Xóa state chartData cục bộ
+  // const [chartData, setChartData] = useState<{label: string, value: number[]}[]>([
+  //   { label: 'Mon', value: [20, 40] },
+  //   { label: 'Tue', value: [35, 25] },
+  //   { label: 'Wed', value: [30, 50] },
+  //   { label: 'Thu', value: [80, 60] },
+  //   { label: 'Fri', value: [20, 30] },
+  // ]);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+  let isFirst = true;
+  useEffect(() => {
+    if(isFirst) 
+    {
+      isFirst = false
+      return
+    }
+    getChartData().then((result) => {
+      if(isSuccess(result)) {
+        loadData2Chart(result.value);        
+      }
+    });
+  }, [toggleSwitch]);
+  
+  const loadData = 
+  
+  async () => {
+    await getHomeData();
+    getChartData().then((result) => {
+      if(isSuccess(result)) {
+        loadData2Chart(result.value);        
+      }
+    });
+  };
+
+  // Refactor: set chartDisplayData vào store
+  const loadData2Chart = (data: ChartEntity[]) => {
+    let displayData;
+    if(toggleSwitch == 'week') {
+      displayData = data.map(item => {
+        return {
+          label: item.dayOfWeek.substring(0, 3),
+          value: [item.saleAmount, item.nonCashTipAmount]
+        }
+      });
+    } else {
+      displayData = data.map(item => {
+        return {
+          label: item.weekStartDate?.dateOfMonth() +"-"+ item.weekEndDate?.dateOfMonth(),
+          value: [item.saleAmount, item.nonCashTipAmount]   
+        }
+      });
+    }
+    setChartDisplayData(displayData);
+  }
+
 
   const buildColorNote = (text: string, color: string)=>{
     return <View style={{  flexDirection: 'row', alignItems: 'center', width: 100, backgroundColor: 'transparent', borderRadius: 50 }}>
@@ -108,34 +158,8 @@ export default function HomeScreen() {
       </View>
     );
   };
-  const loadData = async () => {
-    const json = await keychainHelper.getObject();
-    useHomeStore.setState({ json: json });
-    await getHomeData();
-    const result = await getChartData();
-    if(isSuccess(result)) {
-      loadData2Chart(result.value);        
-    }
-  };
 
-  const loadData2Chart = (data: ChartEntity[]) => {
-    if(toggleSwitch == 'week') {
-      setChartData(data.map(item => {
-        return {
-          
-          label: item.dayOfWeek.substring(0, 3),
-          value: [item.saleAmount, item.nonCashTipAmount]
-        }
-      }));
-    } else {
-      setChartData(data.map(item => {
-        return {
-          label: item.weekStartDate?.dateOfMonth() +"-"+ item.weekEndDate?.dateOfMonth(),
-          value: [item.saleAmount, item.nonCashTipAmount]   
-        }
-      }));
-    }
-  }
+  
   const chartSkeleton = () => {
     return (
       <View style={{ 
@@ -170,18 +194,100 @@ export default function HomeScreen() {
       </View>
     )
   }
-  useEffect(() => {
-    loadData();
-  }, []);
   
-  useEffect(() => {
-    getChartData().then((result) => {
-      if(isSuccess(result)) {
-        loadData2Chart(result.value);        
-      }
-    });
-  }, [toggleSwitch]);
 
+  const header = 
+  <View style={{ width: '100%', height: '10%', backgroundColor: theme.colors.background,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+  <XAvatar
+    editable = {false}
+    size={40}
+    uri={homeData?.employeeInfo?.avatar|| undefined}
+  />
+  <View style={{ flex: 1, flexDirection: 'row',  justifyContent: 'flex-start', paddingLeft: 10}}>
+    <XText variant='helloText300' style={{ color: theme.colors.gray800 }}>
+      Hi! 
+    </XText>
+    <XText variant='helloText400' style={{ color: theme.colors.gray800}}>
+      {homeData?.employeeInfo?.firstName+ " " + homeData?.employeeInfo?.lastName}
+    </XText>  
+  </View>
+  <XIcon name='bell' width={24} height={24} color={XColors.primary} />
+</View>
+
+const meEarningsToday = 
+<XText variant='helloText400' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.md }}>
+  ME Earnings Today
+</XText>
+const saleCard =
+  <View style={{
+    width: '48%',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    padding: theme.spacing.sm,
+    backgroundColor: theme.colors.white,
+    borderRadius: theme.borderRadius.md,
+    ...theme.shadows.sm
+  }}>
+    <XText variant='saleAndTip300' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.xs }}>
+      Sale:
+    </XText>
+    <XText variant='saleAndTip500' style={{ color: theme.colors.gray800 }}>
+      $ {homeData?.totalSale || 0}
+    </XText>
+  </View>
+const tipCard = 
+  <View style={{
+    width: '48%',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    padding: theme.spacing.sm,
+    backgroundColor: theme.colors.white,
+    borderRadius: theme.borderRadius.md,
+    ...theme.shadows.sm
+  }}>
+    <XText variant='saleAndTip300' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.xs }}>
+      Tips:
+    </XText>
+    <XText variant='saleAndTip500' style={{ color: theme.colors.gray800 }}>
+      $ {homeData?.nonCashTip || 0}
+    </XText>
+  </View>
+
+
+const chart = 
+  <View style={{
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    padding: 16,
+    backgroundColor: theme.colors.white,
+    borderRadius: 8,
+    ...theme.shadows.sm
+  }}>
+    <XText variant='helloText400' style={{ color: theme.colors.gray800 }}>
+      Total revenue
+    </XText>
+    <View style={{ flexDirection: 'row', alignItems: 'center', width: 100, backgroundColor: 'transparent', borderRadius: 50, marginTop: theme.spacing.xs }}>
+      {buildColorNote('Sales', theme.colors.primary)}
+      {buildColorNote('Tips', theme.colors.cyan)}
+
+    </View>
+
+    <XChart
+      data={chartDisplayData}
+      width={320}
+      height={200}
+      barColors={[theme.colors.primary, theme.colors.cyan]}
+      labelColor="#333"
+      style={{ paddingTop: theme.spacing.md }}
+    />
+    <View style={{ width: '100%', alignItems: 'center', marginTop: theme.spacing.md }}>
+      <ToggleSwitch value={toggleSwitch} onChange={(val) => {
+        useHomeStore.setState({ toggleSwitch: val });
+      }} />
+    </View>
+  
+</View>
   return (
     <XScreen
       loading={isLoading}
@@ -192,106 +298,14 @@ export default function HomeScreen() {
       backgroundColor={theme.colors.background}
       onRefresh={loadData}
     >
-      {/* Header Section */}
-      <View style={{ width: '100%', height: '10%', backgroundColor: theme.colors.background,
-         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <XAvatar
-          size={40}
-          uri={homeData?.employeeInfo?.avatar|| undefined}
-        />
-        <View style={{ flex: 1, flexDirection: 'row',  justifyContent: 'flex-start', paddingLeft: 10}}>
-            <XText variant='helloText300' style={{ color: theme.colors.gray800 }}>
-              Hi! 
-            </XText>
-            <XText variant='helloText400' style={{ color: theme.colors.gray800}}>
-              {homeData?.employeeInfo?.firstName+ " " + homeData?.employeeInfo?.lastName}
-            </XText>  
-        </View>
-        <XIcon name='bell' width={24} height={24} color={XColors.primary} />
-      </View>
-      
-      {/* Content Section */}
+      {header}
       <View style={{ width: '100%',  }}>
-        {/* Dashboard Stats Section */}
+        {meEarningsToday}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
-          <XText variant='helloText400' style={{ color: theme.colors.gray800 }}>
-            ME Earnings Today
-          </XText>
+          {saleCard}  
+          {tipCard}          
         </View>
-        
-        {/* Stats Cards */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
-          <View style={{ 
-            width: '48%', 
-            flexDirection: 'column', 
-            alignItems: 'flex-start',
-            padding: theme.spacing.sm,
-            backgroundColor: theme.colors.white,
-            borderRadius: theme.borderRadius.md,
-            ...theme.shadows.sm
-          }}>
-            <XText variant='saleAndTip300' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.xs }}>
-              Sale:
-            </XText>
-            <XText variant='saleAndTip500' style={{ color: theme.colors.gray800 }}>
-              $ {homeData?.totalSale || 0}
-            </XText>
-          </View>
-          
-          <View style={{ 
-            width: '48%', 
-            flexDirection: 'column', 
-            alignItems: 'flex-start',
-            padding: theme.spacing.sm,
-            backgroundColor: theme.colors.white,
-            borderRadius: theme.borderRadius.md,
-            
-            ...theme.shadows.sm
-          }}>
-            <XText variant='saleAndTip300' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.xs }}>
-              Tips:
-            </XText>
-            <XText variant='saleAndTip500' style={{ color: theme.colors.gray800 }}>
-              $ {homeData?.nonCashTip || 0}
-            </XText>
-          </View>
-        </View>
-        {isLoadingChart ? chartSkeleton() : (
-        <View style={{ 
-            
-            flexDirection: 'column', 
-            alignItems: 'flex-start',
-            padding: 16,
-            backgroundColor: theme.colors.white,
-            borderRadius: 8,
-            ...theme.shadows.sm
-          }}>
-            <XText variant='helloText400' style={{ color: theme.colors.gray800 }}>
-              Total revenue
-            </XText>
-            <View style={{ flexDirection: 'row', alignItems: 'center', width: 100, backgroundColor: 'transparent', borderRadius: 50, marginTop: theme.spacing.xs }}>
-              {buildColorNote('Sales', theme.colors.primary)}
-              {buildColorNote('Tips', theme.colors.cyan)}
-              
-            </View>
-             
-            <XChart
-              data={chartData}
-              width={320}
-              height={200}
-              barColors={[theme.colors.primary, theme.colors.cyan]}
-              labelColor="#333"
-              style={{ paddingTop: theme.spacing.md }}
-            
-            />
-            <View style={{ width: '100%', alignItems: 'center', marginTop: theme.spacing.md }}>
-              <ToggleSwitch value={toggleSwitch} onChange={ (val) => {
-                 useHomeStore.setState({ toggleSwitch: val });
-              }} />
-            </View>
-            
-        </View>)}
-        
+        {isLoadingChart ? chartSkeleton() : chart}
         <XText variant='helloText400' style={{ color: theme.colors.gray800, marginVertical: theme.spacing.md }}>
           Category
         </XText>
@@ -301,8 +315,7 @@ export default function HomeScreen() {
         </View>
         <View style={{ marginTop: theme.spacing.md, flexDirection: 'row' , width: '100%', justifyContent: 'space-between'}}>
           <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.PAYROLL)}} title='Payroll' icon='payroll' color={theme.colors.indigoBlue} textColor={theme.colors.white} />
-          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.REPORT)}} title='Report' icon='report' color={theme.colors.blue} textColor={theme.colors.white} />
-          
+          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.REPORT)}} title='Report' icon='report' color={theme.colors.blue} textColor={theme.colors.white} /> 
         </View>
       </View>
     </XScreen>
