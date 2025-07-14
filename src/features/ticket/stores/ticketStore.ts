@@ -15,10 +15,11 @@ export type TicketState = {
     selectedEmployee: EmployeeEntity | null;
     error: string | null;
     visible: boolean;
-    json: KeychainObject | null;
+    json: KeychainObject | null; // Thêm dòng này để fix linter
     getWorkOrders: () => Promise<Result<WorkOrderEntity[], TicketError>>;
     getWorkOrderOwners: (employeeId: string) => Promise<Result<WorkOrderEntity[], TicketError>>;
     reset: () => void;
+    setJson: (json: KeychainObject) => void;
 }
 
 export const ticketSelectors = {
@@ -32,7 +33,7 @@ export const ticketSelectors = {
     selectStartDate: (state: TicketState) => state.startDate,
     selectEndDate: (state: TicketState) => state.endDate,
     selectSelectedEmployee: (state: TicketState) => state.selectedEmployee,
-    selectJson: (state: TicketState) => state.json,
+    selectSetJson:(state: TicketState) => state.setJson
 }
 
 const initialTicketState = {
@@ -44,14 +45,15 @@ const initialTicketState = {
     startDate: new Date(Date.now()),
     endDate: new Date(Date.now()),
     selectedEmployee: null,
-    json: null,
+    json: null, // Không lấy từ useHomeStore.getState().json nữa
 };
 
 export const createTicketStore = (ticketUsecase: TicketUsecase): StateCreator<TicketState> => (set, get) => ({
     ...initialTicketState,
     getWorkOrders: async () : Promise<Result<WorkOrderEntity[], TicketError>> => {
         set({ isLoading: true });
-        const json = await keychainHelper.getObject();
+        // json nên truyền từ ngoài vào hoặc lấy từ store qua selector
+        const json = get().json;
         if(json==null) {
             set({ error: 'User not found' });
             set({ isLoading: false });
@@ -72,7 +74,7 @@ export const createTicketStore = (ticketUsecase: TicketUsecase): StateCreator<Ti
     },
     getWorkOrderOwners: async (employeeId: string) : Promise<Result<WorkOrderEntity[], TicketError>> => {
         set({ isLoading: true });
-        const json = await keychainHelper.getObject();
+        const json = get().json;
         if(json==null) {
             set({ error: 'User not found' });
             set({ isLoading: false });
@@ -91,17 +93,17 @@ export const createTicketStore = (ticketUsecase: TicketUsecase): StateCreator<Ti
         set({ isLoading: false });
         return result;
     },
+    setJson: (json: KeychainObject) => set({ json }), // Action để nhận json từ ngoài vào
     reset: () => {
         set({ ...initialTicketState });
-        keychainHelper.getObject().then((json) => {
-            set({json: json});
-        });
+        // reset json về null hoặc lấy lại từ ngoài nếu cần
     },
 });
 
 // Khởi tạo real usecase ở production
 import { TicketRepositoryImplement } from "../repositories/TicketRepositoryImplement";
 import { TicketApi } from "../services/TicketApi";
+import { useHomeStore } from "@/features/home/stores/homeStore";
 const realTicketUsecase = new TicketUsecase(new TicketRepositoryImplement(TicketApi));
 export const useTicketStore = create<TicketState>()(createTicketStore(realTicketUsecase));
 

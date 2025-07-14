@@ -22,6 +22,7 @@ export type ReportState = {
     getReportTimeSheet: () => Promise<Result<TimeSheetEntity[], Error>>;
     getReportBatchHistory: () => Promise<Result<BatchEntity[], Error>>;
     getCloseOut: () => Promise<Result<string, Error>>;
+    setJson: (json: KeychainObject) => void;
 }
 //selector
 export const reportSelectors = {
@@ -58,7 +59,7 @@ export const createReportStore = (usecase: ReportUsecase): StateCreator<ReportSt
         const request: CommonRequest = {
             dateStart: get().startDate?.toYYYYMMDD('-'),
             dateEnd: get().endDate?.toYYYYMMDD('-'),
-            employeeId: "",
+            employeeId: get().json?.employeeId??"",
         }
         const response = await usecase.getReportTechnician(request);
         if(isSuccess(response)) {
@@ -73,6 +74,7 @@ export const createReportStore = (usecase: ReportUsecase): StateCreator<ReportSt
         const request: CommonRequest = {
             dateStart: get().startDate?.toYYYYMMDD('-'),
             dateEnd: get().endDate?.toYYYYMMDD('-'),
+            employeeId: get().json?.employeeId??"",
         }
         const response = await usecase.getReportSales(request);
         if(isSuccess(response)) {
@@ -87,6 +89,7 @@ export const createReportStore = (usecase: ReportUsecase): StateCreator<ReportSt
         const request: CommonRequest = {
             dateStart: get().startDate?.toYYYYMMDD('-'),
             dateEnd: get().endDate?.toYYYYMMDD('-'),
+            employeeId: get().json?.employeeId??"",
         }
         const response = await usecase.getReportTimeSheet(request);
         if(isSuccess(response)) {
@@ -101,6 +104,7 @@ export const createReportStore = (usecase: ReportUsecase): StateCreator<ReportSt
         const request: CommonRequest = {
             dateStart: get().startDate?.toYYYYMMDD('-'),
             dateEnd: get().endDate?.toYYYYMMDD('-'),
+            employeeId: get().json?.employeeId??"",
         }
         const response = await usecase.getReportBatchHistory(request);
         if(isSuccess(response)) {
@@ -125,7 +129,8 @@ export const createReportStore = (usecase: ReportUsecase): StateCreator<ReportSt
             set({ error: response.error.message, isLoading: false });
         }
         return response;
-    }
+    },
+    setJson: (json: KeychainObject) => set({ json }),
 });
 
 // Khởi tạo real usecase ở production

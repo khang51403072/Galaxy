@@ -14,11 +14,12 @@ import { getClockIn, getClockOut, getDisplayName, parseISODate } from "../types/
 import XAvatar from "@/shared/components/XAvatar";
 import CustomTabBar from "@/shared/components/CustomTabBar";
 import { keychainHelper } from "@/shared/utils/keychainHelper";
+import { homeSelectors, useHomeStore } from "@/features/home/stores/homeStore";
 
 export default function  TicketScreen() {
     const theme = useTheme();
-
-    const { closeOut,json, isLoading, error, startDate, endDate, reportTechnician, reportSales, reportTimeSheet, reportBatchHistory, getReportTechnician, getReportSales, getReportTimeSheet, getReportBatchHistory, getCloseOut } = useReportStore(useShallow(
+    const jsonHome = useHomeStore(homeSelectors.selectJson);
+    const { closeOut,json, isLoading, error, startDate, endDate, reportTechnician, reportSales, reportTimeSheet, reportBatchHistory, getReportTechnician, getReportSales, getReportTimeSheet, getReportBatchHistory, getCloseOut, setJson } = useReportStore(useShallow(
         (state: ReportState) => ({
             isLoading: reportSelectors.selectIsLoading(state),
             error: reportSelectors.selectError(state),
@@ -35,14 +36,13 @@ export default function  TicketScreen() {
             closeOut: reportSelectors.selectCloseOut(state),
             json: reportSelectors.selectJson(state),
             getCloseOut: reportSelectors.selectGetCloseOut(state),
+            setJson: state.setJson,
         })
     ));
     
     useEffect(() => {
-      keychainHelper.getObject().then((json) => {
-        useReportStore.setState({ json: json });
-      });
-    }, []);
+      if(jsonHome) setJson(jsonHome);
+    }, [jsonHome]);
     const [index, setIndex] = useState(0);
     const [routes] = useState([
       { key: 'technician', title: 'Technician' },

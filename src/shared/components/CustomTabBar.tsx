@@ -49,10 +49,7 @@ function CustomTabBar<T extends Route>({
   const shouldDistributeEvenly = showIndicator; // Chỉ chia đều khi có indicator
 
   const renderItem = ({ item: route, index }: { item: T; index: number }): React.ReactElement => {
-    const focused = index === activeIndex;
-    
-    console.log(`Rendering tab ${index}: ${route.key}, focused: ${focused}`);
-    
+    const focused = index === activeIndex;    
     // Tạo onLayout handler chỉ khi cần indicator
     const handleLayout = (event: any) => {
       const { x, width } = event.nativeEvent.layout;
@@ -184,7 +181,6 @@ function CustomTabBar<T extends Route>({
             justifyContent: 'space-between', // Chia đều full màn hình
           }]}>
             {routes.map((route, index) => {
-              console.log(`Mapping route ${index}: ${route.key}`);
               return (
                 <View key={route.key} style={{ flex: 1 }}>
                   {renderTabForView(route, index)}

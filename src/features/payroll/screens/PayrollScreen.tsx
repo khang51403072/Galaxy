@@ -14,10 +14,12 @@ import { getDisplayName } from "../../ticket/types/TicketResponse";
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { keychainHelper } from "@/shared/utils/keychainHelper";
 import { useEmployeeStore, employeeSelectors } from '@/shared/stores/employeeStore';
+import { homeSelectors, useHomeStore } from "@/features/home/stores/homeStore";
 
 export default function  TicketScreen() {
     const theme = useTheme();
-    const { json, isLoading, payrolls, payrollOwners, getPayroll, getPayrollOwner, error, visible, selectedEmployee, startDate, endDate } = usePayrollStore(useShallow(
+    const jsonHome = useHomeStore(homeSelectors.selectJson);
+    const { json, isLoading, payrolls, payrollOwners, getPayroll, getPayrollOwner, error, visible, selectedEmployee, startDate, endDate, setJson } = usePayrollStore(useShallow(
         (state: PayrollState) => ({
             json: state.json,
             payrolls: payrollSelectors.selectPayrolls(state),
@@ -30,6 +32,7 @@ export default function  TicketScreen() {
             endDate: state.endDate,
             getPayroll: payrollSelectors.selectGetPayroll(state),
             getPayrollOwner: payrollSelectors.selectGetPayrollOwner(state),
+            setJson: state.setJson,
         })
     ));
     // Dùng EmployeeStore dùng chung
@@ -38,10 +41,13 @@ export default function  TicketScreen() {
     const isEmployeeLoading = useEmployeeStore(employeeSelectors.selectIsLoading);
 
     useEffect(() => {
+      
       return () => {
         usePayrollStore.getState().reset();
+        if(jsonHome) setJson(jsonHome);
       };
-    }, []);
+     
+    }, [jsonHome]);
 
     // TabView state
     const [index, setIndex] = useState(0);
@@ -119,19 +125,15 @@ export default function  TicketScreen() {
               alignItems: 'center',
             }}
             onPress={ async () => {
-              if(json?.isOwner){
-                if(selectedEmployee != null){
-                Promise.all([
-                    getPayrollOwner(""),
-                    getPayroll(selectedEmployee?.id??""),
-                  ]);
-                }else{
-                  await getPayrollOwner("");
-                }
-                
-              }else{
-                await getPayroll(json?.employeeId??"");
-              }
+              //khong phai owner
+              if(!json?.isOwner) return  await getPayroll(json?.employeeId??"");
+              //la owner nhung chua chon employee
+              if(selectedEmployee==null) return await getPayrollOwner("");
+              //la owner va da chon employee
+              Promise.all([
+                getPayrollOwner(""),
+                getPayroll(selectedEmployee?.id??""),
+              ]); 
             }} // Định nghĩa hàm onSearch theo nhu cầu
           >
             <XIcon name="search" width={24} height={24} color="#fff" />
@@ -164,7 +166,7 @@ export default function  TicketScreen() {
             <TabBar
               {...props}
               indicatorStyle={{ backgroundColor: theme.colors.primary }}
-              style={{ backgroundColor: '#fff' }}
+              style={{ backgroundColor: theme.colors.background }}
               inactiveColor={theme.colors.gray200}
               activeColor={theme.colors.primary}
               
