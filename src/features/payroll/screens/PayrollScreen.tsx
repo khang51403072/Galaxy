@@ -13,13 +13,13 @@ import { payrollSelectors, PayrollState, usePayrollStore } from "../stores/payro
 import { getDisplayName } from "../../ticket/types/TicketResponse";
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { keychainHelper } from "@/shared/utils/keychainHelper";
+import { useEmployeeStore, employeeSelectors } from '@/shared/stores/employeeStore';
 
 export default function  TicketScreen() {
     const theme = useTheme();
-    const { json, employeeLookup, isLoading, payrolls, payrollOwners, getPayroll, getPayrollOwner, error, visible, selectedEmployee, startDate, endDate, getEmployeeLookup} = usePayrollStore(useShallow(
+    const { json, isLoading, payrolls, payrollOwners, getPayroll, getPayrollOwner, error, visible, selectedEmployee, startDate, endDate } = usePayrollStore(useShallow(
         (state: PayrollState) => ({
             json: state.json,
-            employeeLookup: state.employeeLookup,
             payrolls: payrollSelectors.selectPayrolls(state),
             payrollOwners: payrollSelectors.selectPayrollOwners(state),
             isLoading: payrollSelectors.selectIsLoading(state),
@@ -30,9 +30,12 @@ export default function  TicketScreen() {
             endDate: state.endDate,
             getPayroll: payrollSelectors.selectGetPayroll(state),
             getPayrollOwner: payrollSelectors.selectGetPayrollOwner(state),
-            getEmployeeLookup: payrollSelectors.selectGetEmployeeLookup(state),
         })
     ));
+    // Dùng EmployeeStore dùng chung
+    const employees = useEmployeeStore(employeeSelectors.selectEmployees);
+    const fetchEmployees = useEmployeeStore(employeeSelectors.selectFetchEmployees);
+    const isEmployeeLoading = useEmployeeStore(employeeSelectors.selectIsLoading);
 
     useEffect(() => {
       return () => {
@@ -83,7 +86,7 @@ export default function  TicketScreen() {
         {json?.isOwner ? 
         <TouchableOpacity style={{}} onPress={async () => {
           usePayrollStore.setState({visible: true});
-          await getEmployeeLookup();
+          await fetchEmployees();
         }}>
           <XInput value={selectedEmployee != null ? getDisplayName(selectedEmployee) : ""} editable={false} placeholder="Choose Technician"  label="Technician" pointerEvents="none"/>
         </TouchableOpacity>:null}
@@ -138,12 +141,11 @@ export default function  TicketScreen() {
       
 
       <XBottomSheetSearch
-        
         visible={visible}
         onClose={() => {
           usePayrollStore.setState({visible: false});
         }}
-        data={employeeLookup}
+        data={employees}
         onSelect={(item) => {
             usePayrollStore.setState({selectedEmployee: item});
         }}

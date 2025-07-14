@@ -1,9 +1,8 @@
-import { create } from 'zustand/react'; // ✅ dùng đúng hook version
+import { create } from 'zustand/react';
 import * as Keychain from 'react-native-keychain';
-import { StateCreator } from 'zustand/vanilla';
-import { Result, isSuccess, isFailure } from '../../../shared/types/Result';
+import { Result, isSuccess } from '../../../shared/types/Result';
 import { AuthError } from '../types/AuthErrors';
-import { LoginResult } from '../usecase/AuthUsecase';
+import { LoginResult, AuthUseCase } from '../usecase/AuthUsecase';
 
 export type AuthState = {
   userName: string | null;
@@ -16,15 +15,12 @@ export type AuthState = {
   userId: string | null;
   isOwner: boolean | null;
   error: string | null;
-  // Store actions
   storeLogin: (loginResult: LoginResult) => Promise<void>;
-  // Business actions with loading state
   login: (email: string, password: string) => Promise<Result<LoginResult, AuthError>>;
-  
-
 };
 
-const authStoreCreator: StateCreator<AuthState> = (set, get) => ({
+// Refactor: nhận authUseCase từ ngoài vào
+export const createAuthStore = (authUseCase: AuthUseCase) => (set: any, get: any) => ({
   userName: null,
   token: null,
   secureKey: null,
@@ -35,35 +31,46 @@ const authStoreCreator: StateCreator<AuthState> = (set, get) => ({
   userId: null,
   isOwner: null,
   error: null,
-
   storeLogin: async (loginResult: LoginResult) => {
-    await Keychain.setGenericPassword(loginResult.userName, JSON.stringify({ token: loginResult.token, password: loginResult.password, firstName: loginResult.firstName, lastName: loginResult.lastName, employeeId: loginResult.employeeId, isOwner: loginResult.isOwner, userName: loginResult.userName  }));
-    set({ userName: loginResult.userName, token: loginResult.token, secureKey: loginResult.password, userId: loginResult.userId, firstName: loginResult.firstName, lastName: loginResult.lastName,employeeId : loginResult.employeeId ,isOwner: loginResult.isOwner, });
+    await Keychain.setGenericPassword(
+      loginResult.userName,
+      JSON.stringify({
+        token: loginResult.token,
+        password: loginResult.password,
+        firstName: loginResult.firstName,
+        lastName: loginResult.lastName,
+        employeeId: loginResult.employeeId,
+        isOwner: loginResult.isOwner,
+        userName: loginResult.userName,
+      })
+    );
+    set({
+      userName: loginResult.userName,
+      token: loginResult.token,
+      secureKey: loginResult.password,
+      userId: loginResult.userId,
+      firstName: loginResult.firstName,
+      lastName: loginResult.lastName,
+      employeeId: loginResult.employeeId,
+      isOwner: loginResult.isOwner,
+    });
   },
-
-  // New business action with loading state and Result pattern
   login: async (email: string, password: string): Promise<Result<LoginResult, AuthError>> => {
-    set({isLoading: true})
-    set({error: null})
-    // Import here to avoid circular dependency
-    const { AuthUseCase } = await import('../usecase/AuthUsecase');
-    const { authRepository } = await import('../repositories');
-    
-    const authUseCase = new AuthUseCase(authRepository);
+    set({ isLoading: true });
+    set({ error: null });
     const loginResult = await authUseCase.loginUser(email, password);
-    
     if (isSuccess(loginResult)) {
       const loginData = loginResult.value;
-      // Update store with login data
       const storeLogin = get().storeLogin;
-      await storeLogin(
-        loginData
-      );
-      // Call success callback
+      await storeLogin(loginData);
     }
-    set({isLoading: false})
+    set({ isLoading: false });
     return loginResult;
   },
 });
 
-export const useAuthStore = create<AuthState>()(authStoreCreator); // ✅ đúng cú pháp TS
+// Khởi tạo real usecase ở production
+import { ApiAuthRepository } from '../repositories/ApiAuthRepository';
+import { AuthApi } from '../services/AuthApi';
+const realAuthUseCase = new AuthUseCase(new ApiAuthRepository(AuthApi));
+export const useAuthStore = create<AuthState>()(createAuthStore(realAuthUseCase));

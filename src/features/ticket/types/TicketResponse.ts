@@ -8,13 +8,13 @@ export interface EmployeeEntity {
     isUnassigned: boolean;
   }
 
-  export function getDisplayName(employee: EmployeeEntity): string {
-    if (!employee.nickName || employee.nickName.trim() === "") {
-      return `${employee.firstName} ${employee.lastName}`;
-    } else {
-      return employee.nickName;
-    }
+export function getDisplayName(employee: EmployeeEntity): string {
+  if (!employee.nickName || employee.nickName.trim() === "") {
+    return `${employee.firstName} ${employee.lastName}`;
+  } else {
+    return employee.nickName;
   }
+}
 
 export interface WorkOrderEntity {
   nickName: string;
