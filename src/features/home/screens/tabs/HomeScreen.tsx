@@ -66,9 +66,7 @@ export default function HomeScreen() {
     });
   }, [toggleSwitch]);
   
-  const loadData = 
-  
-  async () => {
+  const loadData = async () => {
     await getHomeData();
     getChartData().then((result) => {
       if(isSuccess(result)) {

@@ -1,4 +1,4 @@
-package com.galaxyme
+package com.galaxyaccess.me
 
 import android.app.Application
 import com.facebook.react.PackageList

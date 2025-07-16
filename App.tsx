@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import AppNavigator from './src/app/AppNavigator';
 import { StatusBar, StyleSheet, useColorScheme, View, Alert, Platform } from 'react-native';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
@@ -14,28 +14,29 @@ import './src/shared/utils/extensions';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import messaging from '@react-native-firebase/messaging';
+import CustomBottomNotification from '@/shared/components/CustomBottomNotification';
 
-function useFirebaseNotification() {
+function useFirebaseNotification(notify:any, setNotify:any) {
   useEffect(() => {
     // 1. Xin quyền nhận notification
     async function requestPermission() {
-      const authStatus = await messaging().requestPermission();
+      const authStatus = await  messaging().requestPermission();
       const enabled =
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
         authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-      if (enabled) {
-        // 2. Lấy FCM token
-        const fcmToken = await messaging().getToken();
-        console.log('FCM Token:', fcmToken);
-        // TODO: Gửi token này lên server nếu cần
-      }
+      ///thông báo user không bật thông báo 
     }
     requestPermission();
 
     // 3. Lắng nghe notification khi app đang mở (foreground)
-    const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
+    const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => 
+    {
+      console.log('FCM foreground:', remoteMessage);
       Alert.alert('Thông báo mới', remoteMessage.notification?.title + '\n' + remoteMessage.notification?.body);
       console.log('FCM foreground:', remoteMessage);
+      setNotify({ title: remoteMessage.notification?.title ??"", message: remoteMessage.notification?.body??""});
+
+      
     });
 
     // 4. Lắng nghe notification khi app ở background/quit (phải đặt ở index.js, nhưng có thể để tạm ở đây nếu app nhỏ)
@@ -54,14 +55,14 @@ function useFirebaseNotification() {
       });
     }
 
-    return () => {
-      unsubscribeOnMessage();
-    };
+   
   }, []);
-}
+}   
 
 function App() {
-  useFirebaseNotification();
+  const [notify, setNotify] = useState<{title: string, message: string}|null>(null);
+
+  useFirebaseNotification(notify, setNotify);
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
@@ -73,6 +74,18 @@ function App() {
             <ActionSheetProvider >
               <AppNavigator/>
             </ActionSheetProvider>
+            {notify && (
+              <CustomBottomNotification
+                title={notify.title}
+                message={notify.message}
+                onClose={() => setNotify(null)}
+                onViewDetails={() => {
+                  // Xử lý khi bấm View Details
+                  setNotify(null);
+                  // ...navigate hoặc mở modal
+                }}
+              />
+            )}
           </View>
         </ThemeProvider>
       </BottomSheetModalProvider>

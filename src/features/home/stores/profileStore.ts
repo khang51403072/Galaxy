@@ -72,7 +72,22 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
   },
   logout: async () => {
     set({ isLoading: true });
+
+    const deviceId = await getPersistentDeviceId()
+
+    
+   
     const json = await keychainHelper.getObject();
+    try {
+      const rq : LogoutMRequest = {
+        deviceId: deviceId,
+        employeeId: json?.employeeId
+      }
+      await realAuthUseCase.logout(rq)
+    }
+    catch(e){
+      throw e
+    }
     if(json) {
       const userName = json.userName;
       const password = json.password;
@@ -83,6 +98,7 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
       await keychainHelper.reset();
       await keychainHelper.saveObject({userName: userName, password: password, firstName: firstName, lastName: lastName, avatarUri: avatarUri, isUseFaceId: isUseFaceId});
     }
+   
     set({ profile: null, isLoading: false });
   },
 });
@@ -92,3 +108,11 @@ import { ProfileRepositoryImplement } from '../repositories/ProfileRepositoryImp
 import { ProfileApi } from '../services/ProfileApi';
 const realProfileUseCase = new ProfileUseCase(new ProfileRepositoryImplement(ProfileApi));
 export const useUserStore = create<UserState>()(createUserStore(realProfileUseCase)); 
+
+import { ApiAuthRepository } from '../../auth/repositories/ApiAuthRepository';
+import { AuthUseCase } from '@/features/auth/usecase/AuthUsecase';
+import { AuthApi } from '@/features/auth/services/AuthApi';
+import { LogoutMRequest } from '@/features/auth/types/AuthTypes';
+import { getPersistentDeviceId } from '@/shared/utils/appConfig';
+
+const realAuthUseCase = new AuthUseCase(new ApiAuthRepository(AuthApi));
