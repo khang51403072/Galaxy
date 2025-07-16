@@ -1,3 +1,5 @@
+import { Platform } from "react-native";
+
 export type LoginInput = {
     email: string;
     password: string;
@@ -38,4 +40,15 @@ export type LoginInput = {
     merchantInfo: MerchantInfo;
     privileges: any[];
     fullName: string;
+  }
+
+
+  export interface RegisterFCMRequest{
+    deviceId: string,
+    deviceToken: string
+    platform: string
+  }
+  export interface LogoutMRequest{
+    deviceId: string,
+    employeeId: string
   }

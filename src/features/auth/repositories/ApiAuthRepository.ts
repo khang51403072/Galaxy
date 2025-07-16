@@ -1,7 +1,7 @@
 import { AuthRepository } from './AuthRepository';
-import { LoginEntity } from '../types/AuthTypes';
+import { LoginEntity, RegisterFCMRequest, LogoutMRequest } from '../types/AuthTypes';
 import { AuthApi } from '../services/AuthApi';
-import { Result, success, failure, asyncResult } from '../../../shared/types/Result';
+import { Result, success, failure } from '../../../shared/types/Result';
 import { AuthError, createAuthError } from '../types/AuthErrors';
 
 export class ApiAuthRepository implements AuthRepository {
@@ -10,12 +10,9 @@ export class ApiAuthRepository implements AuthRepository {
   async login(email: string, password: string): Promise<Result<LoginEntity, AuthError>> {
     try {
       const response = await this.authApi.login(email, password);
-      
-      // Validate response data
       if (!response.data) {
         return failure(new AuthError('Invalid response from server', 'SERVER_ERROR'));
       }
-
       const loginData: LoginEntity = {
         activationCode: response.data.activationCode || '',
         deviceId: response.data.deviceId || '',
@@ -43,14 +40,33 @@ export class ApiAuthRepository implements AuthRepository {
         employeeId: response.employeeId || '',
         isOwner: response.isOwner || false,
       };
-
       return success(loginData);
     } catch (error: any) {
       return failure(createAuthError(error));
     }
   }
 
-  
+  async registerFCM(request: RegisterFCMRequest): Promise<Result<any, AuthError>> {
+    try {
+      const response = await this.authApi.registerFCM(request);
+      if (response == null) {
+        return failure(new AuthError('No response from server', 'SERVER_ERROR'));
+      }
+      return success(response);
+    } catch (error: any) {
+      return failure(createAuthError(error));
+    }
+  }
 
-
+  async logout(request: LogoutMRequest): Promise<Result<any, AuthError>> {
+    try {
+      const response = await this.authApi.logout(request);
+      if (response == null) {
+        return failure(new AuthError('No response from server', 'SERVER_ERROR'));
+      }
+      return success(response);
+    } catch (error: any) {
+      return failure(createAuthError(error));
+    }
+  }
 } 

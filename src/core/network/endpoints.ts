@@ -1,6 +1,8 @@
 export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/galaxy-me/authen',
+    LOGOUT:'galaxy-me/logout',
+    REGISTER_FCM: 'galaxy-me/register-fcm'
   },
   PROFILE: {
     PROFILE: '/galaxy-me/profile',

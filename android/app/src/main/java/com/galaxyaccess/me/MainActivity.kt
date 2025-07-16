@@ -1,4 +1,4 @@
-package com.galaxyme
+package com.galaxyaccess.me
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

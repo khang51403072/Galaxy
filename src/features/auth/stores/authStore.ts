@@ -4,6 +4,7 @@ import { Result, isSuccess } from '../../../shared/types/Result';
 import { AuthError } from '../types/AuthErrors';
 import { LoginResult, AuthUseCase } from '../usecase/AuthUsecase';
 
+
 export type AuthState = {
   userName: string | null;
   token: string | null;
@@ -63,6 +64,17 @@ export const createAuthStore = (authUseCase: AuthUseCase) => (set: any, get: any
       const loginData = loginResult.value;
       const storeLogin = get().storeLogin;
       await storeLogin(loginData);
+      const deviceId = await getPersistentDeviceId()
+      if(Platform.OS == 'ios')
+      await firebase.messaging().registerDeviceForRemoteMessages();
+
+      const token = await getMessaging().getAPNSToken();
+      const rq: RegisterFCMRequest = {
+        deviceId: deviceId,
+        deviceToken: token??"",
+        platform: Platform.OS
+      };
+      await realAuthUseCase.registerFCM(rq);
     }
     set({ isLoading: false });
     return loginResult;
@@ -72,5 +84,9 @@ export const createAuthStore = (authUseCase: AuthUseCase) => (set: any, get: any
 // Khởi tạo real usecase ở production
 import { ApiAuthRepository } from '../repositories/ApiAuthRepository';
 import { AuthApi } from '../services/AuthApi';
+import { getPersistentDeviceId } from '@/shared/utils/appConfig';
+import { firebase, getMessaging } from '@react-native-firebase/messaging';
+import { RegisterFCMRequest } from '../types/AuthTypes';
+import { Platform } from 'react-native';
 const realAuthUseCase = new AuthUseCase(new ApiAuthRepository(AuthApi));
 export const useAuthStore = create<AuthState>()(createAuthStore(realAuthUseCase));
