@@ -28,6 +28,7 @@ export const lightColors = {
   cyan200:"#1CD8D920",
   backroundIconClose: '#00000014',
   backgroundTabBarReport: '#00000014',
+  unselectedNotify: "#EEF4FF",
   // Text Colors
   text: '#000000',
   textSecondary: '#666666',

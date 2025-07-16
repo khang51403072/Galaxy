@@ -32,7 +32,7 @@ import Menu from '../assets/icons/Menu.svg';
 import LogoWhite from '../assets/icons/LogoWhite.svg';
 import Group1 from '../assets/icons/Group1.svg';
 import Group2 from '../assets/icons/Group2.svg';
-
+import ReadAll from '../assets/icons/ReadAll.svg';
 export const iconMap = {
   user: User,
   passwordCheck: PasswordCheck,
@@ -66,6 +66,7 @@ export const iconMap = {
   LogoWhite: LogoWhite,
   group1: Group1,
   group2: Group2,
+  readAll: ReadAll
 };
 
  type XIconProps = {
