@@ -33,6 +33,12 @@ export async function markNotificationAsRead(id: string) {
   await AsyncStorage.setItem(NOTIFY_KEY, JSON.stringify(updated));
 }
 
+export async function markAllNotificationAsRead() {
+  const list = await getNotifications();
+  const updated = list.map(n => ({ ...n, read: true }));
+  await AsyncStorage.setItem(NOTIFY_KEY, JSON.stringify(updated));
+}
+
 export function initFirebaseNotificationService(
   onNotify: (item: NotificationItem) => void
 ) {

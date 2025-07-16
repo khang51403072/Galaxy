@@ -79,6 +79,7 @@ declare global {
      */
     toMMDDYYYYHHMM(divider?: string): string;
 
+    toMMDD(divider?: string): string;
   }
 }
 
@@ -228,5 +229,11 @@ Date.prototype.toMMDDYYYYHHMM = function (divider: string = ''): string {
   const mm = this.getMinutes() < 10 ? `0${this.getMinutes()}` : this.getMinutes();
   return `${dd}${d}${MM}${d}${yyyy} ${hh}:${mm} ${ampm}`;
 };
+
+Date.prototype.toMMDD = function (divider: string = '/'):string{
+  const d = getDivider(divider);
+  const [dd, MM, yyyy] = formatDate(this, d);
+  return `${MM}/${dd}`;
+}
 
 export {}; 

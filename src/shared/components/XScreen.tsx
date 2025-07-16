@@ -22,6 +22,7 @@
  *   - safeArea: boolean (tự động padding top/bottom theo device)
  *   - onRefresh, refreshing: dùng cho pull-to-refresh
  *   - style, backgroundColor, padding, ...: custom layout
+ *   - rightIcon: hiện icon/component bên phải trên app bar (tự xử lý onPress nếu cần)
  *
  * Flow render:
  *   1. Nếu loading: hiện skeleton hoặc spinner
@@ -80,6 +81,7 @@ interface XScreenProps {
   showHeader?: boolean;
   footer?: ReactNode;
   style?: any;
+  rightIcon?: ReactNode;
 }
 
 
@@ -102,7 +104,8 @@ export default function XScreen({
   title,
   showHeader = title ? true : false,
   footer,
-  style
+  style,
+  rightIcon,
 }: XScreenProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -226,7 +229,14 @@ export default function XScreen({
         styles.container,
       ]}
     >
-      {showHeader && <XAppBar title={title ?? ""} showBack={true} />}
+      {showHeader && (
+        <XAppBar
+          title={title ?? ""}
+          showBack={true}
+          rightIcon={rightIcon}
+          safeArea={safeArea}
+        />
+      )}
       {content}
     </View>
   );
