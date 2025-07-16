@@ -3,15 +3,12 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { XColors } from '../../../../shared/constants/colors';
 import XText from '../../../../shared/components/XText';
 import XScreen from '../../../../shared/components/XScreen';
-import { useAuthStore } from '../../../auth/stores/authStore';
 import { useShallow } from 'zustand/react/shallow';
 import XAvatar from '../../../../shared/components/XAvatar';
-import { avatarSelectors, useAvatarStore } from '../../stores/avatarStore';
 import XIcon from '../../../../shared/components/XIcon';
 import { useTheme } from '../../../../shared/theme/ThemeProvider';
 import CategoryCard from '../../components/CategoryCard';
 import XChart from '../../../../shared/components/XChartBar';
-import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../../../app/routes';
 import {  homeSelectors, useHomeStore } from '../../stores/homeStore';
 import HomeSkeleton from '../../components/HomeSkeleton';
@@ -19,7 +16,6 @@ import { isSuccess } from '../../../../shared/types/Result';
 import { ChartEntity } from '../../types/HomeResponse';
 import { XSkeleton } from '../../../../shared/components/XSkeleton';
 import { navigate } from '@/app/NavigationService';
-import { keychainHelper } from '@/shared/utils/keychainHelper';
 
 export default function HomeScreen() {
   const { homeData, isLoading, error, getHomeData, getChartData,  isLoadingChart, toggleSwitch, json, chartDisplayData, setChartDisplayData } = useHomeStore(
@@ -210,7 +206,11 @@ export default function HomeScreen() {
       {homeData?.employeeInfo?.firstName+ " " + homeData?.employeeInfo?.lastName}
     </XText>  
   </View>
-  <XIcon name='bell' width={24} height={24} color={XColors.primary} />
+  <TouchableOpacity onPress={()=>navigate(ROUTES.NOTIFICATIONS)}>
+    <XIcon  name='bell' width={24} height={24} color={XColors.primary} />
+
+  </TouchableOpacity>
+  
 </View>
 
 const meEarningsToday = 
