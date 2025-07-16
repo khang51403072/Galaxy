@@ -1,3 +1,43 @@
+/*
+ * XScreen - Universal Screen Wrapper Component
+ * -------------------------------------------
+ * Mục đích:
+ *   - Đóng gói layout chuẩn cho mọi màn hình trong app (header, content, scroll, loading, error, keyboard, safe area...)
+ *   - Đảm bảo code UI nhất quán, dễ maintain, dễ mở rộng.
+ *
+ * Cách sử dụng:
+ *   Ví dụ:
+ *     XScreen title="Tiêu đề" scrollable loading={{isLoading}} error={{errorMsg}}
+ *       ...Nội dung màn hình...
+ *     /XScreen
+ *
+ * Props chính:
+ *   - title: string (hiện header nếu có)
+ *   - showHeader: boolean (ẩn/hiện header)
+ *   - loading: boolean (hiện skeleton hoặc spinner)
+ *   - error: string | null (hiện alert lỗi)
+ *   - scrollable: boolean (bọc ScrollView)
+ *   - keyboardAvoiding: boolean (bọc KeyboardAvoidingView)
+ *   - dismissKeyboard: boolean (bọc TouchableWithoutFeedback)
+ *   - safeArea: boolean (tự động padding top/bottom theo device)
+ *   - onRefresh, refreshing: dùng cho pull-to-refresh
+ *   - style, backgroundColor, padding, ...: custom layout
+ *
+ * Flow render:
+ *   1. Nếu loading: hiện skeleton hoặc spinner
+ *   2. Nếu có header: render XAppBar trên cùng
+ *   3. Content bọc lần lượt: ScrollView -> TouchableWithoutFeedback -> KeyboardAvoidingView (tùy props)
+ *   4. Error hiển thị trong content
+ *
+ * Lưu ý maintain:
+ *   - Nếu muốn thêm footer, mở lại phần comment ở cuối content
+ *   - Nếu muốn custom header, truyền thêm prop cho XAppBar
+ *   - Nếu muốn tối ưu performance, có thể memo hóa StyleSheet
+ *   - Đảm bảo truyền đúng props để tránh bọc wrapper dư thừa
+ *
+ * Author: [Khangnt]
+ * Last updated: [2025.07.16]
+ */
 import React, { ReactNode } from 'react';
 import {
   View,
@@ -18,115 +58,89 @@ import XButton from './XButton';
 import XAppBar from './XAppBar';
 import XAlert from './XAlert';
 import { XSkeleton } from './XSkeleton';
-import { FeTurbulence } from 'react-native-svg';
 import LoadingAnimation from './LoadingAnimation';
-
-/**
- * XScreen - A comprehensive screen wrapper component
- * 
- * Features:
- * - Layout options (scrollable, keyboard avoiding, safe area)
- * - Loading states (spinner, skeleton)
- * - Error handling
- * - Pull to refresh
- * - Header support
- * 
- * Loading Usage:
- * 1. With skeleton: <XScreen loading={true} skeleton={<CustomSkeleton />} />
- * 2. With spinner: <XScreen loading={true} />
- */
-
-
 
 interface XScreenProps {
   children: ReactNode;
-  // Layout options
   scrollable?: boolean;
   keyboardAvoiding?: boolean;
   dismissKeyboard?: boolean;
   safeArea?: boolean;
-  
-  // Styling
   backgroundColor?: string;
   padding?: number;
   paddingHorizontal?: number;
   paddingVertical?: number;
-  
-  // Loading & Error states
   loading?: boolean;
   error?: string | null;
   onRetry?: () => void;
-  
-  // Skeleton loading (optional - if provided, shows skeleton instead of spinner)
   skeleton?: ReactNode;
-  
-  // Pull to refresh
   onRefresh?: () => void;
   refreshing?: boolean;
-  
-  // Header
   title?: string;
   showHeader?: boolean;
-  
-  // Footer
   footer?: ReactNode;
-  
-  // Custom styles
   style?: any;
-  contentStyle?: any;
 }
+
 
 export default function XScreen({
   children,
-  // Layout options
   scrollable = false,
   keyboardAvoiding = false,
   dismissKeyboard = false,
   safeArea = true,
-  
-  // Styling
   backgroundColor,
   padding,
   paddingHorizontal,
   paddingVertical,
-  
-  // Loading & Error states
   loading = false,
   error = null,
   onRetry,
-  
-  // Skeleton loading (optional - if provided, shows skeleton instead of spinner)
   skeleton,
-  
-  // Pull to refresh
   onRefresh,
   refreshing = false,
-  
-  // Header
   title,
   showHeader = title ? true : false,
-  
-  // Footer
   footer,
-  
-  // Custom styles
-  style,
-  contentStyle,
+  style
 }: XScreenProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  
-  // Use theme colors if not provided
   const screenBackgroundColor = backgroundColor || theme.colors.background;
   const screenPadding = padding ?? theme.spacing.md;
   const screenPaddingHorizontal = paddingHorizontal ?? screenPadding;
   const screenPaddingVertical = paddingVertical ?? screenPadding;
-
-  
-
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    content: {
+      flex: 1,
+      
+    },
+    scrollContent: {
+      flexGrow: 1,
+    },
+    header: {
+      marginBottom: 16,
+    },
+    footer: {
+      marginTop: 16,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    errorContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 16,
+    },
+  }); 
   // Loading screen (skeleton or spinner)
   if (loading) {
-    // If skeleton is provided, show skeleton; otherwise show spinner
     if (skeleton) {
       return (
         <View style={[
@@ -142,179 +156,81 @@ export default function XScreen({
         </View>
       );
     }
-    
-    // Default loading spinner
-    return (
-      <LoadingAnimation />
-      // <View style={[
-      //   styles.loadingContainer,
-      //   { backgroundColor: screenBackgroundColor },
-      //   safeArea && {
-      //     paddingTop: insets.top,
-      //     paddingBottom: insets.bottom,
-      //   },
-      //   style,
-      // ]}>
-      //   <ActivityIndicator size="large" color={theme.colors.primary} />
-      //   <XText variant="body" style={{ marginTop: theme.spacing.md }}>
-      //     Đang tải...
-      //   </XText>
-      // </View>
-    );
+    return <LoadingAnimation />;
   }
 
   // Main content
-  const content = (
-    <View style={[styles.container, ]}>
-      {/* Header */}
-      {showHeader && title && (
-          <XAppBar title={title} showBack={true} />
-        )}
-      <View style={[
-        styles.content,
-        {
-          backgroundColor: screenBackgroundColor,
-          paddingHorizontal: screenPaddingHorizontal,
-         
-        },
-        contentStyle,
-      ]}>
-      
-        
-        {/* Main content */}
-        {children}
-        {/* Alert */}
-        {error && (
-          <XAlert
-            
-            message={error}
-            type="error"
-            onClose={()=>{}}
-          />
-        )}
-        {/* Footer */}
-        {/* {footer && (
-          <View style={styles.footer}>
-            {footer}
-          </View>
-        )} */}
-      </View>
+  let content = (
+    <View style={[
+      styles.content,
+      {
+        backgroundColor: backgroundColor||theme.colors.background, 
+        paddingTop: !showHeader && safeArea ?   insets.top  : 0 ,
+        paddingHorizontal: screenPaddingHorizontal
+      },
+      style
+    ]}>
+      {children}
+      {error && <XAlert message={error} type="error" onClose={() => {}} />}
+      {/* {footer && <View style={styles.footer}>{footer}</View>} */}
     </View>
   );
 
-  // Keyboard avoiding wrapper
-  if (keyboardAvoiding) {
-    return (
-      <KeyboardAvoidingView
-        style={[
-          styles.container,
-          { backgroundColor: screenBackgroundColor,paddingTop: safeArea ? insets.top  : 0 },
-          style,
-        ]}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        {dismissKeyboard ? (
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            {content}
-          </TouchableWithoutFeedback>
-        ) : (
-          content
-        )}
-      </KeyboardAvoidingView>
-    );
-  }
-
-  // Scrollable wrapper
   if (scrollable) {
-    return (
-      <View style={[
-        styles.container,
-        { backgroundColor: screenBackgroundColor ,paddingTop: safeArea ? insets.top  : 0},
-        
-        style,
-      ]}>
-        <ScrollView
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              paddingHorizontal: screenPaddingHorizontal,
-              // paddingVertical: screenPaddingVertical,
-              paddingBottom: safeArea ? insets.bottom+100 : 0,
-            },
-            contentStyle,
-          ]}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          refreshControl={onRefresh ? (
+    content =  (
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingBottom: safeArea ? insets.bottom + 100 : 0,
+          }
+        ]}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          onRefresh ? (
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
               colors={[theme.colors.primary]}
               tintColor={theme.colors.primary}
             />
-          ) : undefined}
-        >
-          {/* Header */}
-          {showHeader && title && (
-            <XAppBar title={title} showBack={true} />
-          )}
-          
-          {/* Main content */}
-          {children}
-          
-          
-        </ScrollView>
-      </View>
+          ) : undefined
+        }
+      >
+        {content}
+      </ScrollView>
     );
   }
 
-  // Default wrapper
+  if(dismissKeyboard)
+  {
+    content = (
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        {content}
+      </TouchableWithoutFeedback>
+    )
+  }
+  if (keyboardAvoiding) {
+    content = (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+       >
+        {content}
+      </KeyboardAvoidingView>
+    );
+  }
   return (
-    <View style={[
-      styles.container,
-      { backgroundColor: theme.colors.white },
-      safeArea && {
-        paddingTop: insets.top,
-       
-      },
-      style,
-    ]}>
-      {dismissKeyboard ? (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          {content}
-        </TouchableWithoutFeedback>
-      ) : (
-        content
-      )}
+    <View
+      style={[
+        styles.container,
+      ]}
+    >
+      {showHeader && <XAppBar title={title ?? ""} showBack={true} />}
+      {content}
     </View>
   );
+
+  
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  header: {
-    marginBottom: 16,
-  },
-  footer: {
-    marginTop: 16,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-}); 

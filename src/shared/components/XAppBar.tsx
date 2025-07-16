@@ -11,9 +11,10 @@ interface XAppBarProps {
   title: string;
   showBack?: boolean;
   onBackPress?: () => void;
+  safeArea?: boolean
 }
 
-export default function XAppBar({ title, showBack = true, onBackPress,}: XAppBarProps) {
+export default function XAppBar({ title, showBack = true, onBackPress, safeArea = true}: XAppBarProps) {
   const navigation = useNavigation();
   const theme = useTheme(); 
   const insets = useSafeAreaInsets();
@@ -31,6 +32,7 @@ export default function XAppBar({ title, showBack = true, onBackPress,}: XAppBar
       borderBottomWidth: 1,
       borderBottomColor: '#eee',
       backgroundColor: '#fff',
+      paddingTop: safeArea? insets.top : 0,
       paddingHorizontal: theme.spacing.lg, 
       paddingBottom: theme.spacing.md,
     },

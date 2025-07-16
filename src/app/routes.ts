@@ -8,6 +8,7 @@ export const ROUTES = {
     PROFILE: 'Profile',
     UPDATE_PROFILE: 'UpdateProfile',
     CHANGE_PASSWORD: 'ChangePassword',
+    NOTIFICATIONS: 'Notifications',
     TICKET: 'Ticket',
     PAYROLL: 'Payroll',
     REPORT: 'Report',
@@ -33,6 +34,7 @@ export const ROUTES = {
     [ROUTES.APPOINTMENT]: undefined;
     [ROUTES.CREATE_APPOINTMENT]: undefined;
     [ROUTES.SELECT_CUSTOMER]: undefined;
+    [ROUTES.NOTIFICATIONS]: undefined;
     // Thêm params cho các route khác nếu cần
   };
   
