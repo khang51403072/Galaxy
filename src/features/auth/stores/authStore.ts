@@ -65,10 +65,11 @@ export const createAuthStore = (authUseCase: AuthUseCase) => (set: any, get: any
       const storeLogin = get().storeLogin;
       await storeLogin(loginData);
       const deviceId = await getPersistentDeviceId()
-      if(Platform.OS == 'ios')
-      await firebase.messaging().registerDeviceForRemoteMessages();
+      if (!firebase.messaging().isDeviceRegisteredForRemoteMessages) {
+        await firebase.messaging().registerDeviceForRemoteMessages();
+      }
 
-      const token = await getMessaging().getAPNSToken();
+      const token = await getMessaging().getToken();
       const rq: RegisterFCMRequest = {
         deviceId: deviceId,
         deviceToken: token??"",

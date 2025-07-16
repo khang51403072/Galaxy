@@ -15,54 +15,18 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import messaging from '@react-native-firebase/messaging';
 import CustomBottomNotification from '@/shared/components/CustomBottomNotification';
+import { initFirebaseNotificationService, removeFirebaseNotificationListener } from './src/shared/services/FirebaseNotificationService';
 
-function useFirebaseNotification(notify:any, setNotify:any) {
-  useEffect(() => {
-    // 1. Xin quyền nhận notification
-    async function requestPermission() {
-      const authStatus = await  messaging().requestPermission();
-      const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-      ///thông báo user không bật thông báo 
-    }
-    requestPermission();
-
-    // 3. Lắng nghe notification khi app đang mở (foreground)
-    const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => 
-    {
-      console.log('FCM foreground:', remoteMessage);
-      Alert.alert('Thông báo mới', remoteMessage.notification?.title + '\n' + remoteMessage.notification?.body);
-      console.log('FCM foreground:', remoteMessage);
-      setNotify({ title: remoteMessage.notification?.title ??"", message: remoteMessage.notification?.body??""});
-
-      
-    });
-
-    // 4. Lắng nghe notification khi app ở background/quit (phải đặt ở index.js, nhưng có thể để tạm ở đây nếu app nhỏ)
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('FCM background:', remoteMessage);
-    });
-
-    // 5. Android 13+ cần xin quyền POST_NOTIFICATIONS
-    if (Platform.OS === 'android' && Platform.Version >= 33) {
-      import('react-native-permissions').then(({ check, request, PERMISSIONS, RESULTS }) => {
-        check(PERMISSIONS.ANDROID.POST_NOTIFICATIONS).then(result => {
-          if (result !== RESULTS.GRANTED) {
-            request(PERMISSIONS.ANDROID.POST_NOTIFICATIONS);
-          }
-        });
-      });
-    }
-
-   
-  }, []);
-}   
 
 function App() {
   const [notify, setNotify] = useState<{title: string, message: string}|null>(null);
+  useEffect(() => {
+    initFirebaseNotificationService(setNotify);
+    return () => {
+      removeFirebaseNotificationListener();
+    };
+  }, []);
 
-  useFirebaseNotification(notify, setNotify);
   const isDarkMode = useColorScheme() === 'dark';
 
   return (

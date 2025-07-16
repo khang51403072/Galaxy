@@ -14,6 +14,7 @@ import CreateAppointmentScreen from '@/features/appointment/screens/CreateAppoin
 import SelectCustomerScreen from '@/features/appointment/screens/SelectCustomerScreen';
 import SplashScreen from '../shared/components/SplashScreen';
 import { navigationRef } from './NavigationService';
+import NotificationListScreen from '@/features/home/screens/subScreen/NotificationListScreen';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -33,6 +34,7 @@ export default function AppNavigator() {
         <Stack.Screen name={ROUTES.APPOINTMENT} component={AppointmentScreen} /> 
         <Stack.Screen name={ROUTES.CREATE_APPOINTMENT} component={CreateAppointmentScreen} /> 
         <Stack.Screen name={ROUTES.SELECT_CUSTOMER} component={SelectCustomerScreen} /> 
+        <Stack.Screen name={ROUTES.NOTIFICATIONS} component={NotificationListScreen} /> 
       </Stack.Navigator>
     </NavigationContainer>
   );

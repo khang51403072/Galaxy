@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, RefObject } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, StyleProp, ViewStyle, LayoutChangeEvent, Dimensions, ScrollView, Modal, UIManager, findNodeHandle } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useTheme } from '../theme/ThemeProvider';
-
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 interface XDatePickerProps {
