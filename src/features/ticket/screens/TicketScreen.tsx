@@ -6,7 +6,7 @@ import { FlatList, TouchableOpacity, useWindowDimensions, View } from "react-nat
 import XInput from "../../../shared/components/XInput";
 import { ticketSelectors, TicketState, useTicketStore } from "../stores/ticketStore";
 import { useShallow } from "zustand/react/shallow";
-import { getDisplayName } from "../types/TicketResponse";
+import { getDisplayName, WorkOrderEntity } from "../types/TicketResponse";
 import XDatePicker from "../../../shared/components/XDatePicker";
 import WebView from "react-native-webview";
 import XIcon from "../../../shared/components/XIcon";
@@ -14,6 +14,7 @@ import { useTheme } from "../../../shared/theme/ThemeProvider";
 import { useEmployeeStore, employeeSelectors } from '@/shared/stores/employeeStore';
 import { homeSelectors, useHomeStore } from "@/features/home/stores/homeStore";
 import XNoDataView from "@/shared/components/XNoDataView";
+import XRenderHTML from "@/shared/components/XRenderHTML";
 
 export default function  TicketScreen() {
   const {width} = useWindowDimensions();
@@ -47,7 +48,28 @@ export default function  TicketScreen() {
     if(jsonHome) setJson(jsonHome)
       console.log("jsonHome", jsonHome)
   }, []);
-
+  const dashed = <View
+    style={{
+      borderBottomWidth: 1,
+      borderColor: '#aaa',
+      borderStyle: 'dashed',
+      marginVertical: 16,
+    }}
+  />
+  const serviceLine = (item: WorkOrderEntity)=>{
+    return <View style={{flexDirection: "row", alignItems:'flex-start'}}>
+      <XText variant="contentTitle">{item.ticketDate}   </XText>
+      <XText variant="contentTitle">{item.ticketDate}   {item.serviceStartTime} - {item.serviceEndTime}</XText>
+      <XText variant="contentTitle">{item.ticketDate}   {item.serviceStartTime} - {item.serviceEndTime}</XText>
+      
+    </View>
+  }
+  // Hàm renderItem nhận đầu vào là html
+  const renderItem = ({ item }: { item: { detail: string } }) => (
+    <View style={{ marginVertical: 8, backgroundColor: '#fff', borderRadius: 8, padding: 8, overflow: 'hidden', ...theme.shadows.sm }}>
+      <XRenderHTML html={item.detail} width={undefined} />
+    </View>
+  );
   return (
     <XScreen title="Tickets" loading={isLoading} error={error} style={{ flex: 1 }}> 
       {/* View header */}
@@ -61,21 +83,21 @@ export default function  TicketScreen() {
         </TouchableOpacity>:null}
         <View style={{ flexDirection: 'row', gap: 16, alignItems: 'flex-end' }}>
           <XDatePicker
-            label="Date"
+            // label="Date"
             value={startDate ?? new Date()}
             onChange={(date) => useTicketStore.setState({startDate: date})}
             placeholder="Chọn ngày sinh"
-            minimumDate={new Date(1900, 0, 1)}
-            maximumDate={new Date()}
+            // minimumDate={new Date(1900, 0, 1)}
+            // maximumDate={new Date()}
             style={{ flex: 1 }}
           />
           <XDatePicker
-            label="Date"
+            // label="Date"
             value={endDate ?? new Date()}
             onChange={(date) => useTicketStore.setState({endDate: date})}
             placeholder="Chọn ngày sinh"
-            minimumDate={new Date(1900, 0, 1)}
-            maximumDate={new Date()}
+            // minimumDate={new Date(1900, 0, 1)}
+            // maximumDate={new Date()}
             style={{ flex: 1 }}
           />
           <TouchableOpacity
@@ -117,17 +139,8 @@ export default function  TicketScreen() {
       {!visible &&
       <FlatList
         data={json?.isOwner ? workOrderOwners : workOrders}
-        keyExtractor={(item, idx) => item.ticketNumber?.toString() || idx.toString()}
-        renderItem={({ item }) => (
-          <View style={{ marginVertical: 8, backgroundColor: '#fff', borderRadius: 8, padding: 8, overflow: 'hidden', ...theme.shadows.sm }}>
-            <WebView
-              originWhitelist={['*']}
-              source={{ html: item.detail }}
-              style={{ width: '100%', height: 150 }} 
-              scrollEnabled={false}
-            />
-          </View>
-        )}
+        keyExtractor={(item, idx) => item.ticketNumber?.toString()+ idx.toString()}
+        renderItem={renderItem}
         contentContainerStyle={{ padding: 16 }}
         ListEmptyComponent={<XNoDataView />}
       />
