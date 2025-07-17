@@ -6,6 +6,7 @@ import { useTheme } from '@/shared/theme';
 import XIcon from '@/shared/components/XIcon';
 import XAlert from '@/shared/components/XAlert';
 import XDialog from '@/shared/components/XDialog';
+import XNoDataView from '@/shared/components/XNoDataView';
 const NotificationListScreen = () => {
   const theme =  useTheme() ;
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -56,18 +57,16 @@ const NotificationListScreen = () => {
   const readAllIcon = <TouchableOpacity onPress={()=>{
     setShowAlert(true);
   }}>
-    <XIcon name="readAll" width={20} height={20}>
-      
-    </XIcon>
+    <XIcon name="readAll" width={theme.spacing.lg} height={theme.spacing.lg} />
   </TouchableOpacity>
 
   return (
-    <XScreen rightIcon={readAllIcon} title='Notifications' style={styles.container} paddingHorizontal={0}>
+    <XScreen rightIcon={readAllIcon} title='Notification' style={styles.container} paddingHorizontal={0}>
       <FlatList
         data={notifications}
         keyExtractor={item => item.id}
         renderItem={renderItem}
-        ListEmptyComponent={<Text style={styles.empty}>Không có thông báo nào</Text>}
+        ListEmptyComponent={<XNoDataView />}
       />
       <XDialog onCancel={()=>setShowAlert(false)} onConfirm={()=>{setShowAlert(false);markAllNotificationAsRead().then(getNotifications) }} visible={isShowAlert} content={"Read all message?"}></XDialog>
     </XScreen>

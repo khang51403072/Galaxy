@@ -48,13 +48,7 @@ export default function HomeScreen() {
   useEffect(() => {
     loadData();
   }, []);
-  let isFirst = true;
   useEffect(() => {
-    if(isFirst) 
-    {
-      isFirst = false
-      return
-    }
     getChartData().then((result) => {
       if(isSuccess(result)) {
         loadData2Chart(result.value);        

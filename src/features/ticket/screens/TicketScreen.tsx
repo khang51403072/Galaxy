@@ -13,6 +13,7 @@ import XIcon from "../../../shared/components/XIcon";
 import { useTheme } from "../../../shared/theme/ThemeProvider";
 import { useEmployeeStore, employeeSelectors } from '@/shared/stores/employeeStore';
 import { homeSelectors, useHomeStore } from "@/features/home/stores/homeStore";
+import XNoDataView from "@/shared/components/XNoDataView";
 
 export default function  TicketScreen() {
   const {width} = useWindowDimensions();
@@ -113,13 +114,7 @@ export default function  TicketScreen() {
         title="Technician "
       /> 
 
-      {!visible && 
-      workOrders.length == 0 && workOrderOwners.length == 0 ? 
-      <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
-        <XIcon name="noData" width={48} height={48} />
-        <XText variant="content400">No data</XText>
-      </View>
-      :
+      {!visible &&
       <FlatList
         data={json?.isOwner ? workOrderOwners : workOrders}
         keyExtractor={(item, idx) => item.ticketNumber?.toString() || idx.toString()}
@@ -134,6 +129,7 @@ export default function  TicketScreen() {
           </View>
         )}
         contentContainerStyle={{ padding: 16 }}
+        ListEmptyComponent={<XNoDataView />}
       />
       }
     </XScreen>

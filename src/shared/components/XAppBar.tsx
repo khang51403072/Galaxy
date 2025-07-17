@@ -4,6 +4,8 @@ import XIcon from './XIcon';
 import { XColors } from '../constants/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { goBack } from '@/app/NavigationService';
+import { useTheme } from '../theme/ThemeProvider';
+import XText from './XText';
 
 interface XAppBarProps {
   title: string;
@@ -15,6 +17,39 @@ interface XAppBarProps {
 
 export default function XAppBar({ title, showBack = true, onBackPress, rightIcon, safeArea = true }: XAppBarProps) {
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
+  const styles = StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: theme.spacing.md,
+      backgroundColor: theme.colors.white,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    backBtn: {
+      width: theme.spacing.md,
+      height:theme.spacing.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    title: {
+      flex: 1,
+      textAlign: 'center',
+    },
+    rightIcon: {
+      width: theme.spacing.lg,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    rightIconPlaceholder: {
+      width: theme.spacing.lg,
+      height: theme.spacing.lg,
+    },
+  });
+  
+  
+  
   const handleBack = () => {
     if (onBackPress) {
       onBackPress();
@@ -34,7 +69,7 @@ export default function XAppBar({ title, showBack = true, onBackPress, rightIcon
       ) : (
         <View style={styles.backBtn} />
       )}
-      <Text style={styles.title} numberOfLines={1}>{title}</Text>
+      <XText variant="title" style={styles.title} numberOfLines={1}>{title}</XText>
       {rightIcon ? (
         <View style={styles.rightIcon}>
           {rightIcon}
@@ -45,41 +80,4 @@ export default function XAppBar({ title, showBack = true, onBackPress, rightIcon
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    backgroundColor: 'fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  backBtn: {
-    padding: 8,
-    marginRight: 8,
-    width: 20,
-    height:20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#222',
-    textAlign: 'center',
-  },
-  rightIcon: {
-    padding: 8,
-    marginLeft: 8,
-    width: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  rightIconPlaceholder: {
-    width: 32,
-    height: 32,
-  },
-});
 

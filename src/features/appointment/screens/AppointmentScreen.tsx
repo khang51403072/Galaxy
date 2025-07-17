@@ -6,14 +6,14 @@ import XScreen from "../../../shared/components/XScreen";
 import XIcon, { iconMap } from "../../../shared/components/XIcon";
 import {  useAppointmentStore, appointmentSelectors, AppointmentState } from "../stores/appointmentStore";
 import XText from "../../../shared/components/XText";
-import { getDisplayName, getAppointmentDateTime, getStatusColor, getStatusText, getCustomerPhone, getCustomerEmail, getServiceName, getTechnicianName, getPrice, AppointmentEntity } from "../types/AppointmentResponse";
-import XAvatar from "@/shared/components/XAvatar";
+import { getAppointmentDateTime, getServiceName, AppointmentEntity } from "../types/AppointmentResponse";
 import CustomTabBar from "@/shared/components/CustomTabBar";
 import { SceneMap, TabView } from "react-native-tab-view";
 import XCalendarStrip from "@/shared/components/XCalendarStrip";
 import { ROUTES } from "@/app/routes";
 import { useNavigation } from "@react-navigation/native";
 import { appConfig } from "@/shared/utils/appConfig";
+import XNoDataView from "@/shared/components/XNoDataView";
 
 export default function AppointmentScreen() {
   const theme = useTheme();
@@ -115,37 +115,40 @@ export default function AppointmentScreen() {
   
   const renderScene = SceneMap({
     all: () => (
-        appointmentList.length > 0 ? (
-            <FlatList
-                contentContainerStyle={{padding: theme.spacing.sm }}
-                data={appointmentList}
-                renderItem={renderAppointmentItem}
-                keyExtractor={(item) => item.apptId}
-            />
-        ) : (
-      <View style={{ backgroundColor: 'transparent', flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
-        <XIcon name="noData" width={48} height={48} />
-        <XText variant="content400">No data</XText>
-      </View>
-        )
+      <FlatList
+      contentContainerStyle={{padding: theme.spacing.sm }}
+      data={appointmentList}
+      renderItem={renderAppointmentItem}
+      keyExtractor={(item) => item.apptId}
+      ListEmptyComponent={<XNoDataView />}
+    />
     ),
     new: () => (
-      <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
-        <XIcon name="noData" width={48} height={48} />
-        <XText variant="content400">No data</XText>
-      </View>
+        <FlatList
+          contentContainerStyle={{padding: theme.spacing.sm }}
+          data={appointmentList}
+          renderItem={renderAppointmentItem}
+          keyExtractor={(item) => item.apptId}
+          ListEmptyComponent={<XNoDataView />}
+        />
     ),
     checkin: () => (
-      <View style={{ flex: 1,  justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
-        <XIcon name="noData" width={48} height={48} />
-        <XText variant="content400">No data</XText>
-      </View>
+      <FlatList
+        contentContainerStyle={{padding: theme.spacing.sm }}
+        data={appointmentList}
+        renderItem={renderAppointmentItem}
+        keyExtractor={(item) => item.apptId}
+        ListEmptyComponent={<XNoDataView />}
+      />
     ),
     checkout: () => (
-      <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
-        <XIcon name="noData" width={48} height={48} />
-        <XText variant="content400">No data</XText>
-      </View>
+      <FlatList
+        contentContainerStyle={{padding: theme.spacing.sm }}
+        data={appointmentList}
+        renderItem={renderAppointmentItem}
+        keyExtractor={(item) => item.apptId}
+        ListEmptyComponent={<XNoDataView />}
+      />
     ),
   });
   
@@ -251,7 +254,6 @@ export default function AppointmentScreen() {
         }}
         activeOpacity={0.85}
         onPress={() => {
-          // TODO: handle create appointment
           navigation.navigate(ROUTES.CREATE_APPOINTMENT as never);
         }}
       >
