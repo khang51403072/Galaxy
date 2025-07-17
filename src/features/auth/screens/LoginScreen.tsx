@@ -1,24 +1,18 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Button, Dimensions, TouchableOpacity, View } from 'react-native';
-import LoginForm from '../components/LoginForm';
+import React, { useCallback, useEffect, useState } from 'react';
+import { TouchableOpacity, View } from 'react-native';
 import { useAuthStore } from '../stores/authStore';
 import XIcon from '../../../shared/components/XIcon';
-import { useNavigation } from '@react-navigation/native';
 import XScreen from '../../../shared/components/XScreen';
-import { AuthError } from '../types/AuthErrors';
 import { ROUTES } from '../../../app/routes';
 import { isSuccess } from '../../../shared/types/Result';
 import XForm, { XFormField } from '../../../shared/components/XForm';
 import XInput from '../../../shared/components/XInput';
-import { keychainHelper, KeychainObject } from '../../../shared/utils/keychainHelper';
 import XText from '../../../shared/components/XText';
 import { useTheme } from '../../../shared/theme/ThemeProvider';
 import XAvatar from '../../../shared/components/XAvatar';
-import XBottomSheetSearch from '../../../shared/components/XBottomSheetSearch';
-import BottomSheet from '@gorhom/bottom-sheet';
 import { checkBiometricAvailable, simpleBiometricAuth } from '../../../shared/services/BiometricService';
-import XAlert from '../../../shared/components/XAlert';
 import { reset } from '@/app/NavigationService';
+import { appConfig } from '@/shared/utils/appConfig';
 
 export default function LoginScreen() {
   const { login, isLoading, error } = useAuthStore();
@@ -83,8 +77,9 @@ export default function LoginScreen() {
   });
 
   const handleFaceIdLogin = useCallback(async () => {
-    const json = await keychainHelper.getObject();
-    if (!json?.isUseFaceId) return;
+    const json = await appConfig.getUser();
+    const useBiometric = await appConfig.getUseBiometric();
+    if (!useBiometric) return;
     const { available } = await checkBiometricAvailable();
     if (!available) {
       useAuthStore.setState({ error: 'Thiết bị không hỗ trợ Face ID/Touch ID' });
@@ -116,7 +111,7 @@ export default function LoginScreen() {
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     useAuthStore.setState({ isLoading: true });
-    keychainHelper.getObject().then(json => {
+    appConfig.getUser().then(json => {
       if(json!=null && json.userName!=null) {
         setIsShowUsername(false);
         setDefaultValues({
@@ -125,13 +120,13 @@ export default function LoginScreen() {
           });
         setFullName(json?.firstName + ' ' + json?.lastName);
         setAvatarUri(json?.avatarUri || null);
-         timeout = setTimeout(() => {
-          handleFaceIdLogin();
-        }, 500);
+        //  timeout = setTimeout(() => {
+        //   handleFaceIdLogin();
+        // }, 500);
       }
       useAuthStore.setState({ isLoading: false });
     });
-    return () => clearTimeout(timeout);
+    // return () => clearTimeout(timeout);
   }, []);
 
   const backgroundLogo = <XIcon
@@ -180,7 +175,7 @@ export default function LoginScreen() {
     style={{width: '100%'}} 
     onSubmit={handleLogin} 
     defaultValues={defaultValues} 
-    maxHeight={isShowUsername ? "30%" : "20%"} 
+    // maxHeight={isShowUsername ? "30%" : "20%"} 
     scrollEnabled={false}
   />
   

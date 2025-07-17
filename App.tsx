@@ -13,7 +13,6 @@ import { ThemeProvider } from './src/shared/theme';
 import './src/shared/utils/extensions';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import messaging from '@react-native-firebase/messaging';
 import CustomBottomNotification from '@/shared/components/CustomBottomNotification';
 import { initFirebaseNotificationService, removeFirebaseNotificationListener } from './src/shared/services/FirebaseNotificationService';
 

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Alert } from 'react-native';
+import { View } from 'react-native';
 import { XColors } from '../../../../shared/constants/colors';
 import XButton from '../../../../shared/components/XButton';
 import XDivider from '../../../../shared/components/XDivider';
@@ -18,8 +18,8 @@ import { ROUTES } from '../../../../app/routes';
 import { ProfileSkeleton } from '../../components/ProfileSkeleton';
 import { isFailure } from '../../../../shared/types/Result';
 import { useTheme } from '../../../../shared/theme/ThemeProvider';
-import { keychainHelper } from '../../../../shared/utils/keychainHelper';
 import { navigate, reset } from '@/app/NavigationService';
+import { appConfig } from '@/shared/utils/appConfig';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
@@ -60,14 +60,19 @@ export default function ProfileScreen() {
     else{
       useUserStore.setState({ profile: profile.value });
       useAvatarStore.setState({ avatarUri: profile.value.image });
-      const json = await keychainHelper.getObject();
+      const json = await appConfig.getUser();
       if(json) {
         json.avatarUri = profile.value.image;
-        await keychainHelper.saveObject(json);
+        await appConfig.saveUser(json);
       }
     }
   }
-
+  // Load isUseFaceId from appConfig
+  useEffect(() => {
+    appConfig.getUseBiometric().then(isUseFaceId => {
+      setIsUseFaceId(isUseFaceId??false);
+    });
+  }, []);
   // Load profile data when screen comes into focus
   useFocusEffect(
     React.useCallback(() => {

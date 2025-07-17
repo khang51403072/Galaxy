@@ -1,8 +1,8 @@
 import { create } from 'zustand/react';
-import * as Keychain from 'react-native-keychain';
 import { Result, isSuccess } from '../../../shared/types/Result';
 import { AuthError } from '../types/AuthErrors';
 import { LoginResult, AuthUseCase } from '../usecase/AuthUsecase';
+import { appConfig } from '@/shared/utils/appConfig';
 
 
 export type AuthState = {
@@ -33,28 +33,17 @@ export const createAuthStore = (authUseCase: AuthUseCase) => (set: any, get: any
   isOwner: null,
   error: null,
   storeLogin: async (loginResult: LoginResult) => {
-    await Keychain.setGenericPassword(
-      loginResult.userName,
-      JSON.stringify({
-        token: loginResult.token,
-        password: loginResult.password,
-        firstName: loginResult.firstName,
-        lastName: loginResult.lastName,
-        employeeId: loginResult.employeeId,
-        isOwner: loginResult.isOwner,
-        userName: loginResult.userName,
-      })
-    );
-    set({
-      userName: loginResult.userName,
+    const user = {
       token: loginResult.token,
-      secureKey: loginResult.password,
-      userId: loginResult.userId,
+      password: loginResult.password,
       firstName: loginResult.firstName,
       lastName: loginResult.lastName,
       employeeId: loginResult.employeeId,
       isOwner: loginResult.isOwner,
-    });
+      userName: loginResult.userName,
+    }
+    set(user);
+    await appConfig.saveUser( user);
   },
   login: async (email: string, password: string): Promise<Result<LoginResult, AuthError>> => {
     set({ isLoading: true });
@@ -64,7 +53,8 @@ export const createAuthStore = (authUseCase: AuthUseCase) => (set: any, get: any
       const loginData = loginResult.value;
       const storeLogin = get().storeLogin;
       await storeLogin(loginData);
-      const deviceId = await getPersistentDeviceId()
+      const deviceId = await appConfig.getPersistentDeviceId();
+
       if (!firebase.messaging().isDeviceRegisteredForRemoteMessages) {
         await firebase.messaging().registerDeviceForRemoteMessages();
       }
@@ -85,7 +75,6 @@ export const createAuthStore = (authUseCase: AuthUseCase) => (set: any, get: any
 // Khởi tạo real usecase ở production
 import { ApiAuthRepository } from '../repositories/ApiAuthRepository';
 import { AuthApi } from '../services/AuthApi';
-import { getPersistentDeviceId } from '@/shared/utils/appConfig';
 import { firebase, getMessaging } from '@react-native-firebase/messaging';
 import { RegisterFCMRequest } from '../types/AuthTypes';
 import { Platform } from 'react-native';

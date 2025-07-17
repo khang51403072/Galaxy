@@ -13,7 +13,6 @@ import XText from "../../../shared/components/XText";
 import { getClockIn, getClockOut, getDisplayName, parseISODate } from "../types/ReportResponse";
 import XAvatar from "@/shared/components/XAvatar";
 import CustomTabBar from "@/shared/components/CustomTabBar";
-import { keychainHelper } from "@/shared/utils/keychainHelper";
 import { homeSelectors, useHomeStore } from "@/features/home/stores/homeStore";
 
 export default function  TicketScreen() {

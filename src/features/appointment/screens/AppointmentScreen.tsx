@@ -4,16 +4,16 @@ import { FlatList, TouchableOpacity, useWindowDimensions, View } from "react-nat
 import { useShallow } from "zustand/react/shallow";
 import XScreen from "../../../shared/components/XScreen";
 import XIcon, { iconMap } from "../../../shared/components/XIcon";
-import { AppointmentState, useAppointmentStore, appointmentSelectors } from "../stores/appointmentStore";
+import {  useAppointmentStore, appointmentSelectors, AppointmentState } from "../stores/appointmentStore";
 import XText from "../../../shared/components/XText";
 import { getDisplayName, getAppointmentDateTime, getStatusColor, getStatusText, getCustomerPhone, getCustomerEmail, getServiceName, getTechnicianName, getPrice, AppointmentEntity } from "../types/AppointmentResponse";
 import XAvatar from "@/shared/components/XAvatar";
 import CustomTabBar from "@/shared/components/CustomTabBar";
-import { keychainHelper } from "@/shared/utils/keychainHelper";
 import { SceneMap, TabView } from "react-native-tab-view";
 import XCalendarStrip from "@/shared/components/XCalendarStrip";
 import { ROUTES } from "@/app/routes";
 import { useNavigation } from "@react-navigation/native";
+import { appConfig } from "@/shared/utils/appConfig";
 
 export default function AppointmentScreen() {
   const theme = useTheme();
@@ -44,7 +44,7 @@ export default function AppointmentScreen() {
 
   const loadKeychainData = async () => {
     try {
-      const keychainData = await keychainHelper.getObject();
+      const keychainData = await appConfig.getUser();
       setJson(keychainData);
       useAppointmentStore.setState({ json: keychainData });
     } catch (error) {
@@ -169,7 +169,6 @@ export default function AppointmentScreen() {
       error={error} 
       style={{ flex: 1 }} 
       paddingHorizontal={0}
-      contentStyle={{ paddingHorizontal: 0 }}
       backgroundColor={theme.colors.background}
     > 
       <XCalendarStrip

@@ -6,7 +6,7 @@ import { AppointmentEntity } from "../types/AppointmentResponse";
 import { keychainHelper, KeychainObject } from "@/shared/utils/keychainHelper";
 
 // State
-type AppointmentState = {
+export type AppointmentState = {
     isLoading: boolean;
     error: string | null;
     selectedDate: Date;
