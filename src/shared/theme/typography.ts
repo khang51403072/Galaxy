@@ -26,6 +26,12 @@ export const typography = {
     lineHeight: 25,
     letterSpacing: 0.25,
   },
+  title: {
+    fontFamily: Fonts.Outfit400,
+    fontSize: 20,
+    lineHeight: 30,
+    letterSpacing: 0.03,
+  },
   // Body text
   body: {
     fontFamily: Fonts.Outfit400,

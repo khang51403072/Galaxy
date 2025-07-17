@@ -15,6 +15,8 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import CustomBottomNotification from '@/shared/components/CustomBottomNotification';
 import { initFirebaseNotificationService, removeFirebaseNotificationListener } from './src/shared/services/FirebaseNotificationService';
+import { navigate } from '@/app/NavigationService';
+import { ROUTES } from '@/app/routes';
 
 
 function App() {
@@ -45,6 +47,7 @@ function App() {
                 onViewDetails={() => {
                   // Xử lý khi bấm View Details
                   setNotify(null);
+                  navigate(ROUTES.NOTIFICATIONS);
                   // ...navigate hoặc mở modal
                 }}
               />
