@@ -117,9 +117,64 @@ export default function XForm<T extends FieldValues = any>({
       ref: (ref: TextInput | null) => { inputRefs.current[idx] = ref; },
     };
   };
+  let children = <>{fields.map((field, idx) => (
+    <Controller
+      key={field.name}
+      control={control}
+      name={field.name as any}
+      rules={field.rules as any}
+      render={({ field: { onChange, value } }) => {
+        if (field.renderInput) {
+          const input = field.renderInput({
+            value,
+            onChangeText: onChange,
+            errorMessage: errors[field.name]?.message,
+            ...getInputProps(idx),
+          });
+          return input ? input : <></>;
+        }
 
-  return (
-    <View style={[{ flex: 1, backgroundColor: '#fff', maxHeight: maxHeight }, style]}>
+        // Handle phone number formatting
+        const handlePhoneChange = (text: string) => {
+          if (field.type === 'phone') {
+            const formatted = formatPhoneNumber(text);
+            onChange(formatted);
+          } else {
+            onChange(text);
+          }
+        };
+
+        // Set keyboard type for phone fields
+        const keyboardType = field.type === 'phone' ? 'phone-pad' : field.keyboardType;
+
+        return (
+          
+          <XInput
+            label={field.label}
+            placeholder={field.placeholder}
+            value={value}
+            onChangeText={handlePhoneChange}
+            iconLeft={field.iconLeft}
+            iconRight={field.iconRight}
+            secureTextEntry={field.type === 'password' && field.secureTextEntry}
+            autoCapitalize={field.autoCapitalize}
+            keyboardType={keyboardType}
+            errorMessage={errors[field.name]?.message as string}
+            onIconRightPress={field.onIconRightPress}
+            {...getInputProps(idx)}
+          />
+         
+        );
+      }}
+    />
+  ))}
+  {errorMessage ? (
+    <XText style={{ color: 'red', marginBottom: 12, textAlign: 'center' }}>{errorMessage}</XText>
+  ) : null}</>
+  
+  if(scrollEnabled) 
+  {
+    children = 
       <ScrollView
         style={{ flex:1 }}
         contentContainerStyle={{ padding: theme.spacing.xs, paddingBottom: theme.spacing.sm }}
@@ -127,61 +182,14 @@ export default function XForm<T extends FieldValues = any>({
         showsVerticalScrollIndicator={false}
         scrollEnabled={scrollEnabled}
       >
-        {fields.map((field, idx) => (
-          <Controller
-            key={field.name}
-            control={control}
-            name={field.name as any}
-            rules={field.rules as any}
-            render={({ field: { onChange, value } }) => {
-              if (field.renderInput) {
-                const input = field.renderInput({
-                  value,
-                  onChangeText: onChange,
-                  errorMessage: errors[field.name]?.message,
-                  ...getInputProps(idx),
-                });
-                return input ? input : <></>;
-              }
-
-              // Handle phone number formatting
-              const handlePhoneChange = (text: string) => {
-                if (field.type === 'phone') {
-                  const formatted = formatPhoneNumber(text);
-                  onChange(formatted);
-                } else {
-                  onChange(text);
-                }
-              };
-
-              // Set keyboard type for phone fields
-              const keyboardType = field.type === 'phone' ? 'phone-pad' : field.keyboardType;
-
-              return (
-                
-                <XInput
-                  label={field.label}
-                  placeholder={field.placeholder}
-                  value={value}
-                  onChangeText={handlePhoneChange}
-                  iconLeft={field.iconLeft}
-                  iconRight={field.iconRight}
-                  secureTextEntry={field.type === 'password' && field.secureTextEntry}
-                  autoCapitalize={field.autoCapitalize}
-                  keyboardType={keyboardType}
-                  errorMessage={errors[field.name]?.message as string}
-                  onIconRightPress={field.onIconRightPress}
-                  {...getInputProps(idx)}
-                />
-               
-              );
-            }}
-          />
-        ))}
-        {errorMessage ? (
-          <XText style={{ color: 'red', marginBottom: 12, textAlign: 'center' }}>{errorMessage}</XText>
-        ) : null}
+        {children}
       </ScrollView>
+  }
+
+  
+  return (
+    <View style={[{ flex: scrollEnabled?1:0, backgroundColor: '#fff', maxHeight: maxHeight }, style]}>
+      {children}
       <View style={{ padding: 16, backgroundColor: '#fff' }}>
         <View style={{ flexDirection: 'row', justifyContent: onCancel ? 'space-between' : 'center', alignItems: 'center' }}>
           {onCancel && (

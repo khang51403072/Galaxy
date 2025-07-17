@@ -39,7 +39,7 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
   isLoading: false,
   isUpdating: false,
   error: null,
-  isUseFaceId: useHomeStore.getState().json?.isUseFaceId || false,
+  isUseFaceId: false,
   getProfile: async (): Promise<Result<ProfileEntity, UserError>> => {
     set({ isLoading: true });
     const profileResult = await profileUseCase.getProfile();
@@ -54,14 +54,14 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
   },
   changePassword: async (request: ChangePasswordRequest): Promise<Result<void, UserError>> => {
     set({ isLoading: true });
-    const json = await keychainHelper.getObject();
+    const json = await appConfig.getUser();
     const changeResult = await profileUseCase.changePassword(request, json?.password);
     set({ isLoading: false });
     if(isSuccess(changeResult)) {
-      const json = await keychainHelper.getObject();
+      const json = await appConfig.getUser();
       if(json) {
         json.password = request.newPassword;
-        await keychainHelper.saveObject(json);
+        await appConfig.saveUser(json);
       }
     }
     return changeResult;
@@ -72,12 +72,8 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
   },
   logout: async () => {
     set({ isLoading: true });
-
-    const deviceId = await getPersistentDeviceId()
-
-    
-   
-    const json = await keychainHelper.getObject();
+    const deviceId = await appConfig.getPersistentDeviceId()
+    const json = await appConfig.getUser();
     try {
       const rq : LogoutMRequest = {
         deviceId: deviceId,
@@ -94,11 +90,9 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
       const firstName = json.firstName;
       const lastName = json.lastName;
       const avatarUri = json.avatarUri;
-      const isUseFaceId = get().isUseFaceId??false;
-      await keychainHelper.reset();
-      await keychainHelper.saveObject({userName: userName, password: password, firstName: firstName, lastName: lastName, avatarUri: avatarUri, isUseFaceId: isUseFaceId});
+      await appConfig.saveUser({userName: userName, password: password, firstName: firstName, lastName: lastName, avatarUri: avatarUri});
+      await appConfig.saveUseBiometric(get().isUseFaceId??false);
     }
-   
     set({ profile: null, isLoading: false });
   },
 });
@@ -113,6 +107,6 @@ import { ApiAuthRepository } from '../../auth/repositories/ApiAuthRepository';
 import { AuthUseCase } from '@/features/auth/usecase/AuthUsecase';
 import { AuthApi } from '@/features/auth/services/AuthApi';
 import { LogoutMRequest } from '@/features/auth/types/AuthTypes';
-import { getPersistentDeviceId } from '@/shared/utils/appConfig';
+import { appConfig } from '@/shared/utils/appConfig';
 
 const realAuthUseCase = new AuthUseCase(new ApiAuthRepository(AuthApi));

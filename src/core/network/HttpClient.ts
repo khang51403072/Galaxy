@@ -2,7 +2,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { getToken } from './AuthInterceptor';
 import xlog from '../utils/xlog';
-import { getPersistentDeviceId } from '@/shared/utils/appConfig';
+import { appConfig } from '@/shared/utils/appConfig';
 
 class HttpClient {
   private static instance: AxiosInstance;
@@ -24,7 +24,7 @@ class HttpClient {
       HttpClient.instance.interceptors.request.use(async (config) => {
         const token = await getToken();
         config.headers["origin"] = "galaxyme";
-        config.headers["deviceId"] = await getPersistentDeviceId();
+        config.headers["deviceId"] = await appConfig.getPersistentDeviceId();
         config.headers["XSOFTS-SECRET-KEY"] = "qjqAqGHfyUkLnLmizi78A7EwxDMP6tCfzULDv6PKw7rbPSWpQcuABHAmTAXRzZEa";
         if (token && config.url !== "/galaxy-me/authen") {
           config.headers.Authorization = `Bearer ${token}`;

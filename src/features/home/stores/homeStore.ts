@@ -50,7 +50,7 @@ export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeStat
     json: null,
     chartDisplayData: [],
     getHomeData: async () => {
-        const js = await keychainHelper.getObject();
+        const js = await appConfig.getUser();
         set({ isLoading: true, error: null, json: js });
         const result = js?.isOwner 
             ? await homeUsecase.getHomeDataOwner({employeeId: js.employeeId || ''}) 
@@ -76,7 +76,7 @@ export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeStat
         return result;
     },
     updateJson: async (json: KeychainObject) => {
-        await keychainHelper.saveObject(json);
+        await appConfig.saveUser(json);
         set({ json: json });
     },
     setChartDisplayData: (data) => set({ chartDisplayData: data }),
@@ -85,5 +85,6 @@ export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeStat
 // Khởi tạo real usecase ở production
 import { ApiHomeRepository } from '../repositories/ApiHomeRepository';
 import { HomeAPI } from '../services/HomeApi';
+import { appConfig } from "@/shared/utils/appConfig";
 const realHomeUseCase = new HomeUseCase(new ApiHomeRepository(HomeAPI));
 export const useHomeStore = create<homeState>()(createHomeStore(realHomeUseCase));
