@@ -1,20 +1,26 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  Modal,
   FlatList,
   Dimensions,
-  Animated,
   StyleProp,
   ViewStyle,
+  UIManager,
+  findNodeHandle,
 } from 'react-native';
+import Modal from 'react-native-modal';
 import XIcon from './XIcon';
 import { useTheme } from '../theme/ThemeProvider';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+const MARGIN = 12;
+const DROPDOWN_MIN_WIDTH = 180;
+const DROPDOWN_MAX_WIDTH = 340;
+const DROPDOWN_MAX_HEIGHT = 240;
 
 export interface DropdownOption {
   label: string;
@@ -30,6 +36,7 @@ interface XDropdownProps {
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;
   searchable?: boolean;
+  renderItem?: (option: DropdownOption, selected: boolean) => React.ReactNode;
 }
 
 const XDropdown: React.FC<XDropdownProps> = ({
@@ -41,32 +48,39 @@ const XDropdown: React.FC<XDropdownProps> = ({
   style,
   disabled = false,
   searchable = false,
+  renderItem,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<DropdownOption | null>(
-    options.find(option => option.value === value) || null
-  );
+  const [pos, setPos] = useState({ left: MARGIN, top: MARGIN, width: DROPDOWN_MIN_WIDTH });
+  const buttonRef = useRef<View>(null);
   const theme = useTheme();
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  const selectedOption = options.find(option => option.value === value) || null;
 
-  useEffect(() => {
-    const option = options.find(option => option.value === value);
-    setSelectedOption(option || null);
-  }, [value, options]);
+  // Tính toán vị trí dropdown
+  const updatePosition = useCallback(() => {
+    if (!buttonRef.current) return;
+    const node = findNodeHandle(buttonRef.current)!;
+    UIManager.measureInWindow(node, (x, y, w, h) => {
+      let left = x;
+      let top = y + h;
+      let width = Math.max(w, DROPDOWN_MIN_WIDTH);
+      width = Math.min(width, DROPDOWN_MAX_WIDTH);
+      if (left + width > SCREEN_WIDTH - MARGIN) left = SCREEN_WIDTH - width - MARGIN;
+      if (top + DROPDOWN_MAX_HEIGHT > SCREEN_HEIGHT - MARGIN) top = y - DROPDOWN_MAX_HEIGHT;
+      left = Math.max(MARGIN, left);
+      setPos({ left, top, width });
+    });
+  }, []);
 
-  useEffect(() => {
-    Animated.timing(slideAnim, {
-      toValue: isOpen ? 1 : 0,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  }, [isOpen, slideAnim]);
-
-  const handleSelect = (option: DropdownOption) => {
-    setSelectedOption(option);
-    onSelect(option);
-    setIsOpen(false);
+  const handleOpen = () => {
+    updatePosition();
+    setIsOpen(true);
   };
+
+  useEffect(() => {
+    if (isOpen) updatePosition();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, options.length]);
 
   const styles = StyleSheet.create({
     container: {
@@ -88,42 +102,28 @@ const XDropdown: React.FC<XDropdownProps> = ({
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      
+      minWidth: DROPDOWN_MIN_WIDTH,
     },
     dropdownText: {
       color: selectedOption ? theme.colors.text : theme.colors.textPlaceholder,
       flex: 1,
     },
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      justifyContent: 'flex-end',
-    },
-    modalContent: {
+    dropdownList: {
+      position: 'absolute',
       backgroundColor: '#fff',
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      maxHeight: '70%',
-      minHeight: 200,
-    },
-    modalHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.border,
-    },
-    modalTitle: {
-      fontSize: 18,
-      fontWeight: '600',
-      color: theme.colors.text,
-    },
-    closeButton: {
-      padding: 4,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      maxHeight: DROPDOWN_MAX_HEIGHT,
+      elevation: 8,
+      shadowColor: '#000',
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      zIndex: 1000,
+      minWidth: DROPDOWN_MIN_WIDTH,
     },
     optionItem: {
-      paddingVertical: 16,
+      paddingVertical: theme.spacing.sm,
       paddingHorizontal: 20,
       borderBottomWidth: 1,
       borderBottomColor: theme.colors.border,
@@ -153,100 +153,89 @@ const XDropdown: React.FC<XDropdownProps> = ({
   });
 
   return (
-    <View style={[style]}>
-      {label && <Text style={styles.label}>{label}</Text>}
-      
-      <TouchableOpacity
-        style={styles.dropdownButton}
-        onPress={() => !disabled && setIsOpen(true)}
-        activeOpacity={0.7}
-        disabled={disabled}
-      >
-        <Text style={styles.dropdownText}>
-          {selectedOption ? selectedOption.label : placeholder}
-        </Text>
-        <XIcon 
-          name="downArrow" 
-          width={16} 
-          height={16} 
-          color={theme.colors.textSecondary} 
-        />
-      </TouchableOpacity>
-
-      <Modal
-        visible={isOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsOpen(false)}
-      >
+    <>
+      <View style={[style]}>
+        {label && <Text style={styles.label}>{label}</Text>}
         <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setIsOpen(false)}
+          ref={buttonRef}
+          style={styles.dropdownButton}
+          onPress={handleOpen}
+          activeOpacity={0.7}
+          disabled={disabled}
         >
-          <Animated.View
-            style={[
-              styles.modalContent,
-              {
-                transform: [
-                  {
-                    translateY: slideAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [300, 0],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          >
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={() => {}}
-            >
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>
-                  {label || 'Select Option'}
-                </Text>
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setIsOpen(false)}
-                >
-                  <XIcon 
-                    name="x" 
-                    width={24} 
-                    height={24} 
-                    color={theme.colors.textSecondary} 
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <FlatList
-                data={options}
-                keyExtractor={(item) => item.label}
-                renderItem={({ item }) => (
+          <Text style={styles.dropdownText} numberOfLines={1}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </Text>
+          <XIcon 
+            name="downArrow" 
+            width={16} 
+            height={16} 
+            color={theme.colors.textSecondary} 
+          />
+        </TouchableOpacity>
+      </View>
+      <Modal
+        isVisible={isOpen}
+        onBackdropPress={() => setIsOpen(false)}
+        backdropColor="transparent"
+        animationIn="fadeIn"
+        animationOut="fadeOut"
+        style={{ margin: 0, zIndex: 1000 }}
+      >
+        <View
+          style={[
+            styles.dropdownList,
+            {
+              left: pos.left,
+              top: pos.top,
+              width: pos.width,
+            },
+          ]}
+        >
+          <FlatList
+            data={options}
+            keyExtractor={(item) => item.label}
+            renderItem={({ item }) => {
+              const isSelected = selectedOption?.value === item.value;
+              if (renderItem) {
+                return (
                   <TouchableOpacity
-                    style={[
-                      styles.optionItem,
-                      selectedOption?.value === item.value && styles.selectedOption,
-                    ]}
-                    onPress={() => handleSelect(item)}
+                    onPress={() => {
+                      onSelect(item);
+                      setIsOpen(false);
+                    }}
                     activeOpacity={0.7}
                   >
-                    <Text style={styles.optionText}>{item.label}</Text>
+                    {renderItem(item, isSelected)}
                   </TouchableOpacity>
-                )}
-                ListEmptyComponent={
-                  <View style={styles.emptyState}>
-                    <Text style={styles.emptyText}>No options available</Text>
-                  </View>
-                }
-                showsVerticalScrollIndicator={false}
-              />
-            </TouchableOpacity>
-          </Animated.View>
-        </TouchableOpacity>
+                );
+              }
+              return (
+                <TouchableOpacity
+                  style={[
+                    styles.optionItem,
+                    isSelected && styles.selectedOption,
+                  ]}
+                  onPress={() => {
+                    onSelect(item);
+                    setIsOpen(false);
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.optionText}>{item.label}</Text>
+                </TouchableOpacity>
+              );
+            }}
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>No options available</Text>
+              </View>
+            }
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
       </Modal>
-    </View>
+    </>
   );
 };
 
