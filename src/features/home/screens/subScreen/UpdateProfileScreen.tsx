@@ -117,12 +117,12 @@ export default function UpdateProfileScreen() {
     }
   };  
   return (
-    <XScreen keyboardAvoiding dismissKeyboard title="Information" showHeader>
+    <XScreen title="Information" showHeader>
       <XForm
         fields={fields}
         onSubmit={handleSubmit}
         loading={isUpdating}
-        confirmTitle="Update"
+        confirmTitle="Confirm"
         errorMessage={errorMessage}
         defaultValues={defaultValues as any}
       />

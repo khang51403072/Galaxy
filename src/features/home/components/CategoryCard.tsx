@@ -27,7 +27,7 @@ export default function CategoryCard({
     flexDirection: 'column',
     alignItems: 'flex-start',
 
-    padding: 16,
+
     backgroundColor: color,
     borderRadius: theme.borderRadius.lg,
     }, style as object]}>
@@ -36,7 +36,7 @@ export default function CategoryCard({
         flexDirection: 'column',
         alignItems: 'flex-start',
 
-        padding: 16,
+        padding: theme.spacing.md,
         backgroundColor: color,
         borderRadius: theme.borderRadius.lg,
         }}>

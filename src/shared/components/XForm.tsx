@@ -188,9 +188,9 @@ export default function XForm<T extends FieldValues = any>({
 
   
   return (
-    <View style={[{ flex: scrollEnabled?1:0, backgroundColor: '#fff', maxHeight: maxHeight }, style]}>
+    <View style={[{ flex: scrollEnabled?1:0, backgroundColor: theme.colors.background, maxHeight: maxHeight }, style]}>
       {children}
-      <View style={{ padding: 16, backgroundColor: '#fff' }}>
+      <View style={{ paddingBottom:theme.spacing.md, backgroundColor: theme.colors.background }}>
         <View style={{ flexDirection: 'row', justifyContent: onCancel ? 'space-between' : 'center', alignItems: 'center' }}>
           {onCancel && (
             <XButton
@@ -206,7 +206,7 @@ export default function XForm<T extends FieldValues = any>({
             onPress={handleSubmit(onSubmit)}
             disabled={confirmDisabled ?? (!isValid || loading)}
             loading={loading}
-            style={{ flex: 2 }}
+            style={{ flex: 1 }}
           />
         </View>
       </View>

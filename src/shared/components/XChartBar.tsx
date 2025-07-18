@@ -47,9 +47,9 @@ const XChart: React.FC<XChartProps> = ({
   const maxValue = rawMax + Math.ceil(rawMax * 0.1);
 
   // Không padding left, chỉ padding right 5%
-  const percentPad = 0.07;
-  const paddingLeft = chartWidth * percentPad*2.5;
-  const paddingRight = chartWidth * percentPad;
+  const percentPad = 0.06;
+  const paddingLeft = chartWidth * percentPad*2;
+  const paddingRight = chartWidth * (percentPad/2);
 
   const groupWidth = (chartWidth - paddingLeft - paddingRight) / data.length;
   const barWidth = groupWidth / (groupCount + 1);
