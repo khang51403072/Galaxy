@@ -13,6 +13,7 @@ import {
 import Modal from 'react-native-modal';
 import XCalendar from './XCalendar';
 import { useTheme } from '../theme';
+import XTimeWheel from './XTimeWheel';
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 const MARGIN = 12;
@@ -81,7 +82,7 @@ type Props = {
 };
 
 export default function XDatePicker({
-  value,
+  value = new Date(),
   onChange,
   placeholder = 'Chọn ngày',
   mode = 'date',
@@ -126,13 +127,8 @@ export default function XDatePicker({
     }
   };
 
-  const onTimeConfirm = (h: number, m: number, ap: 'AM' | 'PM') => {
-    const d = new Date(tempDate);
-    let hh = h % 12 + (ap === 'PM' ? 12 : 0);
-    if (ap === 'AM' && h === 12) hh = 0;
-    d.setHours(hh, m);
-    onChange(d);
-    setVisible(false);
+  const onTimeConfirm = (date: Date) => {
+    onChange(date);
   };
 
   const display = value
@@ -186,13 +182,16 @@ export default function XDatePicker({
               // theme={{ primary: '#1D62D8', background: '#f9f9f9' }}
             />
           ) : (
-            <TimePickerPopup
-              hour={tempDate.getHours() % 12 || 12}
-              minute={tempDate.getMinutes()}
-              ampm={tempDate.getHours() >= 12 ? 'PM' : 'AM'}
-              onChange={onTimeConfirm}
-              onClose={() => setVisible(false)}
-            />
+            // <TimePickerPopup
+            //   hour={tempDate.getHours() % 12 || 12}
+            //   minute={tempDate.getMinutes()}
+            //   ampm={tempDate.getHours() >= 12 ? 'PM' : 'AM'}
+            //   onChange={onTimeConfirm}
+            //   onClose={() => setVisible(false)}
+            // />
+            <XTimeWheel value={value} onChange={function (value: Date): void {
+                onTimeConfirm(value)
+              } }/>
           )}
         </View>
       </Modal>

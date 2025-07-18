@@ -126,7 +126,9 @@ export default function AppointmentScreen() {
     new: () => (
         <FlatList
           contentContainerStyle={{padding: theme.spacing.sm }}
-          data={appointmentList}
+          data={appointmentList.filter((value, index)=>{
+            return value.apptStatus.toLowerCase() == "new"
+          })}
           renderItem={renderAppointmentItem}
           keyExtractor={(item) => item.apptId}
           ListEmptyComponent={<XNoDataView />}
@@ -135,7 +137,9 @@ export default function AppointmentScreen() {
     checkin: () => (
       <FlatList
         contentContainerStyle={{padding: theme.spacing.sm }}
-        data={appointmentList}
+        data={appointmentList.filter((value, index)=>{
+          return value.apptStatus.toLowerCase() == "checkin"
+        })}
         renderItem={renderAppointmentItem}
         keyExtractor={(item) => item.apptId}
         ListEmptyComponent={<XNoDataView />}
@@ -144,7 +148,9 @@ export default function AppointmentScreen() {
     checkout: () => (
       <FlatList
         contentContainerStyle={{padding: theme.spacing.sm }}
-        data={appointmentList}
+        data={appointmentList.filter((value, index)=>{
+          return value.apptStatus.toLowerCase() == "checkout"
+        })}
         renderItem={renderAppointmentItem}
         keyExtractor={(item) => item.apptId}
         ListEmptyComponent={<XNoDataView />}
@@ -209,7 +215,10 @@ export default function AppointmentScreen() {
                 return (
                     <TouchableOpacity
                       ref={ref}
-                      onPress={() => jumpTo(route.key)}
+                      onPress={() => {
+
+                        jumpTo(route.key)
+                      }}
                       onLayout={onLayout}
                       style={{
                         borderRadius: theme.borderRadius.md,

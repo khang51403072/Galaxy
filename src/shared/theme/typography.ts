@@ -112,7 +112,7 @@ export const typography = {
   },
   helloText400: {
     fontFamily: Fonts.Outfit400,
-    fontSize: 18,
+    fontSize: 17,
     lineHeight: 22,
     letterSpacing: 0.18,
   },
