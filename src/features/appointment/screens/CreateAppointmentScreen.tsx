@@ -12,7 +12,7 @@ import { createAppointmentSelectors, useCreateAppointmentStore } from "../stores
 import { useShallow } from "zustand/react/shallow";
 import { ROUTES } from "@/app/routes";
 import { navigate } from "@/app/NavigationService";
-import { createApptType } from "../types/AppointmentType";
+import { ApptType, createApptType } from "../types/AppointmentType";
 
 
 
@@ -48,7 +48,17 @@ export default function CreateAppointmentScreen() {
     }
     const dropdownPicker = ()=>{
         return (
-            <XDropdown value={""} placeholder="Choose Service" options={listApptType.map((e)=>({label: e.name, value: e}))} onSelect={()=>{}} />
+            <XDropdown 
+            renderItem={
+                (item, isSelected) =>{
+                    return <View style={{paddingLeft: 10, flexDirection:"row", alignItems:'center', justifyContent:"flex-start"}}>
+                        <View style={{marginEnd:10, borderRadius:10, height:10, width:10, backgroundColor: (item.value as ApptType ).bgColor}}></View>
+                        <XText variant="content400">{item.label}</XText>
+                    </View>
+                }
+            }
+            
+            value={""} placeholder="Choose Service" options={listApptType.map((e)=>({label: e.name, value: e}))} onSelect={()=>{}} />
         )
             
     }
