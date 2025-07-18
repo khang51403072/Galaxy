@@ -1,7 +1,6 @@
 // src/shared/components/XSwitch.tsx
 import React from 'react';
 import { Switch } from 'react-native';
-import { XColors } from '../constants/colors';
 import {useTheme} from '@/shared/theme/ThemeProvider';
 type XSwitchProps = {
   value: boolean;

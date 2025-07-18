@@ -53,7 +53,12 @@ export const typography = {
     lineHeight: 20,
     letterSpacing: 0.14,
   },
-
+  inputLabel: {
+    fontFamily: Fonts.Outfit400,
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: 0.14,
+  },
   // Button text
   buttonText: {
     fontFamily: Fonts.Outfit500,
@@ -195,10 +200,11 @@ export const typography = {
   },
   createAppointmentContent: {
     fontFamily: Fonts.Outfit400,
-    fontSize: 18,
-    lineHeight: 24,
+    fontSize: 14,
+    lineHeight: 28,
     letterSpacing: 0.18,
   },
+
 } as const;
 
 export type Typography = typeof typography; 

@@ -2,8 +2,6 @@
 import React from 'react';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { View, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import { XColors } from '../constants/colors';
 import XIcon from './XIcon';
 import XText from './XText';
 import { useTheme } from '../theme';

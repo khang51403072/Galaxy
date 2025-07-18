@@ -7,20 +7,7 @@ import XText from './XText';
 import { iconMap } from './XIcon';
 import {  useTheme } from '../theme';
 
-// Phone number formatting function
-const formatPhoneNumber = (text: string): string => {
-  // Remove all non-digit characters
-  const cleaned = text.replace(/\D/g, '');
-  
-  // Limit to 10 digits
-  const limited = cleaned.slice(0, 10);
-  
-  // Format based on length
-  if (limited.length === 0) return '';
-  if (limited.length <= 3) return `(${limited}`;
-  if (limited.length <= 6) return `(${limited.slice(0, 3)}) ${limited.slice(3)}`;
-  return `(${limited.slice(0, 3)}) ${limited.slice(3, 6)}-${limited.slice(6)}`;
-};
+
 
 // Phone number validation function
 const validatePhoneNumber = (text: string): boolean => {
@@ -137,7 +124,7 @@ export default function XForm<T extends FieldValues = any>({
         // Handle phone number formatting
         const handlePhoneChange = (text: string) => {
           if (field.type === 'phone') {
-            const formatted = formatPhoneNumber(text);
+            const formatted = text.formatPhoneNumber();
             onChange(formatted);
           } else {
             onChange(text);

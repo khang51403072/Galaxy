@@ -7,9 +7,9 @@ import {
   TextInputProps,
   Text,
 } from 'react-native';
-import { XColors } from '../constants/colors';
 import XIcon, { iconMap } from './XIcon';
-import { TextStyles } from '../constants/textStyles';
+import { useTheme } from '../theme';
+import XText from './XText';
 
 type XInputProps = TextInputProps & {
   iconLeft?: keyof typeof iconMap;
@@ -49,13 +49,33 @@ const XInput = forwardRef<TextInput, XInputProps>(
     ref
   ) => {
     const [isFocused, setIsFocused] = useState(false);
-    const borderColor = isFocused ? XColors.accent : XColors.primary;
-    const iconColor = isFocused ? XColors.primary : '#999';
+    const theme = useTheme()
+    const borderColor = isFocused ? theme.colors.border : theme.colors.primary;
+    const iconColor = isFocused ? theme.colors.primary : '#999';
+    const styles = StyleSheet.create({
+      container: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderColor: theme.colors.primary,
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        backgroundColor: '#fff',
+      },
+      iconLeft: {
+        marginRight: ICON_MARGIN_HORIZONTAL,
+      }, 
+      iconRight: {
+        marginLeft: ICON_MARGIN_HORIZONTAL,
+      },
+      
+    });
     return (
-      <View style={{ width: '100%' }}>
+      <View style={{ width: '100%', }}>
         {label && (
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-            <Text style={TextStyles.inputLabel}>{label}</Text>
+            <XText variant='inputLabel'>{label}</XText>
             {isRequired && <Text style={{ color: 'red', marginLeft: 2 }}>*</Text>}
           </View>
         )}
@@ -75,10 +95,10 @@ const XInput = forwardRef<TextInput, XInputProps>(
           <TextInput
             ref={ref}
             placeholder={placeholder}
-            placeholderTextColor={XColors.textInputPlaceholder}
+            placeholderTextColor={theme.colors.textInputPlaceholder}
             editable={editable}
             style={[
-              TextStyles.inputText,
+              theme.typography.inputText,
               {
                 flex: 1,
                 paddingLeft: 0,
@@ -104,7 +124,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
             </TouchableOpacity>
           )}
         </View>
-        <View style={{ minHeight: 18, justifyContent: 'flex-end', }}>
+        <View style={{ justifyContent: 'flex-end', }}>
           {errorMessage ? (
             <Text style={{ color: 'red', fontSize: 12, marginBottom: 8, marginStart: 12 }}>{errorMessage}</Text>
           ) : null}
@@ -115,24 +135,6 @@ const XInput = forwardRef<TextInput, XInputProps>(
 );
 const ICON_MARGIN_HORIZONTAL = 8;
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderColor: XColors.primary,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: '#fff',
-  },
-  iconLeft: {
-    marginRight: ICON_MARGIN_HORIZONTAL,
-  }, 
-  iconRight: {
-    marginLeft: ICON_MARGIN_HORIZONTAL,
-  },
-  
-});
+
 
 export default XInput;

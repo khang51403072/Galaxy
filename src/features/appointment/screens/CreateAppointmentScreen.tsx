@@ -6,46 +6,57 @@ import XScreen from "@/shared/components/XScreen";
 import XSwitch from "@/shared/components/XSwitch";
 import XText from "@/shared/components/XText";
 import { useTheme } from "@/shared/theme/ThemeProvider";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { createAppointmentSelectors, useCreateAppointmentStore } from "../stores/createAppointmentStore";
 import { useShallow } from "zustand/react/shallow";
-import { useNavigation } from "@react-navigation/native";
 import { ROUTES } from "@/app/routes";
+import { navigate } from "@/app/NavigationService";
+import { createApptType } from "../types/AppointmentType";
 
 
 
 export default function CreateAppointmentScreen() {
     const theme = useTheme();
-    const navigation = useNavigation();
+    const [isConfirmOnline, setIsConfirmOnline] = useState(false)
+    const [isGroupAppt, setIsGroupAppt] = useState(false)
+    const [selectedDate, setSelectedDate] = useState(new Date())
     // Tạo ref cho từng XDatePicker
-    const {getApptResource} = useCreateAppointmentStore(useShallow((state) => ({
+    const {getApptResource, selectedCustomer} = useCreateAppointmentStore(useShallow((state) => ({
         getApptResource: createAppointmentSelectors.selectGetApptResource(state),
+        selectedCustomer: createAppointmentSelectors.selectSelectedCustomer(state)
     })));
 
 
-
+    const listApptType = [
+        createApptType("Misc", "Misc",),
+        createApptType("NewCustomer", "New Customer", ),
+        createApptType("Request", "Choose Tech"),
+        createApptType("NonRequest", "Any Tech",),
+        createApptType("WalkIn", "Walk In"),
+        createApptType("Online", "Online"),
+      ];
     const customerPicker = ()=>{
         return (
-            <TouchableOpacity style={{}} onPress={async () => {
-                //navigate sang màn hình select customer
-                navigation.navigate(ROUTES.SELECT_CUSTOMER as never);
+            <TouchableOpacity style={{}} onPress={
+                async () => {
+                navigate(ROUTES.SELECT_CUSTOMER as never);
             }}>
-                <XInput value={""} editable={false} placeholder="Choose Customer" pointerEvents="none"/>
+                <XInput value={selectedCustomer?.firstName} editable={false} placeholder="Choose Customer" pointerEvents="none"/>
             </TouchableOpacity>
         )
     }
     const dropdownPicker = ()=>{
         return (
-            <XDropdown value={""} placeholder="Choose Service" options={[]} onSelect={()=>{}} />
+            <XDropdown value={""} placeholder="Choose Service" options={listApptType.map((e)=>({label: e.name, value: e}))} onSelect={()=>{}} />
         )
             
     }
     const confirmOnlineToggle = ()=>{
         return (
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <XText variant="createAppointmentContent">Confirm Online</XText>
-                <XSwitch value={false} onValueChange={()=>{}} />
+                <XSwitch value={isConfirmOnline} onValueChange={setIsConfirmOnline} />
             </View>
         )
     }
@@ -54,7 +65,7 @@ export default function CreateAppointmentScreen() {
         return (
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                 <XText variant="createAppointmentContent">Group Appointment</XText>
-                <XSwitch value={false} onValueChange={()=>{}} />
+                <XSwitch value={isGroupAppt} onValueChange={setIsGroupAppt} />
             </View>
         )
     }
@@ -73,9 +84,8 @@ export default function CreateAppointmentScreen() {
                 </View>
                 <XDatePicker
                     style={{ width: '40%' }}
-                    value={new Date()}
-                    onChange={() => {}}
-                    // pickerRef={datePickerRef}
+                    value={selectedDate}
+                    onChange={setSelectedDate}
                 />
             </View>
         )
@@ -88,10 +98,7 @@ export default function CreateAppointmentScreen() {
                 <XIcon name="time" width={16} height={16} />
                 <XText variant="createAppointmentContent">Time</XText>
             </View>
-            <XDatePicker mode="time" style={{ width: '40%' }} value={new Date()} onChange={()=>{}}  format={(date)=>{
-                // timePickerRef.current?.focus();
-                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }} />
+            <XDatePicker mode="time" style={{ width: '40%' }} value={new Date()} onChange={()=>{}} />
         </View>
         )
     }
@@ -111,8 +118,8 @@ export default function CreateAppointmentScreen() {
     }
     return (
         <XScreen title="Booking Appointment" >    
-            <View style={{ gap: theme.spacing.sm }}>
-                {customerPicker()     }
+            <View style={{ gap: theme.spacing.md, paddingTop: theme.spacing.md }}>
+                {customerPicker()}
                 {dropdownPicker()}
                 {confirmOnlineToggle()}
                 {groupApptToggle()}

@@ -6,19 +6,20 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import XIcon from '../../../shared/components/XIcon';
-import { XColors } from '../../../shared/constants/colors';
 import XBottomTabBar from '../../../shared/components/XBottomTabBar';
 import HomeScreen from './tabs/HomeScreen';
 import ProfileScreen from './tabs/ProfileScreen';
+import { useTheme } from '@/shared/theme';
 const Tab = createBottomTabNavigator();
 
 export default function MainTabsScreen() {
+  const theme = useTheme()
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: XColors.primary,
-        tabBarInactiveTintColor: XColors.textInputText,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textInputPlaceholder,
         tabBarLabelStyle: { fontSize: 12 },
         
         tabBarIcon: ({ color, size }) => {

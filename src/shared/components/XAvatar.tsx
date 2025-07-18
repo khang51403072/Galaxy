@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { Image, StyleSheet, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import XIcon from './XIcon';
-import { XColors } from '../constants/colors';
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import { useTheme } from '../theme';
 
 type XAvatarProps = {
   uri?: string;
@@ -19,7 +19,53 @@ export default function XAvatar({
   editable = true 
 }: XAvatarProps) {
   const { showActionSheetWithOptions } = useActionSheet();
-
+  const theme = useTheme();
+  const styles = StyleSheet.create({
+    container: {
+      position: 'relative',
+    },
+    avatarWrapper: {
+      backgroundColor: '#eee',
+      overflow: 'hidden',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: theme.colors.primary,
+    },
+    imageContainer: {
+      position: 'relative',
+    },
+    avatarImage: {
+      resizeMode: 'cover',
+    },
+    placeholder: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#f0f0f0',
+    },
+    loadingOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    editIndicator: {
+      position: 'absolute',
+      backgroundColor: "#FFFFFF",
+      borderRadius: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: '#FFF',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+  });
   const avatarSize = {
     width: size,
     height: size,
@@ -96,49 +142,4 @@ export default function XAvatar({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-  },
-  avatarWrapper: {
-    backgroundColor: '#eee',
-    overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: XColors.primary,
-  },
-  imageContainer: {
-    position: 'relative',
-  },
-  avatarImage: {
-    resizeMode: 'cover',
-  },
-  placeholder: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  editIndicator: {
-    position: 'absolute',
-    backgroundColor: "#FFFFFF",
-    borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#FFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-});
+

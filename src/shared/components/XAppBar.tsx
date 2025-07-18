@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import XIcon from './XIcon';
-import { XColors } from '../constants/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { goBack } from '@/app/NavigationService';
 import { useTheme } from '../theme/ThemeProvider';
@@ -64,7 +63,7 @@ export default function XAppBar({ title, showBack = true, onBackPress, rightIcon
     ]}>
       {showBack ? (
         <TouchableOpacity onPress={handleBack} style={styles.backBtn}>
-          <XIcon name="backArrow" color={XColors.gray800} width={20} height={20} />
+          <XIcon name="backArrow" color={theme.colors.gray800} width={20} height={20} />
         </TouchableOpacity>
       ) : (
         <View style={styles.backBtn} />

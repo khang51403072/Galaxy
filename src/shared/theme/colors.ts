@@ -26,6 +26,8 @@ export const lightColors = {
   blue: '#30A6DD',
   cyan:"#1CD8D9",
   cyan200:"#1CD8D920",
+
+  ///
   backroundIconClose: '#00000014',
   backgroundTabBarReport: '#00000014',
   unselectedNotify: "#EEF4FF",
@@ -35,7 +37,7 @@ export const lightColors = {
   textTertiary: '#999999',
   textPlaceholder: '#00000040',
   textButton: '#FFFFFF',
-
+  textInputPlaceholder:  '#00000040',
   // Status Colors
   success: '#34C759',
   error: '#FF3B30',
@@ -85,13 +87,14 @@ export const darkColors = {
   cyan200:"#1CD8D920",
   backroundIconClose: '#00000014',
   backgroundTabBarReport: '#00000014',
+  unselectedNotify: "#EEF4FF",
   // Text Colors
   text: '#000000',
   textSecondary: '#666666',
   textTertiary: '#999999',
   textPlaceholder: '#00000040',
   textButton: '#FFFFFF',
-
+  textInputPlaceholder:  '#00000040',
   // Status Colors
   success: '#34C759',
   error: '#FF3B30',

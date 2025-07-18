@@ -117,13 +117,13 @@ export default function XDatePicker({
     setTimeout(updatePosition, 0);
   };
 
-  const onDayPress = (day: { year: number; month: number; day: number }) => {
-    const d = new Date(day.year, day.month - 1, day.day);
+  const onDayPress = (date: Date) => {
+    
     if (mode === 'date') {
-      onChange(d);
+      onChange(date);
       setVisible(false);
     } else {
-      setTempDate(d);
+      setTempDate(date);
     }
   };
 
@@ -178,17 +178,10 @@ export default function XDatePicker({
             // />
             <XCalendar
               selected={value}
-              onSelect={(d)=>onDayPress({year: d.getFullYear(), month:1, day:1})}
+              onSelect={(d)=>onDayPress(d)}
               // theme={{ primary: '#1D62D8', background: '#f9f9f9' }}
             />
           ) : (
-            // <TimePickerPopup
-            //   hour={tempDate.getHours() % 12 || 12}
-            //   minute={tempDate.getMinutes()}
-            //   ampm={tempDate.getHours() >= 12 ? 'PM' : 'AM'}
-            //   onChange={onTimeConfirm}
-            //   onClose={() => setVisible(false)}
-            // />
             <XTimeWheel value={value} onChange={function (value: Date): void {
                 onTimeConfirm(value)
               } }/>
