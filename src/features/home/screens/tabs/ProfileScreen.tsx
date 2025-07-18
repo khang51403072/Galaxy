@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { View } from 'react-native';
-import { XColors } from '../../../../shared/constants/colors';
 import XButton from '../../../../shared/components/XButton';
 import XDivider from '../../../../shared/components/XDivider';
 import XText from '../../../../shared/components/XText';
@@ -201,7 +200,7 @@ export default function ProfileScreen() {
               reset([{ name: ROUTES.LOGIN }], 0);
             }}
           useGradient={false}
-          backgroundColor={XColors.primary}
+          backgroundColor={theme.colors.primary}
           style={{ borderRadius: 8, marginTop: 16 }}
         />
         <XText variant="content300" style={{ textAlign: 'center', marginTop: 16}}>

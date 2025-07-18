@@ -18,7 +18,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export interface DropdownOption {
   label: string;
-  value: string | number;
+  value: string | number | any;
 }
 
 interface XDropdownProps {
@@ -80,18 +80,18 @@ const XDropdown: React.FC<XDropdownProps> = ({
     },
     dropdownButton: {
       borderWidth: 1,
-      borderColor: disabled ? theme.colors.border : theme.colors.border,
+      borderColor: disabled ? theme.colors.primary : theme.colors.primary,
       borderRadius: 8,
-      padding: 12,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
       backgroundColor: disabled ? theme.colors.surface : '#fff',
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      minHeight: 48,
+      
     },
     dropdownText: {
-      fontSize: 16,
-      color: selectedOption ? theme.colors.text : theme.colors.textSecondary,
+      color: selectedOption ? theme.colors.text : theme.colors.textPlaceholder,
       flex: 1,
     },
     modalOverlay: {
@@ -153,7 +153,7 @@ const XDropdown: React.FC<XDropdownProps> = ({
   });
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[style]}>
       {label && <Text style={styles.label}>{label}</Text>}
       
       <TouchableOpacity
@@ -167,8 +167,8 @@ const XDropdown: React.FC<XDropdownProps> = ({
         </Text>
         <XIcon 
           name="downArrow" 
-          width={20} 
-          height={20} 
+          width={16} 
+          height={16} 
           color={theme.colors.textSecondary} 
         />
       </TouchableOpacity>
@@ -222,7 +222,7 @@ const XDropdown: React.FC<XDropdownProps> = ({
 
               <FlatList
                 data={options}
-                keyExtractor={(item) => item.value.toString()}
+                keyExtractor={(item) => item.label}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={[
@@ -233,15 +233,6 @@ const XDropdown: React.FC<XDropdownProps> = ({
                     activeOpacity={0.7}
                   >
                     <Text style={styles.optionText}>{item.label}</Text>
-                    {selectedOption?.value === item.value && (
-                      <XIcon 
-                        name="passwordCheck" 
-                        width={20} 
-                        height={20} 
-                        color={theme.colors.primary} 
-                        style={styles.checkIcon}
-                      />
-                    )}
                   </TouchableOpacity>
                 )}
                 ListEmptyComponent={

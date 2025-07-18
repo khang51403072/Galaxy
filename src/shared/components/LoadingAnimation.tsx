@@ -3,7 +3,7 @@ import { View, StyleSheet, Animated, Dimensions } from 'react-native';
 import LogoWhite from '../assets/icons/LogoWhite.svg';
 import Group1 from '../assets/icons/Group1.svg';
 import Group2 from '../assets/icons/Group2.svg';
-import { XColors } from '../constants/colors';
+import { useTheme } from '../theme';
 
 const { width, height } = Dimensions.get('window');
 
@@ -15,7 +15,22 @@ export default function LoadingAnimation() {
   const group1Scale = useRef(new Animated.Value(0.7)).current;
   const logoOpacity = useRef(new Animated.Value(0)).current;
   const logoScale = useRef(new Animated.Value(0.7)).current;
-
+  const theme = useTheme()
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      height: '100%',
+    },
+    centered: {
+      position: 'absolute',
+      left: '50%',
+      top: '50%',
+    },
+  });
   useEffect(() => {
     const showSequence = Animated.sequence([
       Animated.parallel([
@@ -111,18 +126,3 @@ export default function LoadingAnimation() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: XColors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    height: '100%',
-  },
-  centered: {
-    position: 'absolute',
-    left: '50%',
-    top: '50%',
-  },
-});

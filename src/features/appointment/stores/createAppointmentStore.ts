@@ -9,6 +9,7 @@ import type { CustomerPayload } from '../types/CustomerResponse';
 
 export type CreateAppointmentState = {
   customerList: CustomerEntity[] | null;
+  selectedCustomer: CustomerEntity | null;
   service: string | null;
   date: Date | null;
   time: Date | null;
@@ -21,9 +22,13 @@ export type CreateAppointmentState = {
   setConfirmOnline: (value: boolean) => void;
   setGroupAppointment: (value: boolean) => void;
   reset: () => void;
+  setSelectedCustomer: (value: CustomerEntity)=> void,
   getApptResource: () => Promise<Result<ApptResResponse, Error>>;
   getCustomerLookup: (pageNumber?: number, pageSize?: number, phoneNumber?: string) => Promise<Result<CustomerResponse, Error>>;
 };
+
+import { createApptType } from '../types/AppointmentType';
+
 
 export const initialCreateAppointmentState = {
   customerList: null,
@@ -33,6 +38,7 @@ export const initialCreateAppointmentState = {
   confirmOnline: false,
   groupAppointment: false,
   isLoading: false,
+  selectedCustomer: null
 };
 const appointmentRepository = new AppointmentRepositoryImplement();
 const appointmentUsecase = new AppointmentUsecase(appointmentRepository);
@@ -47,12 +53,15 @@ const createAppointmentCreator = (set: any) => ({
   getApptResource: () => {
     return appointmentUsecase.getApptResource();
   },
+  setSelectedCustomer: (value:CustomerEntity)=>{
+    set({selectedCustomer: value})
+  },
   getCustomerLookup: async (pageNumber: number = 1, pageSize: number = 10, phoneNumber: string = '') => {
     set({ isLoading: true });
     const payload: CustomerPayload = {
       pageNumber,
       pageSize,
-      phoneNumber: '%'+phoneNumber+'%',
+      phoneNumber: phoneNumber,
     };
     const result = await appointmentUsecase.customers(payload);
     if(isSuccess(result)) {
@@ -66,6 +75,7 @@ const createAppointmentCreator = (set: any) => ({
 export const useCreateAppointmentStore = create<CreateAppointmentState>(createAppointmentCreator);
 
 export const createAppointmentSelectors = {
+  selectSelectedCustomer: (state: CreateAppointmentState) => state.selectedCustomer,
   selectCustomerList: (state: CreateAppointmentState) => state.customerList,
   selectService: (state: CreateAppointmentState) => state.service,
   selectDate: (state: CreateAppointmentState) => state.date,
@@ -74,6 +84,8 @@ export const createAppointmentSelectors = {
   selectGroupAppointment: (state: CreateAppointmentState) => state.groupAppointment,
   selectGetApptResource: (state: CreateAppointmentState) => state.getApptResource,
   selectGetCustomerLookup: (state: CreateAppointmentState) => state.getCustomerLookup,
+  selectSetSelectedCustomer: (state: CreateAppointmentState) => state.setSelectedCustomer,
+
 }; 
 
 function CustomerPayload(pageNumber: any, arg1: number, pageSize: any, arg3: number, phoneNumber: any, arg5: string) {

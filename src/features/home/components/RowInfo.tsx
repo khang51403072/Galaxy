@@ -1,9 +1,6 @@
 import React from 'react';
 import XText from '../../../shared/components/XText';
-import XIcon, { iconMap } from '../../../shared/components/XIcon';
-import { XColors } from '../../../shared/constants/colors';
 import { View } from 'react-native';
-import ActionGroup from './ActionGroup';
 
 type TitleGroupProps = {
   titleLeft: string;

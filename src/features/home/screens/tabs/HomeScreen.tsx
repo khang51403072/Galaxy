@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { XColors } from '../../../../shared/constants/colors';
 import XText from '../../../../shared/components/XText';
 import XScreen from '../../../../shared/components/XScreen';
 import { useShallow } from 'zustand/react/shallow';
@@ -201,7 +200,7 @@ export default function HomeScreen() {
     </XText>  
   </View>
   <TouchableOpacity onPress={()=>navigate(ROUTES.NOTIFICATIONS)}>
-    <XIcon  name='bell' width={24} height={24} color={XColors.primary} />
+    <XIcon  name='bell' width={24} height={24} color={theme.colors.primary} />
 
   </TouchableOpacity>
   
