@@ -9,6 +9,7 @@ import { ApptResResponse } from "../types/ApptResResponse";
 import { CustomerResponse, CustomerPayload, CustomerSavePayload, CustomerSaveResponse } from "../types/CustomerResponse";
 import { ApptPayload, ApptSaveResponse } from "../types/ApptSaveResponse";
 import { ApptDetailsResponse } from "../types/ApptDetailsResponse";
+import { CompanyProfileResponse } from "../types/CompanyProfileResponse";
 
 export class AppointmentRepositoryImplement implements AppointmentRepository {
     async getAppointmentList(request: CommonRequest): Promise<Result<AppointmentEntity[], Error>> {
@@ -86,6 +87,15 @@ export class AppointmentRepositoryImplement implements AppointmentRepository {
     async apptDetails(id: string): Promise<Result<ApptDetailsResponse, Error>> {
         try {
             const response = await AppointmentApi.apptDetails(id);
+            return success(response);
+        } catch (error) {
+            return failure(error as Error);
+        }
+    }
+
+    async apptCompanyProfile(): Promise<Result<CompanyProfileResponse, Error>> {
+        try {
+            const response = await AppointmentApi.apptCompanyProfile();
             return success(response);
         } catch (error) {
             return failure(error as Error);

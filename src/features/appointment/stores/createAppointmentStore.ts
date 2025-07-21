@@ -16,6 +16,7 @@ export type CreateAppointmentState = {
   confirmOnline: boolean;
   groupAppointment: boolean;
   isLoading: boolean;
+  selectedApptType: ApptType| null;
   setService: (service: string | null) => void;
   setDate: (date: Date | null) => void;
   setTime: (time: Date | null) => void;
@@ -27,7 +28,7 @@ export type CreateAppointmentState = {
   getCustomerLookup: (pageNumber?: number, pageSize?: number, phoneNumber?: string) => Promise<Result<CustomerResponse, Error>>;
 };
 
-import { createApptType } from '../types/AppointmentType';
+import { ApptType, createApptType } from '../types/AppointmentType';
 
 
 export const initialCreateAppointmentState = {
@@ -38,7 +39,8 @@ export const initialCreateAppointmentState = {
   confirmOnline: false,
   groupAppointment: false,
   isLoading: false,
-  selectedCustomer: null
+  selectedCustomer: null,
+  selectedApptType: null,
 };
 const appointmentRepository = new AppointmentRepositoryImplement();
 const appointmentUsecase = new AppointmentUsecase(appointmentRepository);
@@ -85,9 +87,6 @@ export const createAppointmentSelectors = {
   selectGetApptResource: (state: CreateAppointmentState) => state.getApptResource,
   selectGetCustomerLookup: (state: CreateAppointmentState) => state.getCustomerLookup,
   selectSetSelectedCustomer: (state: CreateAppointmentState) => state.setSelectedCustomer,
-
+  selectSelectedApptType: (state: CreateAppointmentState) => state.selectedApptType,
 }; 
 
-function CustomerPayload(pageNumber: any, arg1: number, pageSize: any, arg3: number, phoneNumber: any, arg5: string) {
-    throw new Error('Function not implemented.');
-}

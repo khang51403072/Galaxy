@@ -149,21 +149,15 @@ export default function  TicketScreen() {
         <View style={{ flexDirection: 'column', paddingTop: theme.spacing.md, paddingBottom: theme.spacing.sm,}}>
             <View style={{ flexDirection: 'row', gap: 16, alignItems: 'flex-end' }}>
             <XDatePicker
-                label="Date"
                 value={startDate}
                 onChange={(date) => useReportStore.setState({startDate: date})}
                 placeholder="Chọn ngày sinh"
-                minimumDate={new Date(1900, 0, 1)}
-                maximumDate={new Date()}
                 style={{ flex: 1 }}
             />
             <XDatePicker
-                label="Date"
                 value={endDate}
                 onChange={(date) => useReportStore.setState({endDate: date})}
                 placeholder="Chọn ngày sinh"
-                minimumDate={new Date(1900, 0, 1)}
-                maximumDate={new Date()}
                 style={{ flex: 1 }}
             />
             <TouchableOpacity
@@ -203,7 +197,10 @@ export default function  TicketScreen() {
               <CustomTabBar
                 {...props}
                 indicatorStyle={null}
-                style={{ paddingVertical: theme.spacing.xs, borderRadius: theme.borderRadius.sm, backgroundColor: theme.colors.backgroundTabBarReport }}
+                style={{ 
+                  paddingVertical: theme.spacing.xs, 
+                  borderRadius: theme.borderRadius.sm, 
+                  backgroundColor: theme.colors.backgroundTabBarReport }}
                 renderTabBarItem={({ route, focused, jumpTo , ...props}) => (
                   <TouchableOpacity
                     onPress={() => jumpTo(route.key)}

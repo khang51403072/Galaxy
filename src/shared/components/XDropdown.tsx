@@ -14,6 +14,7 @@ import {
 import Modal from 'react-native-modal';
 import XIcon from './XIcon';
 import { useTheme } from '../theme/ThemeProvider';
+import XText from './XText';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -115,7 +116,7 @@ const XDropdown: React.FC<XDropdownProps> = ({
       borderWidth: 1,
       borderColor: theme.colors.border,
       maxHeight: DROPDOWN_MAX_HEIGHT,
-      elevation: 8,
+      
       shadowColor: '#000',
       shadowOpacity: 0.1,
       shadowRadius: 8,
@@ -163,9 +164,9 @@ const XDropdown: React.FC<XDropdownProps> = ({
           activeOpacity={0.7}
           disabled={disabled}
         >
-          <Text style={styles.dropdownText} numberOfLines={1}>
+          <XText variant='inputText' style={styles.dropdownText} numberOfLines={1}>
             {selectedOption ? selectedOption.label : placeholder}
-          </Text>
+          </XText>
           <XIcon 
             name="downArrow" 
             width={16} 

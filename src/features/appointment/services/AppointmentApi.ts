@@ -10,6 +10,7 @@ import { ApptResResponse } from "../types/ApptResResponse";
 import { CustomerResponse, CustomerPayload, CustomerSavePayload, CustomerSaveResponse } from "../types/CustomerResponse";
 import { ApptPayload, ApptSaveResponse } from "../types/ApptSaveResponse";
 import { ApptDetailsResponse } from "../types/ApptDetailsResponse";
+import { CompanyProfileResponse } from "../types/CompanyProfileResponse";
 
 
 type commonResponse = ApiResponse<string>;
@@ -60,6 +61,11 @@ export const AppointmentApi = {
     },
     apptDetails: async (id: string): Promise<ApptDetailsResponse> => {
         const response = await httpClientWithDeduplication.get(`${API_ENDPOINTS.APPOINTMENT.APPT_DETAILS}/${id}`);
+        return response.data;
+    },
+
+    apptCompanyProfile: async (): Promise<CompanyProfileResponse> => {
+        const response = await httpClientWithDeduplication.get(`${API_ENDPOINTS.APPOINTMENT.COMPANY_PROFILE}`);
         return response.data;
     },
 } 
