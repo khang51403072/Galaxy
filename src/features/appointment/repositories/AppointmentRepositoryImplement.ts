@@ -3,8 +3,8 @@ import { AppointmentResponse, AppointmentEntity } from "../types/AppointmentResp
 import { AppointmentRepository } from "./AppointmentRepository";
 import { AppointmentApi } from "../services/AppointmentApi";
 import { Result, success, failure } from "../../../shared/types/Result";
-import { CategoriesResponse } from "../types/CategoriesResponse";
-import { MenuItemResponse } from "../types/MenuItemResponse";
+import { CategoriesResponse, CategoryEntity } from "../types/CategoriesResponse";
+import { MenuItemEntity, MenuItemResponse } from "../types/MenuItemResponse";
 import { ApptResResponse } from "../types/ApptResResponse";
 import { CustomerResponse, CustomerPayload, CustomerSavePayload, CustomerSaveResponse } from "../types/CustomerResponse";
 import { ApptPayload, ApptSaveResponse } from "../types/ApptSaveResponse";
@@ -30,19 +30,19 @@ export class AppointmentRepositoryImplement implements AppointmentRepository {
         }
     }
 
-    async getCategories(): Promise<Result<CategoriesResponse, Error>> {
+    async getCategories(): Promise<Result<CategoryEntity[], Error>> {
         try {
             const response = await AppointmentApi.getCategories();
-            return success(response);
+            return success(response.data);
         } catch (error) {
             return failure(error as Error);
         }
     }
 
-    async getMenuItems(): Promise<Result<MenuItemResponse, Error>> {
+    async getMenuItems(): Promise<Result<MenuItemEntity[], Error>> {
         try {
             const response = await AppointmentApi.getMenuItems();
-            return success(response);
+            return success(response.data);
         } catch (error) {
             return failure(error as Error);
         }

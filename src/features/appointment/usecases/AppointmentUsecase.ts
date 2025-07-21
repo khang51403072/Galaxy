@@ -2,8 +2,8 @@ import { CommonRequest } from "@/types/CommonRequest";
 import { AppointmentResponse, AppointmentEntity } from "../types/AppointmentResponse";
 import { AppointmentRepository } from "../repositories/AppointmentRepository";
 import { Result } from "../../../shared/types/Result";
-import { CategoriesResponse } from "../types/CategoriesResponse";
-import { MenuItemResponse } from "../types/MenuItemResponse";
+import { CategoriesResponse, CategoryEntity } from "../types/CategoriesResponse";
+import { MenuItemEntity, MenuItemResponse } from "../types/MenuItemResponse";
 import { ApptResResponse } from "../types/ApptResResponse";
 import { CustomerResponse, CustomerPayload, CustomerSavePayload, CustomerSaveResponse } from "../types/CustomerResponse";
 import { ApptPayload, ApptSaveResponse } from "../types/ApptSaveResponse";
@@ -21,11 +21,11 @@ export class AppointmentUsecase {
         return await this.repository.getAppointmentListOwner(request);
     }
 
-    async getCategories(): Promise<Result<CategoriesResponse, Error>> {
+    async getCategories(): Promise<Result<CategoryEntity[], Error>> {
         return await this.repository.getCategories();
     }
 
-    async getMenuItems(): Promise<Result<MenuItemResponse, Error>> {
+    async getMenuItems(): Promise<Result<MenuItemEntity[], Error>> {
         return await this.repository.getMenuItems();
     }
 
