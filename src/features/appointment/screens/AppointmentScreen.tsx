@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { appConfig } from "@/shared/utils/appConfig";
 import XNoDataView from "@/shared/components/XNoDataView";
 import { spacing } from "@/shared/theme";
+import AppointmentItemSkeleton from "../components/AppointmentItemSkeleton";
 
 export default function AppointmentScreen() {
   const theme = useTheme();
@@ -118,16 +119,33 @@ export default function AppointmentScreen() {
   ]);
   
   const renderScene = SceneMap({
-    all: () => (
-      <FlatList
-      contentContainerStyle={{padding: theme.spacing.sm }}
-      data={appointmentList}
-      renderItem={renderAppointmentItem}
-      keyExtractor={(item) => item.apptId}
-      ListEmptyComponent={<XNoDataView />}
-    />
-    ),
-    new: () => (
+    all: () => {
+      if (isLoading) {
+        return (
+          <View style={{ padding: theme.spacing.sm }}>
+            {[...Array(5)].map((_, i) => <AppointmentItemSkeleton key={i} />)}
+          </View>
+        );
+      }
+      return (
+        <FlatList
+          contentContainerStyle={{padding: theme.spacing.sm }}
+          data={appointmentList}
+          renderItem={renderAppointmentItem}
+          keyExtractor={(item) => item.apptId}
+          ListEmptyComponent={<XNoDataView />}
+        />
+      );
+    },
+    new: () => {
+      if (isLoading) {
+        return (
+          <View style={{ padding: theme.spacing.sm }}>
+            {[...Array(5)].map((_, i) => <AppointmentItemSkeleton key={i} />)}
+          </View>
+        );
+      }
+      return (
         <FlatList
           contentContainerStyle={{padding: theme.spacing.sm }}
           data={appointmentList.filter((value, index)=>{
@@ -137,29 +155,48 @@ export default function AppointmentScreen() {
           keyExtractor={(item) => item.apptId}
           ListEmptyComponent={<XNoDataView />}
         />
-    ),
-    checkin: () => (
-      <FlatList
-        contentContainerStyle={{padding: theme.spacing.sm }}
-        data={appointmentList.filter((value, index)=>{
-          return value.apptStatus.toLowerCase() == "checkin"
-        })}
-        renderItem={renderAppointmentItem}
-        keyExtractor={(item) => item.apptId}
-        ListEmptyComponent={<XNoDataView />}
-      />
-    ),
-    checkout: () => (
-      <FlatList
-        contentContainerStyle={{padding: theme.spacing.sm }}
-        data={appointmentList.filter((value, index)=>{
-          return value.apptStatus.toLowerCase() == "checkout"
-        })}
-        renderItem={renderAppointmentItem}
-        keyExtractor={(item) => item.apptId}
-        ListEmptyComponent={<XNoDataView />}
-      />
-    ),
+      );
+    },
+    checkin: () => {
+      if (isLoading) {
+        return (
+          <View style={{ padding: theme.spacing.sm }}>
+            {[...Array(5)].map((_, i) => <AppointmentItemSkeleton key={i} />)}
+          </View>
+        );
+      }
+      return (
+        <FlatList
+          contentContainerStyle={{padding: theme.spacing.sm }}
+          data={appointmentList.filter((value, index)=>{
+            return value.apptStatus.toLowerCase() == "checkin"
+          })}
+          renderItem={renderAppointmentItem}
+          keyExtractor={(item) => item.apptId}
+          ListEmptyComponent={<XNoDataView />}
+        />
+      );
+    },
+    checkout: () => {
+      if (isLoading) {
+        return (
+          <View style={{ padding: theme.spacing.sm }}>
+            {[...Array(5)].map((_, i) => <AppointmentItemSkeleton key={i} />)}
+          </View>
+        );
+      }
+      return (
+        <FlatList
+          contentContainerStyle={{padding: theme.spacing.sm }}
+          data={appointmentList.filter((value, index)=>{
+            return value.apptStatus.toLowerCase() == "checkout"
+          })}
+          renderItem={renderAppointmentItem}
+          keyExtractor={(item) => item.apptId}
+          ListEmptyComponent={<XNoDataView />}
+        />
+      );
+    },
   });
   
   const layout = useWindowDimensions();
@@ -178,7 +215,6 @@ export default function AppointmentScreen() {
   return (
     <XScreen 
       title="Appointment" 
-      loading={isLoading} 
       error={error} 
       style={{ flex: 1}} 
       paddingHorizontal={0}
