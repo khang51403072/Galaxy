@@ -1,13 +1,11 @@
 // core/network/AuthInterceptor.ts
+import { appConfig } from '@/shared/utils/appConfig';
 import * as Keychain from 'react-native-keychain';
 
 export async function getToken(): Promise<string | null> {
   try {
-    const credentials = await Keychain.getGenericPassword();
-    if (credentials) {
-      const data = JSON.parse(credentials.password);
-      return data.token;
-    }
+    const data = await appConfig.getUser();
+    return data?.token??"";
   } catch (err) {
     console.error('Failed to get token', err);
   }

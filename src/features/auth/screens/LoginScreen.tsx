@@ -172,8 +172,9 @@ export default function LoginScreen() {
   const loginForm = 
   <XForm 
     fields={fields} 
-    style={{width: '100%'}} 
+    style={{width: '100%', gap: theme.spacing.md}} 
     onSubmit={handleLogin} 
+
     defaultValues={defaultValues} 
     // maxHeight={isShowUsername ? "30%" : "20%"} 
     scrollEnabled={false}

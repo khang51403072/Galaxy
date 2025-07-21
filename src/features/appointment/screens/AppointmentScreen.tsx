@@ -14,11 +14,10 @@ import { ROUTES } from "@/app/routes";
 import { useNavigation } from "@react-navigation/native";
 import { appConfig } from "@/shared/utils/appConfig";
 import XNoDataView from "@/shared/components/XNoDataView";
+import { spacing } from "@/shared/theme";
 
 export default function AppointmentScreen() {
   const theme = useTheme();
-  const { width } = useWindowDimensions();
-  const [json, setJson] = useState<any>(null);
   const navigation = useNavigation();
   const {
     isLoading,
@@ -27,26 +26,31 @@ export default function AppointmentScreen() {
     appointmentList,
     getAppointmentList,
     getAppointmentListOwner,
+    getCompanyProfile,
+    json
   } = useAppointmentStore(
     useShallow((state: AppointmentState) => ({
       isLoading: appointmentSelectors.selectIsLoading(state),
       error: appointmentSelectors.selectError(state),
+      json: appointmentSelectors.selectJson(state),
       selectedDate: appointmentSelectors.selectSelectedDate(state),
       appointmentList: appointmentSelectors.selectAppointmentList(state),
       getAppointmentList: appointmentSelectors.selectGetAppointmentList(state),
       getAppointmentListOwner: appointmentSelectors.selectGetAppointmentListOwner(state),
+      getCompanyProfile: appointmentSelectors.selectGetCompanyProfile(state)
     }))
   );
 
   useEffect(() => {
     loadKeychainData();
+   
   }, []);
 
   const loadKeychainData = async () => {
     try {
       const keychainData = await appConfig.getUser();
-      setJson(keychainData);
       useAppointmentStore.setState({ json: keychainData });
+      getCompanyProfile();
     } catch (error) {
       console.error('Error loading keychain data:', error);
     }
@@ -176,7 +180,7 @@ export default function AppointmentScreen() {
       title="Appointment" 
       loading={isLoading} 
       error={error} 
-      style={{ flex: 1 }} 
+      style={{ flex: 1}} 
       paddingHorizontal={0}
       backgroundColor={theme.colors.background}
     > 
@@ -193,15 +197,15 @@ export default function AppointmentScreen() {
         renderScene={renderScene}
         onIndexChange={setIndex}
         initialLayout={{ width: layout.width }}
-        style={{ flex: 1 , marginHorizontal: theme.spacing.sm, backgroundColor: 'transparent'  }}
+        style={{ flex: 1 , backgroundColor: theme.colors.background  }}
         renderTabBar={props => (
           <CustomTabBar
             {...props}
             indicatorStyle={{ backgroundColor: theme.colors.primary }}
             style={{ 
+              backgroundColor: theme.colors.background ,
               paddingVertical: theme.spacing.xs, 
-              backgroundColor: 'transparent',
-              marginHorizontal: theme.spacing.sm,
+              paddingHorizontal: theme.spacing.sm,
               borderBottomWidth: 1, borderColor: theme.colors.border,
             }}
             renderTabBarItem={({ route, focused, jumpTo, onLayout, ref, ...props }) =>
@@ -223,6 +227,7 @@ export default function AppointmentScreen() {
                       style={{
                         borderRadius: theme.borderRadius.md,
                         paddingVertical: theme.spacing.sm,
+                        paddingHorizontal: theme.spacing.sm,
                         backgroundColor: 'transparent',
                         gap: theme.spacing.xs,
                         flex: 1, // Thêm flex: 1 để width đều

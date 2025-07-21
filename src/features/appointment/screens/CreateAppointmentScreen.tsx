@@ -6,13 +6,15 @@ import XScreen from "@/shared/components/XScreen";
 import XSwitch from "@/shared/components/XSwitch";
 import XText from "@/shared/components/XText";
 import { useTheme } from "@/shared/theme/ThemeProvider";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { createAppointmentSelectors, useCreateAppointmentStore } from "../stores/createAppointmentStore";
 import { useShallow } from "zustand/react/shallow";
 import { ROUTES } from "@/app/routes";
 import { navigate } from "@/app/NavigationService";
 import { ApptType, createApptType } from "../types/AppointmentType";
+import { appointmentSelectors, useAppointmentStore } from "../stores/appointmentStore";
+import { isSuccess } from "@/shared/types/Result";
 
 
 
@@ -22,11 +24,17 @@ export default function CreateAppointmentScreen() {
     const [isGroupAppt, setIsGroupAppt] = useState(false)
     const [selectedDate, setSelectedDate] = useState(new Date())
     // Tạo ref cho từng XDatePicker
-    const {getApptResource, selectedCustomer} = useCreateAppointmentStore(useShallow((state) => ({
+    const {getApptResource, selectedCustomer,selectedApptType} = useCreateAppointmentStore(useShallow((state) => ({
         getApptResource: createAppointmentSelectors.selectGetApptResource(state),
-        selectedCustomer: createAppointmentSelectors.selectSelectedCustomer(state)
+        selectedCustomer: createAppointmentSelectors.selectSelectedCustomer(state),
+        selectedApptType: createAppointmentSelectors.selectSelectedApptType(state)
     })));
 
+    const {getCompanyProfile} = useAppointmentStore(useShallow(
+        (state)=>({
+            getCompanyProfile: appointmentSelectors.selectGetCompanyProfile(state)
+        })
+    ));
 
     const listApptType = [
         createApptType("Misc", "Misc",),
@@ -36,9 +44,37 @@ export default function CreateAppointmentScreen() {
         createApptType("WalkIn", "Walk In"),
         createApptType("Online", "Online"),
       ];
-    const customerPicker = ()=>{
+
+
+    useEffect(()=>{
+        loadCompanyProfile();
+    },[])
+
+    const loadCompanyProfile = async () => {
+        const profile = await getCompanyProfile();
+        if(isSuccess(profile)) {
+            listApptType[0].bgColor = profile.value.data.posTheme.miscBackColor
+            listApptType[1].bgColor = profile.value.data.posTheme.newCustomerBackColor
+            listApptType[2].bgColor = profile.value.data.posTheme.heldOnBackColor
+            listApptType[3].bgColor = profile.value.data.posTheme.nonRequestBackColor
+            listApptType[4].bgColor = profile.value.data.posTheme.walkinBackColor
+            listApptType[5].bgColor = profile.value.data.posTheme.onlineBackColor
+            const apptType = listApptType.find((value,index)=>{
+                return value.id.trim().toLowerCase() === profile.value.data.appointments.defaultRetentionType.trim().toLowerCase()
+            });
+            useCreateAppointmentStore.setState({
+                selectedApptType: apptType}) 
+            // AppointmentSetting.workHour = config.businessHours
+            // AppointmentSetting.allowAddEditInPast   = config.appointments.isAllowAppointmentPriorToCurrentDate
+        }
+        
+    }
+    const customerPicker = async ()=>{
+        
         return (
-            <TouchableOpacity style={{}} onPress={
+            <TouchableOpacity style={{
+               
+            }} onPress={
                 async () => {
                 navigate(ROUTES.SELECT_CUSTOMER as never);
             }}>
@@ -46,19 +82,37 @@ export default function CreateAppointmentScreen() {
             </TouchableOpacity>
         )
     }
-    const dropdownPicker = ()=>{
+    const dropdownPicker = async () =>{
+        
         return (
             <XDropdown 
+            value={selectedApptType?.name}
             renderItem={
                 (item, isSelected) =>{
-                    return <View style={{paddingLeft: 10, flexDirection:"row", alignItems:'center', justifyContent:"flex-start"}}>
-                        <View style={{marginEnd:10, borderRadius:10, height:10, width:10, backgroundColor: (item.value as ApptType ).bgColor}}></View>
+                    return <TouchableOpacity 
+                    onPress={()=>{
+                        useCreateAppointmentStore.setState({selectedApptType: item.value})
+                    }}
+                    style={{
+                        borderBottomColor: theme.colors.border,
+                        borderBottomWidth:1,
+                        paddingVertical: theme.spacing.sm,
+                        paddingLeft: theme.spacing.sm, 
+                        flexDirection:"row", 
+                        alignItems:'center', 
+                        justifyContent:"flex-start"}}>
+                        <View style={{
+                            marginEnd:theme.spacing.sm, 
+                            borderRadius:theme.spacing.sm,
+                            height:theme.spacing.md, width:theme.spacing.md, 
+                            backgroundColor: (item.value as ApptType ).bgColor
+                        }}></View>
                         <XText variant="content400">{item.label}</XText>
-                    </View>
+                    </TouchableOpacity>
                 }
             }
             
-            value={""} placeholder="Choose Service" options={listApptType.map((e)=>({label: e.name, value: e}))} onSelect={()=>{}} />
+            placeholder="Choose Service" options={listApptType.map((e)=>({label: e.name, value: e}))} onSelect={()=>{}} />
         )
             
     }

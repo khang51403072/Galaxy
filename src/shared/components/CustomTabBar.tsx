@@ -240,7 +240,6 @@ const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'column',
     backgroundColor: '#fff',
-    elevation: 4,
     zIndex: 1,
   },
   tabContent: {
@@ -250,7 +249,7 @@ const styles = StyleSheet.create({
   },
   defaultTab: {
     minWidth: 80,
-    paddingHorizontal: 16,
+    
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,

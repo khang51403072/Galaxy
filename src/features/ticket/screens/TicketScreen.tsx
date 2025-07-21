@@ -75,7 +75,7 @@ export default function  TicketScreen() {
       {/* View header */}
       <View style={{ flexDirection: 'column', paddingTop: theme.spacing.md, borderBottomWidth: 1, borderBottomColor: theme.colors.border, paddingBottom: theme.spacing.sm,}}>
       {json?.isOwner ? 
-        <TouchableOpacity style={{}} onPress={async () => {
+        <TouchableOpacity style={{marginBottom: theme.spacing.md}} onPress={async () => {
           useTicketStore.setState({visible: true});
           await fetchEmployees();
         }}>
@@ -102,8 +102,8 @@ export default function  TicketScreen() {
           />
           <TouchableOpacity
             style={{
-              height: 48,
-              width: 48,
+              height: 42,
+              width: 42,
               borderRadius: 8,
               backgroundColor: '#2563eb',
               justifyContent: 'center',
