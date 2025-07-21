@@ -1,4 +1,4 @@
-import XDatePicker from "@/shared/components/XDatePicker";
+import { XDateTimePicker } from "@/shared/components/XDatePicker";
 import XDropdown, { DropdownOption } from "@/shared/components/XDropdown";
 import XIcon from "@/shared/components/XIcon";
 import XInput from "@/shared/components/XInput";
@@ -161,10 +161,11 @@ export default function CreateAppointmentScreen() {
                     <XIcon name="date" width={16} height={16} />
                     <XText variant="createAppointmentContent">Date</XText>
                 </View>
-                <XDatePicker
+                <XDateTimePicker
                     style={{ width: '40%' }}
                     value={selectedDate}
                     onChange={setSelectedDate}
+                    mode='date'
                 />
             </View>
         )
@@ -177,7 +178,7 @@ export default function CreateAppointmentScreen() {
                 <XIcon name="time" width={16} height={16} />
                 <XText variant="createAppointmentContent">Time</XText>
             </View>
-            <XDatePicker mode="time" style={{ width: '40%' }} value={new Date()} onChange={()=>{}} />
+            <XDateTimePicker mode="time" style={{ width: '40%' }} value={selectedDate} onChange={setSelectedDate} />
         </View>
         )
     }
