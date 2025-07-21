@@ -47,7 +47,9 @@ export default function HomeScreen() {
   useEffect(() => {
     loadData();
   }, []);
+  
   useEffect(() => {
+    if(json==null) return
     getChartData().then((result) => {
       if(isSuccess(result)) {
         loadData2Chart(result.value);        

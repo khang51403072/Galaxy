@@ -15,6 +15,7 @@ export const ROUTES = {
     APPOINTMENT: 'Appointment',
     CREATE_APPOINTMENT: 'CreateAppointment',
     SELECT_CUSTOMER: 'SelectCustomer',
+    SELECT_SERVICE:'SelectService'
     // Thêm các route khác ở đây
   } as const;
   
@@ -35,6 +36,7 @@ export const ROUTES = {
     [ROUTES.CREATE_APPOINTMENT]: undefined;
     [ROUTES.SELECT_CUSTOMER]: undefined;
     [ROUTES.NOTIFICATIONS]: undefined;
+    [ROUTES.SELECT_SERVICE]: undefined;
     // Thêm params cho các route khác nếu cần
   };
   

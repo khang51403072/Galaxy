@@ -30,7 +30,7 @@ export interface DropdownOption {
 
 interface XDropdownProps {
   options: DropdownOption[];
-  value?: string | number;
+  value?: DropdownOption|null;
   onSelect: (option: DropdownOption) => void;
   placeholder?: string;
   label?: string;
@@ -55,7 +55,6 @@ const XDropdown: React.FC<XDropdownProps> = ({
   const [pos, setPos] = useState({ left: MARGIN, top: MARGIN, width: DROPDOWN_MIN_WIDTH });
   const buttonRef = useRef<View>(null);
   const theme = useTheme();
-  const selectedOption = options.find(option => option.value === value) || null;
 
   // Tính toán vị trí dropdown
   const updatePosition = useCallback(() => {
@@ -74,8 +73,9 @@ const XDropdown: React.FC<XDropdownProps> = ({
   }, []);
 
   const handleOpen = () => {
-    updatePosition();
     setIsOpen(true);
+    updatePosition();
+    
   };
 
   useEffect(() => {
@@ -106,7 +106,7 @@ const XDropdown: React.FC<XDropdownProps> = ({
       minWidth: DROPDOWN_MIN_WIDTH,
     },
     dropdownText: {
-      color: selectedOption ? theme.colors.text : theme.colors.textPlaceholder,
+      color: value ? theme.colors.text : theme.colors.textPlaceholder,
       flex: 1,
     },
     dropdownList: {
@@ -165,7 +165,7 @@ const XDropdown: React.FC<XDropdownProps> = ({
           disabled={disabled}
         >
           <XText variant='inputText' style={styles.dropdownText} numberOfLines={1}>
-            {selectedOption ? selectedOption.label : placeholder}
+            {value ? value.label : placeholder}
           </XText>
           <XIcon 
             name="downArrow" 
@@ -197,13 +197,14 @@ const XDropdown: React.FC<XDropdownProps> = ({
             data={options}
             keyExtractor={(item) => item.label}
             renderItem={({ item }) => {
-              const isSelected = selectedOption?.value === item.value;
+              const isSelected = value?.value === item.value;
               if (renderItem) {
                 return (
                   <TouchableOpacity
                     onPress={() => {
-                      onSelect(item);
                       setIsOpen(false);
+                      onSelect(item);
+                      
                     }}
                     activeOpacity={0.7}
                   >
@@ -218,8 +219,9 @@ const XDropdown: React.FC<XDropdownProps> = ({
                     isSelected && styles.selectedOption,
                   ]}
                   onPress={() => {
-                    onSelect(item);
                     setIsOpen(false);
+                    onSelect(item);
+                    
                   }}
                   activeOpacity={0.7}
                 >
