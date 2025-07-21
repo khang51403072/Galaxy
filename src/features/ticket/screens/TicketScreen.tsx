@@ -1,13 +1,12 @@
 import XScreen from "../../../shared/components/XScreen";
 import XText from "../../../shared/components/XText";
 import XBottomSheetSearch from "../../../shared/components/XBottomSheetSearch";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import XInput from "../../../shared/components/XInput";
 import { ticketSelectors, TicketState, useTicketStore } from "../stores/ticketStore";
 import { useShallow } from "zustand/react/shallow";
 import { getDisplayName, WorkOrderEntity } from "../types/TicketResponse";
-import XDatePicker from "../../../shared/components/XDatePicker";
 import WebView from "react-native-webview";
 import XIcon from "../../../shared/components/XIcon";
 import { useTheme } from "../../../shared/theme/ThemeProvider";
@@ -15,6 +14,7 @@ import { useEmployeeStore, employeeSelectors } from '@/shared/stores/employeeSto
 import { homeSelectors, useHomeStore } from "@/features/home/stores/homeStore";
 import XNoDataView from "@/shared/components/XNoDataView";
 import XRenderHTML from "@/shared/components/XRenderHTML";
+import { XDateTimePicker } from "@/shared/components/XDatePicker";
 
 export default function  TicketScreen() {
   const {width} = useWindowDimensions();
@@ -82,7 +82,7 @@ export default function  TicketScreen() {
           <XInput value={selectedEmployee != null ? getDisplayName(selectedEmployee) : ""} editable={false} placeholder="Choose Technician"  label="Technician" pointerEvents="none"/>
         </TouchableOpacity>:null}
         <View style={{ flexDirection: 'row', gap: 16, alignItems: 'flex-end' }}>
-          <XDatePicker
+          <XDateTimePicker
             // label="Date"
             value={startDate ?? new Date()}
             onChange={(date) => useTicketStore.setState({startDate: date})}
@@ -91,8 +91,9 @@ export default function  TicketScreen() {
             // maximumDate={new Date()}
             style={{ flex: 1 }}
           />
-          <XDatePicker
+          <XDateTimePicker
             // label="Date"
+            mode={'date'}
             value={endDate ?? new Date()}
             onChange={(date) => useTicketStore.setState({endDate: date})}
             placeholder="Chọn ngày sinh"
