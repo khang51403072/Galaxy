@@ -83,6 +83,12 @@ interface XScreenProps {
   style?: any;
   rightIcon?: ReactNode;
   haveBottomTabBar?: boolean;
+  // Bổ sung props cho bottom button bar
+  onSave?: () => void;
+  onCancel?: () => void;
+  saveLabel?: string;
+  cancelLabel?: string;
+  bottomButtonBarStyle?: any;
 }
 
 
@@ -108,6 +114,11 @@ export default function XScreen({
   style,
   rightIcon,
   haveBottomTabBar = false,
+  onSave,
+  onCancel,
+  saveLabel = 'Save',
+  cancelLabel = 'Cancel',
+  bottomButtonBarStyle,
 }: XScreenProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -187,7 +198,7 @@ export default function XScreen({
         contentContainerStyle={[
           styles.scrollContent,
           {
-            paddingBottom: safeArea ? insets.bottom + (haveBottomTabBar ? 100 : 0) : 0,
+            paddingBottom: safeArea ? insets.bottom + (haveBottomTabBar || onSave || onCancel ? 80 : 0) : 0,
           }
         ]}
         showsVerticalScrollIndicator={false}
@@ -240,6 +251,7 @@ export default function XScreen({
         />
       )}
       {content}
+      
     </View>
   );
 

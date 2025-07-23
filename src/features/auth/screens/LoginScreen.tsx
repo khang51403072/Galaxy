@@ -152,6 +152,25 @@ export default function LoginScreen() {
       </XText>
     </View>
   </TouchableOpacity>
+
+const useAnotherUser = 
+  <TouchableOpacity onPress={()=>{
+    setFullName('');
+    setDefaultValues({
+      username: '',
+      password: '',
+    });
+    setIsShowUsername(true);
+  }}>
+  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
+    <View style={{padding: 10, backgroundColor: theme.colors.buttonFaceID, borderRadius: 10}}>
+      <XIcon name="faceID" height={20} width={20} color="#999" />
+    </View>
+    <XText variant="signInFaceID" style={{ marginLeft: 10 }}>
+      Use another user
+    </XText>
+  </View>
+</TouchableOpacity>
   const avatarAndImage = 
   <View style={{ alignItems: 'center', marginBottom: 20, flexDirection: 'column' }}>
     <XAvatar
@@ -201,6 +220,7 @@ export default function LoginScreen() {
         {fullName!='' && avatarAndImage}        
         {loginForm}
         {fullName!='' && faceIdLoginButton}
+        {fullName!='' && useAnotherUser}
       </View>  
       {backgroundLogo}
       

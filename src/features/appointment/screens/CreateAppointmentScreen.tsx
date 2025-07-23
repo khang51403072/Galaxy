@@ -11,26 +11,32 @@ import { FlatList, TouchableOpacity, View } from "react-native";
 import { createAppointmentSelectors, ServicesEntity, useCreateAppointmentStore } from "../stores/createAppointmentStore";
 import { useShallow } from "zustand/react/shallow";
 import { ROUTES } from "@/app/routes";
-import { navigate } from "@/app/NavigationService";
+import { goBack, navigate } from "@/app/NavigationService";
 import { ApptType, createApptType } from "../types/AppointmentType";
 import { appointmentSelectors, createAppointmentStore, useAppointmentStore } from "../stores/appointmentStore";
 import { isSuccess } from "@/shared/types/Result";
 import XNoDataView from "@/shared/components/XNoDataView";
 import SelectServiceScreen from "../components/SelectServiceScreen";
 import { MenuItemEntity } from "../types/MenuItemResponse";
+import { employeeSelectors, useEmployeeStore } from "@/shared/stores/employeeStore";
+import XBottomSheetSearch from "@/shared/components/XBottomSheetSearch";
+import { useTicketStore } from "@/features/ticket/stores/ticketStore";
+import { EmployeeEntity, getDisplayName, isEmployee } from "@/features/ticket/types/TicketResponse";
 
 
 export default function CreateAppointmentScreen() {
     const theme = useTheme();
-    const [isConfirmOnline, setIsConfirmOnline] = useState(false)
-    const [isGroupAppt, setIsGroupAppt] = useState(false)
-    const [selectedDate, setSelectedDate] = useState(new Date())
+   
     const [showServiceSheet, setShowServiceSheet] = useState(false);
-    // Tạo ref cho từng XDatePicker
+    const {employees} = useEmployeeStore(useShallow((state)=>({
+        employees: employeeSelectors.selectEmployees(state)
+    })))
     const {
         getApptResource, selectedCustomer,selectedApptType,listApptType, 
         getListCategories, getListItemMenu, listCategories,
-        listItemMenu,isLoading, listServices
+        listItemMenu,isLoading, listServices,selectedDate,setSelectedDate,
+        isConfirmOnline,setIsConfirmOnline,
+        isGroupAppt,setIsGroupAppt
     } = useCreateAppointmentStore(useShallow((state) => ({
         getApptResource: createAppointmentSelectors.selectGetApptResource(state),
         selectedCustomer: createAppointmentSelectors.selectSelectedCustomer(state),
@@ -41,7 +47,13 @@ export default function CreateAppointmentScreen() {
         listCategories: createAppointmentSelectors.selectListCategories(state),
         listItemMenu: createAppointmentSelectors.selectListItemMenu(state),
         isLoading: createAppointmentSelectors.selectIsLoading(state),
-        listServices: createAppointmentSelectors.selectListService(state)
+        listServices: createAppointmentSelectors.selectListService(state),
+        selectedDate: createAppointmentSelectors.selectSelectedDate(state),
+        setSelectedDate: createAppointmentSelectors.selectSetSelectedDate(state),
+        isConfirmOnline: createAppointmentSelectors.selectIsConfirmOnline(state),
+        setIsConfirmOnline: createAppointmentSelectors.selectSetIsConfirmOnline(state),
+        isGroupAppt: createAppointmentSelectors.selectIsGroupAppt(state),
+        setIsGroupAppt: createAppointmentSelectors.selectSetIsGroupAppt(state)
         
     })));
 
@@ -150,7 +162,7 @@ export default function CreateAppointmentScreen() {
     }
     const  divider = ()=>{
         return (
-            <View style={{ height: 1, backgroundColor: theme.colors.border, marginVertical: 10 }} />
+            <View style={{ height: 1, backgroundColor: theme.colors.border}} />
         )
     }
 
@@ -196,7 +208,7 @@ export default function CreateAppointmentScreen() {
 
         )
     }
-    let serviceIndex = 0;
+    let [serviceIndex, setServiceIndex] = useState(0);
     /**
      * Nếu index là phần tử cuối cùng (length-1), thêm newItem vào vị trí áp chót.
      * Ngược lại, cập nhật phần tử ở index thành newItem.
@@ -205,8 +217,12 @@ export default function CreateAppointmentScreen() {
      * @param {*} newItem - Phần tử mới hoặc giá trị cập nhật
      * @returns {Array} - Mảng mới đã được cập nhật hoặc chèn phần tử
      */
-    const updateOrInsertPenultimate = (arr: ServicesEntity[], index:number, newItem: ServicesEntity):ServicesEntity[] => {
+    const updateOrInsertPenultimate = (arr: ServicesEntity[], index:number, e: MenuItemEntity|EmployeeEntity):ServicesEntity[] => {
         if (index === arr.length - 1) {
+
+            const newItem = isEmployee(e) 
+                ? {service: null, technician: e} 
+                : {service: e, technician: null}
             // Thêm vào áp chót
             if (arr.length < 1) return [newItem];
             if (arr.length === 1) return [newItem, ...arr];
@@ -216,13 +232,41 @@ export default function CreateAppointmentScreen() {
                 arr[arr.length - 1]
             ];
         } else {
+            const newItem = isEmployee(e) 
+                ? {service: arr[index].service, technician: e} 
+                : {service: e, technician: arr[index].technician}
             // Cập nhật phần tử ở index
             return arr.map((item, i) => (i === index ? newItem : item));
         }
     }    
-    
+
     const handleSelectItemMenu = (e: MenuItemEntity) => {
-        
+        setShowServiceSheet(false);
+        const newList = updateOrInsertPenultimate(listServices, serviceIndex, e)
+        useCreateAppointmentStore.setState({listBookingServices: newList})
+    }
+
+    const handleSelectEmployee = (e: EmployeeEntity) => {
+        setIsShowTechnician(false);
+        const newList = updateOrInsertPenultimate(listServices, serviceIndex, e)
+        useCreateAppointmentStore.setState({listBookingServices: newList})
+    }
+    const [isShowTechnician, setIsShowTechnician] = useState(false);
+    const technicianPicker = ()=>{
+        return (
+            <XBottomSheetSearch
+                visible={isShowTechnician}
+                onClose={() => {
+                    setIsShowTechnician(false);
+                }}
+                data={employees}
+                onSelect={(item) => {
+                    handleSelectEmployee(item);
+                }}
+                placeholder="Search..."
+                title="Technician "
+            /> 
+        )
     }
     const listServiceComponent = () =>{
         return listServices.map((e, index)=>{
@@ -231,17 +275,20 @@ export default function CreateAppointmentScreen() {
             }}>
                 <TouchableOpacity  onPress={
                     async () => {
+                        setServiceIndex(index)
                     setShowServiceSheet(true)
-                    serviceIndex = index
+                    
                 }}>
                     <XInput value={e?.service?.name} editable={false} 
                         placeholder="Add Service" pointerEvents="none"/>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={
                     async () => {
-                    navigate(ROUTES.SELECT_CUSTOMER as never);
+                        setServiceIndex(index)
+                    setIsShowTechnician(true);
+                    
                 }}>
-                    <XInput value={selectedCustomer?.firstName} 
+                    <XInput value={ e.technician ? getDisplayName(e.technician) : ""} 
                         editable={false} placeholder="Choose Technician" pointerEvents="none"/>
                 </TouchableOpacity>
             </View>
@@ -250,7 +297,15 @@ export default function CreateAppointmentScreen() {
     
     
     return (
-        <XScreen scrollable title="Booking Appointment" loading = {isLoading} >    
+        <XScreen 
+            
+            onSave={()=>{
+                console.log("onSave")
+            }}
+            onCancel={()=>{
+                goBack();    
+            }}
+            scrollable title="Booking Appointment" loading = {isLoading} >    
             <View style={{ gap: theme.spacing.md, paddingTop: theme.spacing.md }}>
                 {customerPicker()}
                 {dropdownPicker()}
@@ -267,13 +322,11 @@ export default function CreateAppointmentScreen() {
                 visible={showServiceSheet}
                 onClose={() => setShowServiceSheet(false)}
                 onSelect={(service) => {
-                    // setSelectedService(service);
-                    setShowServiceSheet(false);
-                    const newList = updateOrInsertPenultimate(listServices, serviceIndex, {service: service, technician: null})
-                    useCreateAppointmentStore.setState({listBookingServices: newList})
-                    
+                   handleSelectItemMenu(service);
                 }}
             />
+            {technicianPicker()}
         </XScreen>
     )
 }   
+
