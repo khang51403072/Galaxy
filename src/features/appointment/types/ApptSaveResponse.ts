@@ -2,7 +2,6 @@ export interface ApptPayload {
   id: string;
   apptDate: string;
   retentionType: string;
-  isPreBooking: boolean;
   isOnlineConfirm: boolean;
   isGroupAppt: boolean;
   apptStatus: string;
@@ -11,8 +10,8 @@ export interface ApptPayload {
   apptServicePackages: ApptPackageItem[];
   customer: CustomerAppt;
   customerNote: string;
-  createdTechnician: CreatedTechnician;
-  updatedTechnician?: any;
+  // createdTechnician: CreatedTechnician;
+  // updatedTechnician?: any;
   allowBookAnyway: boolean;
 }
 

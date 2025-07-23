@@ -73,7 +73,7 @@ export default function HomeScreen() {
       displayData = data.map(item => {
         return {
           label: item.dayOfWeek.substring(0, 3),
-          value: [item.saleAmount, item.nonCashTipAmount]
+          value: [item.saleAmount, -item.nonCashTipAmount]
         }
       });
     } else {

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, useWindowDimensions } from 'react-native';
 import Svg, { Rect, G, Text as SvgText, Line } from 'react-native-svg';
 import { XSkeleton } from './XSkeleton';
+import { useTheme } from '../theme';
 
 type XChartBarData = {
   label: string;
@@ -30,21 +31,33 @@ const XChart: React.FC<XChartProps> = ({
   isLoading = false,
 }) => {
   const window = useWindowDimensions();
+  const theme = useTheme();
   // Responsive width/height
-  const chartWidth = width || window.width - 32;
+  const chartWidth = width || window.width -100;
   const chartHeight = height || Math.round(chartWidth * 2 / 3);
 
   // Responsive font size
-  const fontSizeYTick = Math.max(10, Math.round(chartHeight * 0.055));
+  const fontSizeYTick = Math.max(10, Math.round(chartHeight * 0.05));
   const fontSizeBar = Math.max(10, Math.round(chartHeight * 0.055));
-  const fontSizeLabel = Math.max(12, Math.round(chartHeight * 0.07));
+  const fontSizeLabel = Math.max(12, Math.round(chartHeight * 0.06));
+
+  const [tooltip, setTooltip] = useState<{
+    x: number;
+    y: number;
+    value: number;
+    color: string;
+    label: string;
+  } | null>(null);
 
   if (!data || data.length === 0) return null;
 
   const groupCount = data[0].value.length;
-  // Giá trị lớn nhất cho trục Y là maxValue + 10%
-  const rawMax = Math.max(...data.flatMap(d => d.value));
-  const maxValue = rawMax + Math.ceil(rawMax * 0.1);
+  // Giá trị lớn nhất cho trục Y là max(abs(max), abs(min)) + 10%
+  const allValues = data.flatMap(d => d.value);
+  const rawMax = Math.max(...allValues);
+  const rawMin = Math.min(...allValues);
+  const absMax = Math.max(Math.abs(rawMax), Math.abs(rawMin));
+  const maxValue = absMax + Math.ceil(absMax * 0.1);
 
   // Không padding left, chỉ padding right 5%
   const percentPad = 0.06;
@@ -57,10 +70,11 @@ const XChart: React.FC<XChartProps> = ({
   const paddingTop = fontSizeYTick * 1.2;
   const paddingBottom = fontSizeLabel * 2.2;
 
-  // Tính các mốc trục Y
+  // Tính các mốc trục Y (chỉ dương)
   const yTickValues = Array.from({ length: yTicks + 1 }, (_, i) =>
     Math.round((maxValue * (yTicks - i)) / yTicks)
   );
+
   if (isLoading) {
     return (
       <XSkeleton width={chartWidth} height={chartHeight} borderRadius={8} />
@@ -69,7 +83,7 @@ const XChart: React.FC<XChartProps> = ({
 
   return (
     <View style={[{ width: chartWidth, height: chartHeight, alignSelf: 'center' }, style]}>
-      <Svg width={chartWidth} height={chartHeight}>
+      <Svg width={chartWidth} height={chartHeight} onPress={() => setTooltip(null)}>
         {/* Trục Y */}
         <Line
           x1={paddingLeft}
@@ -79,7 +93,7 @@ const XChart: React.FC<XChartProps> = ({
           stroke="#bbb"
           strokeWidth={1}
         />
-        {/* Trục X */}
+        {/* Trục X (dưới cùng) */}
         <Line
           x1={paddingLeft}
           y1={chartHeight - paddingBottom}
@@ -115,47 +129,46 @@ const XChart: React.FC<XChartProps> = ({
             </G>
           );
         })}
-        {/* Vẽ các cột và nhãn giá trị lớn nhất */}
+        {/* Vẽ các cột */}
         {data.map((item, i) => {
-          // Tìm giá trị lớn nhất trong nhóm
-          const maxInGroup = Math.max(...item.value);
-          // Tính vị trí x giữa group bar
-          const groupCenterX = paddingLeft + i * groupWidth + (groupWidth * groupCount) / (2 * (groupCount + 1));
-          // Tính vị trí y cho nhãn giá trị lớn nhất
-          const maxBarIndex = item.value.indexOf(maxInGroup);
-          const barHeight = (maxInGroup / maxValue) * innerChartHeight;
-          const y = chartHeight - paddingBottom - barHeight;
-          const valueColor = barColors[maxBarIndex % barColors.length];
           return (
             <G key={i}>
-              {/* Vẽ các cột */}
               {item.value.map((v, j) => {
-                const barHeight = (v / maxValue) * innerChartHeight;
+                if (v === 0) return null;
+                const isNegative = v < 0;
+                const barHeight = Math.abs((v / maxValue) * innerChartHeight);
                 const x = paddingLeft + i * groupWidth + j * barWidth + barWidth / 2;
                 const y = chartHeight - paddingBottom - barHeight;
+                const barColor = barColors[j % barColors.length];
+                // Tooltip: chỉ hiển thị giá trị lớn nhất giữa v1 và v2
+                let v1 = item.value[0] ?? 0;
+                let v2 = item.value[1] ?? 0;
+                v1 = Math.round(v1 * 100) / 100;
+                v2 = Math.round(v2 * 100) / 100;
+                const values = [v1, v2];
+                const maxValueInGroup = Math.max(...values);
+                const maxIdx = values.indexOf(maxValueInGroup);
+                const tooltipColor = barColors[maxIdx % barColors.length];
                 return (
-                  <Rect
-                    key={j}
-                    x={x}
-                    y={y}
-                    width={barWidth}
-                    height={barHeight}
-                    fill={barColors[j % barColors.length]}
-                    rx={Math.max(2, barWidth * 0.2)}
-                  />
+                  <G key={j}>
+                    <Rect
+                      x={x}
+                      y={y}
+                      width={barWidth}
+                      height={barHeight}
+                      fill={barColor}
+                      rx={Math.max(2, barWidth * 0.2)}
+                      onPress={() => setTooltip({
+                        x: x + barWidth / 2,
+                        y: y ,
+                        value: maxValueInGroup,
+                        color: tooltipColor,
+                        label: item.label,
+                      })}
+                    />
+                  </G>
                 );
               })}
-              {/* Nhãn giá trị lớn nhất, căn giữa group */}
-              <SvgText
-                x={groupCenterX + barWidth / 2}
-                y={y - 4}
-                fontSize={fontSizeBar}
-                fill={valueColor}
-                textAnchor="middle"
-                fontWeight="bold"
-              >
-                {maxInGroup}
-              </SvgText>
               {/* Label trục X */}
               {(() => {
                 let labelX = paddingLeft + i * groupWidth + (barWidth * groupCount) / 2;
@@ -183,6 +196,22 @@ const XChart: React.FC<XChartProps> = ({
             </G>
           );
         })}
+        {/* Tooltip */}
+        {tooltip && (
+          <G>
+            <SvgText
+              x={tooltip.x}
+              y={tooltip.y-4}
+              fontSize={8}
+              fill={tooltip.color}
+              textAnchor="middle"
+              fontWeight="bold"
+            >
+              {tooltip.value}
+            </SvgText>
+            
+          </G>
+        )}
       </Svg>
     </View>
   );

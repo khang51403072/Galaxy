@@ -1,3 +1,7 @@
+/**
+ * Định nghĩa các thuộc tính của EmployeeEntity
+ * Khi thêm mới thuộc tính, phải bổ sung vào hàm isEmployee
+ */
 export interface EmployeeEntity {
     id: string;
     firstName: string;
@@ -8,12 +12,23 @@ export interface EmployeeEntity {
     isUnassigned: boolean;
   }
 
-export function getDisplayName(employee: EmployeeEntity): string {
-  if (!employee.nickName || employee.nickName.trim() === "") {
-    return `${employee.firstName} ${employee.lastName}`;
-  } else {
-    return employee.nickName;
-  }
+
+/**
+ * Kiểm tra xem một đối tượng có phải là EmployeeEntity không
+ * @param obj - Đối tượng cần kiểm tra
+ * @returns true nếu obj là EmployeeEntity, false nếu không
+ */
+export function isEmployee(obj: any): obj is EmployeeEntity {
+  return (
+    obj &&
+    typeof obj.id === 'string' &&
+    typeof obj.firstName === 'string' &&
+    typeof obj.lastName === 'string' &&
+    typeof obj.nickName === 'string' &&
+    typeof obj.image === 'string' &&
+    typeof obj.avatar === 'string' &&
+    typeof obj.isUnassigned === 'boolean'
+  );
 }
 
 export interface WorkOrderEntity {
@@ -24,7 +39,13 @@ export interface WorkOrderEntity {
   serviceStartTime: string;
   serviceEndTime: string;
 }
-
+export function getDisplayName(employee: EmployeeEntity): string {
+  if (!employee.nickName || employee.nickName.trim() === "") {
+    return `${employee.firstName} ${employee.lastName}`;
+  } else {
+    return employee.nickName;
+  }
+}
 
 
   

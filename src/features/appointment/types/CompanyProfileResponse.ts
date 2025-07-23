@@ -90,10 +90,61 @@ export interface Appointments {
   isAllowSameTechInApptGroup: boolean;
 }
 
-export interface WorkHours {
-  from: string;
-  to: string;
+// Định nghĩa kiểu Hour
+export type Hour = {
+  hours: number;
+  minutes: number;
+  nanos: number;
+  seconds: number;
+};
+
+// Định nghĩa kiểu WorkHours
+export type WorkHours = {
+  isMon: boolean;
+  monFromHour: Hour;
+  monToHour: Hour;
+
+  isTue: boolean;
+  tueFromHour: Hour;
+  tueToHour: Hour;
+
+  isWed: boolean;
+  wedFromHour: Hour;
+  wedToHour: Hour;
+
+  isThu: boolean;
+  thuFromHour: Hour;
+  thuToHour: Hour;
+
+  isFri: boolean;
+  friFromHour: Hour;
+  friToHour: Hour;
+
+  isSat: boolean;
+  satFromHour: Hour;
+  satToHour: Hour;
+
+  isSun: boolean;
+  sunFromHour: Hour;
+  sunToHour: Hour;
+};
+
+export type TimeEntity = {
+  hour: number;
+  minute: number;
+};
+
+export type TimeRange = {
+  start: TimeEntity;
+  end: TimeEntity;
+};
+export function dateFromTimeEntity(baseDate: Date, time: TimeEntity): Date {
+  const d = new Date(baseDate);
+  d.setHours(time.hour, time.minute, 0, 0);
+  return d;
 }
+
+
 
 export interface PosTheme {
   inServiceForceColor: string;

@@ -1,10 +1,18 @@
 import { create } from 'zustand';
 import { ApptResResponse } from '../types/ApptResResponse';
-import { isSuccess, Result, success } from '../../../shared/types/Result';
+import { failure, isSuccess, Result, success } from '../../../shared/types/Result';
 import { AppointmentRepositoryImplement } from '../repositories/AppointmentRepositoryImplement';
 import { AppointmentUsecase } from '../usecases/AppointmentUsecase';
 import { CustomerEntity, CustomerResponse } from '../types/CustomerResponse';
 import type { CustomerPayload } from '../types/CustomerResponse';
+import { ApptType, createApptType } from '../types/AppointmentType';
+import { CategoryEntity } from '../types/CategoriesResponse';
+import { MenuItemEntity } from '../types/MenuItemResponse';
+import { EmployeeEntity } from '@/features/ticket/types/TicketResponse';
+import { ApptPayload, DataAppt } from '../types/ApptSaveResponse';
+import { useAppointmentStore } from './appointmentStore';
+import { dateFromTimeEntity, TimeRange } from '../types/CompanyProfileResponse';
+
 export type ServicesEntity = {
   service?: MenuItemEntity|null
   technician?: EmployeeEntity|null
@@ -21,7 +29,8 @@ export type CreateAppointmentState = {
   listCategories: CategoryEntity[];
   listItemMenu: MenuItemEntity[];
   listBookingServices: ServicesEntity[];
-  
+  selectedDate: Date;
+  isAllowBookAnyway: boolean;
   reset: () => void;
   ///GET
   getListCategories: ()=> Promise<Result<CategoryEntity[], Error>>;
@@ -29,15 +38,15 @@ export type CreateAppointmentState = {
   getApptResource: () => Promise<Result<ApptResResponse, Error>>;
   getCustomerLookup: (pageNumber?: number, pageSize?: number, phoneNumber?: string) => Promise<Result<CustomerResponse, Error>>;
   ///SET
-  setConfirmOnline: (value: boolean) => void;
-  setGroupAppointment: (value: boolean) => void;
+  setIsConfirmOnline: (value: boolean) => void;
+  setIsGroupAppt: (value: boolean) => void;
   setSelectedCustomer: (value: CustomerEntity)=> void,
+  setSelectedDate: (value: Date)=> void,
+  //
+  saveAppointment: ()=> Promise<Result<DataAppt, Error>>;
+  setIsAllowBookAnyway: (value: boolean)=> void;
 };
 
-import { ApptType, createApptType } from '../types/AppointmentType';
-import { CategoryEntity } from '../types/CategoriesResponse';
-import { MenuItemEntity } from '../types/MenuItemResponse';
-import { EmployeeEntity } from '@/features/ticket/types/TicketResponse';
 
 
 export const initialCreateAppointmentState = {
@@ -48,6 +57,8 @@ export const initialCreateAppointmentState = {
   isGroupAppointment: false,
   selectedCustomer: null,
   selectedApptType: null,
+  selectedDate: new Date(),
+  isAllowBookAnyway: false,
   listCategories: [],
   listItemMenu: [],
   listApptType: [
@@ -67,11 +78,9 @@ const appointmentRepository = new AppointmentRepositoryImplement();
 const appointmentUsecase = new AppointmentUsecase(appointmentRepository);
 const createAppointmentCreator = (set: any, get:any) => ({
   ...initialCreateAppointmentState,
-  setService: (service: string | null) => set({ service }),
-  setDate: (date: Date | null) => set({ date }),
-  setTime: (time: Date | null) => set({ time }),
-  setConfirmOnline: (value: boolean) => set({ confirmOnline: value }),
-  setGroupAppointment: (value: boolean) => set({ groupAppointment: value }),
+  setSelectedDate: (value: Date) => set({ selectedDate: value }),
+  setIsConfirmOnline: (value: boolean) => set({ isConfirmOnline: value }),
+  setIsGroupAppt: (value: boolean) => set({ isGroupAppointment: value }),
   reset: () => set({ ...initialCreateAppointmentState }),
   getApptResource: () => {
     return appointmentUsecase.getApptResource();
@@ -115,7 +124,47 @@ const createAppointmentCreator = (set: any, get:any) => ({
     set({ isLoading: false });
     return result; 
   },
+  saveAppointment: async () => {
+    set({ isLoading: true });
+    if (!validBookings(get(), (msg: string) => set({ error: msg }))) {
+      set({ isLoading: false });
+      return Promise.resolve(failure(new Error(get.error)));
+    }
+    // Lấy businessHours từ store
+    const businessHours = useAppointmentStore.getState().companyProfile?.data.businessHours;
+    // Tính tổng thời lượng
+    const totalDuration = get().listBookingServices.reduce((acc: number, item: ServicesEntity) => {
+      return acc + (item.service?.duration || 0);
+    }, 0);
+
+    // Kiểm tra thời gian hợp lệ
+    if (!isValidTime(get().selectedDate, totalDuration, businessHours, msg => set({ error: msg }))) {
+      set({ isLoading: false });
+      return Promise.resolve(failure(new Error(get().error)));
+    }
+    ///continue save
+    const payloadSave: ApptPayload = {
+      id: "",
+      apptDate: get().selectedDate.toYYYYMMDD("-"),
+      retentionType: get().selectedApptType?.id || "",
+      isOnlineConfirm: get().isConfirmOnline,
+      isGroupAppt: get().isGroupAppointment,
+      apptStatus: "New",
+      apptConfirmStatus: "None",
+      apptServiceItems: [],
+      apptServicePackages: [],
+      customer: get().selectedCustomer,
+      customerNote: get().selectedCustomer.note,
+      allowBookAnyway: get().isAllowBookAnyway
+    }
+    const result = await appointmentUsecase.saveAppointment(payloadSave);
+    set({ isLoading: false });
+    return result;
+  },
+  setIsAllowBookAnyway: (value: boolean) => set({ isAllowBookAnyway: value })
 });
+
+
 
 export const useCreateAppointmentStore = create<CreateAppointmentState>(createAppointmentCreator);
 
@@ -124,8 +173,10 @@ export const createAppointmentSelectors = {
   selectCustomerList: (state: CreateAppointmentState) => state.customerList,
   selectListApptType: (state: CreateAppointmentState)=>state.listApptType,
   selectIsLoading: (state: CreateAppointmentState)=>state.isLoading,
-  selectConfirmOnline: (state: CreateAppointmentState) => state.isConfirmOnline,
-  selectGroupAppointment: (state: CreateAppointmentState) => state.isGroupAppointment,
+  selectIsConfirmOnline: (state: CreateAppointmentState) => state.isConfirmOnline,
+  selectIsGroupAppt: (state: CreateAppointmentState) => state.isGroupAppointment,
+  selectSetIsConfirmOnline: (state: CreateAppointmentState) => state.setIsConfirmOnline,
+  selectSetIsGroupAppt: (state: CreateAppointmentState) => state.setIsGroupAppt,
   selectGetApptResource: (state: CreateAppointmentState) => state.getApptResource,
   selectGetCustomerLookup: (state: CreateAppointmentState) => state.getCustomerLookup,
   selectSetSelectedCustomer: (state: CreateAppointmentState) => state.setSelectedCustomer,
@@ -134,6 +185,112 @@ export const createAppointmentSelectors = {
   selectListItemMenu: (state: CreateAppointmentState) => state.listItemMenu,
   selectGetListItemMenu: (state: CreateAppointmentState) => state.getListItemMenu,
   selectGetListCategories: (state: CreateAppointmentState) => state.getListCategories,
-  selectListService: (state: CreateAppointmentState) => state.listBookingServices
+  selectListService: (state: CreateAppointmentState) => state.listBookingServices,
+  selectSelectedDate: (state: CreateAppointmentState) => state.selectedDate,
+  selectSetSelectedDate: (state: CreateAppointmentState) => state.setSelectedDate,
+  selectSetIsAllowBookAnyway: (state: CreateAppointmentState) => state.setIsAllowBookAnyway,
+
 }; 
+
+function validBookings(
+  useCreateAppointmentStore: CreateAppointmentState,
+  setAlertMessage: (msg: string) => void
+): boolean {
+  if (useCreateAppointmentStore.listBookingServices.length<2) {
+    setAlertMessage("Please add at least one service");
+    return false;
+  }
+
+  if (!useCreateAppointmentStore.selectedCustomer) {
+    setAlertMessage("Please select a customer");
+    return false;
+  }
+
+  // booking.startTime = toTimeEntity(booking.bookingTime); // Nếu cần set lại, xử lý ngoài hàm này
+
+  for (const item of useCreateAppointmentStore.listBookingServices) {
+    // if (item.isCombo) {
+    //   for (const comboItem of item.comboItems) {
+    //     if (!comboItem.employee || !comboItem.employee.employeeId) {
+    //       setAlertMessage(
+    //         `Please select a technician for service: ${comboItem.serviceItem.name}`
+    //       );
+    //       return false;
+    //     }
+    //   }
+    // } else {
+    //   if (!item.employee || !item.employee.employeeId) {
+    //     setAlertMessage(
+    //       `Please select a technician for service: ${item.serviceItem.name}`
+    //     );
+    //     return false;
+    //   }
+    // }
+    if (!item.technician || !item.technician.id) {
+      setAlertMessage(
+        `Please select a technician for service: ${item.service?.name}`
+      );
+      return false;
+    }
+  }
+
+  return true;
+}
+
+
+function isValidTime(
+  selectedDate: Date,
+  totalDuration: number, // phút
+  businessHours: any,
+  setAlertMessage: (msg: string) => void
+): boolean {
+  const timeRange = getWorkHourByDay(businessHours, selectedDate);
+  if (!timeRange) {
+    setAlertMessage("This day is not a working day.");
+    return false;
+  }
+  const bookingStart = selectedDate;
+  const bookingEnd = new Date(bookingStart.getTime() + totalDuration * 60000);
+
+  const workStart = dateFromTimeEntity(selectedDate, timeRange.start);
+  const workEnd = dateFromTimeEntity(selectedDate, timeRange.end);
+
+  if (bookingEnd > workEnd) {
+    setAlertMessage("Time must not exceed the end of the day.");
+    return false;
+  }
+  return true;
+}
+
+
+function getWorkHourByDay(workHours: any, date: Date): TimeRange | null {
+  const day = date.getDay(); // 0: Sunday, 1: Monday, ..., 6: Saturday
+  switch (day) {
+    case 0:
+      if (!workHours.isSun) return null;
+      return { start: workHours.sunFromHour, end: workHours.sunToHour };
+    case 1:
+      if (!workHours.isMon) return null;
+      return { start: workHours.monFromHour, end: workHours.monToHour };
+    case 2:
+      if (!workHours.isTue) return null;
+      return { start: workHours.tueFromHour, end: workHours.tueToHour };
+    case 3:
+      if (!workHours.isWed) return null;
+      return { start: workHours.wedFromHour, end: workHours.wedToHour };
+    case 4:
+      if (!workHours.isThu) return null;
+      return { start: workHours.thuFromHour, end: workHours.thuToHour };
+    case 5:
+      if (!workHours.isFri) return null;
+      return { start: workHours.friFromHour, end: workHours.friToHour };
+    case 6:
+      if (!workHours.isSat) return null;
+      return { start: workHours.satFromHour, end: workHours.satToHour };
+    default:
+      return null;
+  }
+}
+
+
 

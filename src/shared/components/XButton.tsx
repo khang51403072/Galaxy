@@ -19,6 +19,7 @@ type Props = {
   style?: ViewStyle;
   textStyle?: TextStyle;
   backgroundColor?: string;
+  defaultTextColor?: string;
   loading?: boolean;
   useGradient?: boolean;
   radius?: number | keyof ReturnType<typeof useTheme>['borderRadius'];
@@ -31,6 +32,7 @@ export default function XButton({
   style,
   textStyle,
   backgroundColor,
+  defaultTextColor,
   loading = false,
   useGradient = false,
   radius,
@@ -46,7 +48,7 @@ export default function XButton({
   const buttonBackgroundColor = backgroundColor || theme.colors.primary;
   const inactiveColor = theme.colors.buttonInactive;
   const gradientColors = theme.colors.primaryGradient;
-  const textColor = theme.colors.textButton;
+  const textColor = defaultTextColor || theme.colors.textButton;
 
   const isDisabled = disabled || loading;
   const showGradient = useGradient && !isDisabled;
