@@ -6,6 +6,7 @@ import { failure, isSuccess, Result } from '../../../shared/types/Result';
 import { TicketError } from '../../ticket/types/TicketError';
 import { CommonRequest } from '../../../types/CommonRequest';
 import { keychainHelper, KeychainObject } from '../../../shared/utils/keychainHelper';
+import { appConfig } from '@/shared/utils/appConfig';
 
 export type PayrollState = {
   payrolls: string;
@@ -16,11 +17,9 @@ export type PayrollState = {
   selectedEmployee: EmployeeEntity | null;
   startDate: Date | null;
   endDate: Date | null;
-  json: KeychainObject | null;
   getPayroll: (employeeId: string) => Promise<Result<string, TicketError>>;
   getPayrollOwner: (employeeId: string) => Promise<Result<string, TicketError>>;
   reset: () => void;
-  setJson: (json: KeychainObject) => void;
 };
 
 export const payrollSelectors = {
@@ -45,7 +44,6 @@ const initialState = {
   selectedEmployee: null,
   startDate: null,
   endDate: null,
-  json: null,
 };
 
 // Refactor: nhận payrollUsecase, ticketUsecase từ ngoài vào
@@ -53,7 +51,7 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase
   ...initialState,
   getPayroll: async (employeeId: string) => {
       set({ isLoading: true, error: null });
-      const json = get().json;
+      const json = await appConfig.getUser();
       let commonRequest: CommonRequest = {
           dateStart: get().startDate?.toYYYYMMDD('-'),
           dateEnd: get().endDate?.toYYYYMMDD('-'),
@@ -69,7 +67,7 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase
   },
   getPayrollOwner: async (employeeId: string) => {
       set({ isLoading: true, error: null });
-      const json = get().json;
+      const json = await appConfig.getUser();
       let commonRequest: CommonRequest = {
           dateStart: get().startDate?.toYYYYMMDD('-'),
           dateEnd: get().endDate?.toYYYYMMDD('-'),
@@ -83,7 +81,6 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase
       }
       return result;
   },
-  setJson: (json: KeychainObject) => set({ json }),
   reset: () => {
       set({ ...initialState });
       // Không lấy lại json từ keychainHelper nữa, json sẽ được truyền từ ngoài vào

@@ -204,7 +204,19 @@ export const typography = {
     lineHeight: 28,
     letterSpacing: 0.18,
   },
-
+  // Bottom sheet
+  bottomSheetTitle: {
+    fontFamily: Fonts.Outfit400,
+    fontSize: 18,
+    lineHeight: 20,
+    letterSpacing: 0.18,
+  },
+  bottomSheetItemText: {
+    fontFamily: Fonts.Outfit400,
+    fontSize: 16,
+    lineHeight: 20,
+    letterSpacing: 0.18,
+  },
 } as const;
 
 export type Typography = typeof typography; 

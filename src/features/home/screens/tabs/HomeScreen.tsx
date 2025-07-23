@@ -290,6 +290,7 @@ const chart =
       skeleton={<HomeSkeleton/>}
       backgroundColor={theme.colors.background}
       onRefresh={loadData}
+      haveBottomTabBar={true}
     >
       {header}
       <View style={{ width: '100%',  }}>

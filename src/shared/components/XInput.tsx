@@ -72,7 +72,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
       
     });
     return (
-      <View style={{ width: '100%', }}>
+      <View style={[{ width: '100%',}, style]}>
         {label && (
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
             <XText variant='inputLabel'>{label}</XText>
@@ -97,7 +97,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
             placeholder={placeholder}
             placeholderTextColor={theme.colors.textInputPlaceholder}
             editable={editable}
-            
+            pointerEvents={editable ? 'auto' : 'none'} 
             style={[
               theme.typography.inputText,
               {
@@ -108,7 +108,6 @@ const XInput = forwardRef<TextInput, XInputProps>(
                 color: theme.colors.text,
                 height: 20,
               },
-              style,
             ]}
             value={value}
             onChangeText={onChangeText}

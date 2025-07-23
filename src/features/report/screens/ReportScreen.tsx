@@ -5,7 +5,6 @@ import { FlatList, TouchableOpacity, useWindowDimensions } from "react-native";
 import { useShallow } from "zustand/react/shallow";
 import XScreen from "../../../shared/components/XScreen";
 import { View } from "react-native";
-import XDatePicker from "../../../shared/components/XDatePicker";
 import XIcon from "../../../shared/components/XIcon";
 import { ReportState, useReportStore,reportSelectors } from "../stores/reportStore";
 import WebView from "react-native-webview";
@@ -13,11 +12,11 @@ import XText from "../../../shared/components/XText";
 import { getClockIn, getClockOut, getDisplayName, parseISODate } from "../types/ReportResponse";
 import XAvatar from "@/shared/components/XAvatar";
 import CustomTabBar from "@/shared/components/CustomTabBar";
-import { homeSelectors, useHomeStore } from "@/features/home/stores/homeStore";
+import XDateRangerSearch from "@/shared/components/XDateRangerSearch";
+import { appConfig } from "@/shared/utils/appConfig";
 
 export default function  TicketScreen() {
     const theme = useTheme();
-    const jsonHome = useHomeStore(homeSelectors.selectJson);
     const { closeOut,json, isLoading, error, startDate, endDate, reportTechnician, reportSales, reportTimeSheet, reportBatchHistory, getReportTechnician, getReportSales, getReportTimeSheet, getReportBatchHistory, getCloseOut, setJson } = useReportStore(useShallow(
         (state: ReportState) => ({
             isLoading: reportSelectors.selectIsLoading(state),
@@ -40,8 +39,10 @@ export default function  TicketScreen() {
     ));
     
     useEffect(() => {
-      if(jsonHome) setJson(jsonHome);
-    }, [jsonHome]);
+      appConfig.getUser().then((user) => {
+        setJson(user);
+      });
+    },);
     const [index, setIndex] = useState(0);
     const [routes] = useState([
       { key: 'technician', title: 'Technician' },
@@ -146,95 +147,74 @@ export default function  TicketScreen() {
     const layout = useWindowDimensions();
   return (
     <XScreen title="Reports" loading={isLoading} error={error} style={{ flex: 1 }}> 
-        <View style={{ flexDirection: 'column', paddingTop: theme.spacing.md, paddingBottom: theme.spacing.sm,}}>
-            <View style={{ flexDirection: 'row', gap: 16, alignItems: 'flex-end' }}>
-            <XDatePicker
-                value={startDate}
-                onChange={(date) => useReportStore.setState({startDate: date})}
-                placeholder="Chọn ngày sinh"
-                style={{ flex: 1 }}
-            />
-            <XDatePicker
-                value={endDate}
-                onChange={(date) => useReportStore.setState({endDate: date})}
-                placeholder="Chọn ngày sinh"
-                style={{ flex: 1 }}
-            />
-            <TouchableOpacity
-                style={{
-                height: 48,
-                width: 48,
-                borderRadius: 8,
-                backgroundColor: '#2563eb',
-                justifyContent: 'center',
-                alignItems: 'center',
-                }}
-                onPress={async () => {
-                  if(json?.isOwner){
-                  await Promise.all([
-                    getReportTechnician(),
-                    getReportSales(), 
-                    getReportTimeSheet(),
-                    getReportBatchHistory(),
-                  ]);
-                }else{
-                  await getCloseOut();
-                }
-                }} 
-            >
-                <XIcon name="search" width={24} height={24} color="#fff" />
-            </TouchableOpacity>
-            </View>
-        </View>
-        
-        {json?.isOwner ? 
-          <TabView
-            navigationState={{ index, routes }}
-            renderScene={renderScene}
-            onIndexChange={setIndex}
-            initialLayout={{ width: layout.width }}
-            renderTabBar={props => (
-              <CustomTabBar
-                {...props}
-                indicatorStyle={null}
-                style={{ 
-                  paddingVertical: theme.spacing.xs, 
-                  borderRadius: theme.borderRadius.sm, 
-                  backgroundColor: theme.colors.backgroundTabBarReport }}
-                renderTabBarItem={({ route, focused, jumpTo , ...props}) => (
-                  <TouchableOpacity
-                    onPress={() => jumpTo(route.key)}
-                    style={{
-                      
-                      backgroundColor: focused ? theme.colors.white : 'transparent',
-                      borderRadius: theme.borderRadius.md,
-                      marginHorizontal: theme.spacing.sm,
-                      paddingVertical: theme.spacing.sm,
-                      paddingHorizontal: theme.spacing.lg,
-                      
-                    }}
-                    activeOpacity={0.8}
-                  >                    
-                    <XText variant="content400" style={{ color: theme.colors.gray800 }}>{route.title}</XText>
-                  </TouchableOpacity>
-                 
-                )}
-              />
-            )}
+      <View style={{ flexDirection: 'column', paddingTop: theme.spacing.md, paddingBottom: theme.spacing.sm,}}>
+          <XDateRangerSearch
+            fromDate={startDate||new Date()}
+            toDate={endDate||new Date()}
+            onFromChange={(date) => useReportStore.setState({startDate: date})}
+            onToChange={(date) => useReportStore.setState({endDate: date})}
+            onSearch={async() => {
+              if(json?.isOwner){
+                await Promise.all([
+                  getReportTechnician(),
+                  getReportSales(), 
+                  getReportTimeSheet(),
+                  getReportBatchHistory(),
+                ]);
+              }else{
+                await getCloseOut();
+              }
+            }}
           />
-          : closeOut.length > 0 ? 
-          <WebView
-                originWhitelist={['*']}
-                source={{ html: closeOut }}
-                style={{ width: '100%', flex: 1 }}
-                scrollEnabled={true}
-              />
-            : (
-              <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
-                <XIcon name="noData" width={48} height={48} />
-                <XText variant="content400">No data</XText>
-              </View>
-            )}
+      </View>
+      {json?.isOwner ? 
+        <TabView
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={{ width: layout.width }}
+          renderTabBar={props => (
+            <CustomTabBar
+              {...props}
+              indicatorStyle={null}
+              style={{ 
+                paddingVertical: theme.spacing.xs, 
+                borderRadius: theme.borderRadius.sm, 
+                backgroundColor: theme.colors.backgroundTabBarReport }}
+              renderTabBarItem={({ route, focused, jumpTo , ...props}) => (
+                <TouchableOpacity
+                  onPress={() => jumpTo(route.key)}
+                  style={{
+                    
+                    backgroundColor: focused ? theme.colors.white : 'transparent',
+                    borderRadius: theme.borderRadius.md,
+                    marginHorizontal: theme.spacing.sm,
+                    paddingVertical: theme.spacing.sm,
+                    paddingHorizontal: theme.spacing.lg,
+                    
+                  }}
+                  activeOpacity={0.8}
+                >                    
+                  <XText variant="content400" style={{ color: theme.colors.gray800 }}>{route.title}</XText>
+                </TouchableOpacity>
+                
+              )}
+            />
+          )}
+        />
+        : closeOut.length > 0 ? 
+        <WebView
+              originWhitelist={['*']}
+              source={{ html: closeOut }}
+              style={{ width: '100%', flex: 1 }}
+              scrollEnabled={true}
+            />
+          : (
+            <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
+              <XIcon name="noData" width={48} height={48} />
+              <XText variant="content400">No data</XText>
+            </View>
+          )}
         </XScreen>
     );
 };

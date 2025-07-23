@@ -147,6 +147,7 @@ export default function ProfileScreen() {
       onRefresh={() => {
         loadProfile();
         }}
+      haveBottomTabBar={true}
     >
       {/* Header with gradient background */}
       <LinearGradient

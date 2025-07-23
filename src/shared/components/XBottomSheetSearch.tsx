@@ -1,13 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import BottomSheet, { BottomSheetFlatList, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { Modal, View, TouchableOpacity, StyleSheet, Dimensions, Text } from 'react-native';
+import BottomSheet, { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import type BottomSheetType from '@gorhom/bottom-sheet';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import XInput from './XInput';
 import XIcon from './XIcon';
 import XText from './XText';
 import { useTheme } from '../theme/ThemeProvider';
 import { EmployeeEntity, getDisplayName } from '../../features/ticket/types/TicketResponse';
 import XAvatar from './XAvatar';
+import XNoDataView from './XNoDataView';
+
 
 interface Props {
   visible: boolean;
@@ -27,11 +29,28 @@ export default function XBottomSheetSearch({
   title = "Tìm kiếm"
 }: Props) {
   const sheetRef = useRef<BottomSheetType>(null);
-  const snapPoints = useMemo(() => ['100%'], []);
+  const snapPoints = useMemo(() => ['80%'], []);
   const [searchText, setSearchText] = useState('');
   const [filteredData, setFilteredData] = useState(data);
   const theme = useTheme();
 
+
+
+  const styles = StyleSheet.create({
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingBottom: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    closeButton: { borderRadius: 100, padding: 8 ,backgroundColor: theme.colors.backroundIconClose},
+    input: { paddingHorizontal: 16, paddingVertical: 8 },
+    itemContainer: { paddingHorizontal: 16, 
+      paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.colors.border },
+  });
   useEffect(() => {
     if (visible) {
       sheetRef.current?.expand();
@@ -62,56 +81,62 @@ export default function XBottomSheetSearch({
       onPress={() => handleSelect(item)}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <XAvatar uri={item.avatar} size={40} />
-        <Text style={styles.itemText}>{getDisplayName(item)}</Text>
+        <XAvatar uri={item.avatar} size={32} editable={false}/>
+        <XText variant="bottomSheetItemText">{getDisplayName(item)}</XText>
       </View>
     </TouchableOpacity>
   );
-  
-  return (
-    <BottomSheet
-      ref={sheetRef}
-      index={visible ? 0 : -1}
-      snapPoints={snapPoints}
-      onClose={onClose}
-      enablePanDownToClose
-    >
-      {/* HEADER */}
-      <View style={styles.header}>
-        <XText variant="contentTitle" style={styles.title}>{title}</XText>
-        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-          <XIcon name="x" width={20} height={20} color="#999" />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.searchInput}>
-      <XInput
-        placeholder={placeholder}
-        value={searchText}
-        onChangeText={setSearchText}
-        iconLeft="search"
-        blurOnSubmit={false}
-      />
-    </View> 
-  {/* LIST */}
-  <BottomSheetFlatList
-    data={filteredData}
-    keyExtractor={(item, index) => index.toString()}
-    renderItem={renderItem}
-    showsVerticalScrollIndicator={true}
-    nestedScrollEnabled={true}
-    keyboardShouldPersistTaps="handled"
-    ListEmptyComponent={
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>
-          {searchText.trim() === '' ? 'Nhập từ khóa để tìm kiếm' : 'Không tìm thấy kết quả'}
-        </Text>
-      </View>
-    }
-    style={{ flex: 1 }}
-    contentContainerStyle={{ paddingBottom: 40 }}
-  />
-</BottomSheet>
 
+  return (
+    <Modal
+      visible={visible}
+      animationType="fade"
+      transparent
+      onRequestClose={onClose}
+      statusBarTranslucent
+    >
+      {/* Overlay mờ, chừa header */}
+      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.25)' }}>
+        <BottomSheet
+          ref={sheetRef}
+          index={0}
+          snapPoints={snapPoints}
+          onClose={onClose}
+          enablePanDownToClose
+        >
+          {/* HEADER */}
+          <View style={styles.header}>
+            <XText variant="bottomSheetTitle" color={theme.colors.gray800}>{title}</XText>
+            <TouchableOpacity onPress={onClose} 
+            style={styles.closeButton}>
+              <XIcon name="x" width={10} height={10} color={theme.colors.gray800} />
+            </TouchableOpacity>
+          </View>
+          <XInput
+              placeholder={placeholder}
+              value={searchText}
+              onChangeText={setSearchText}
+              iconLeft="search"
+              blurOnSubmit={false}
+              style={styles.input}
+            />
+          {/* LIST */}
+          <BottomSheetFlatList
+            data={filteredData}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={renderItem}
+            showsVerticalScrollIndicator={true}
+            nestedScrollEnabled={true}
+            keyboardShouldPersistTaps="handled"
+            ListEmptyComponent={
+              <XNoDataView/>
+            }
+            style={{ flex: 1 , paddingTop: 16}}
+            contentContainerStyle={{ paddingBottom: 40 }}
+          />
+        </BottomSheet>
+      </View>
+    </Modal>
   );
 }
 
@@ -120,32 +145,4 @@ export default function XBottomSheetSearch({
        
        
 
-
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  searchInput: {
-    paddingHorizontal: 16,
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  title: { fontSize: 18, fontWeight: 'bold' },
-  searchContainer: { padding: 16 },
-  input: { borderWidth: 1, borderColor: '#ccc', padding: 8, borderRadius: 4 },
-  itemContainer: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-  itemText: { fontSize: 16 },
-  emptyContainer: { padding: 40, alignItems: 'center' },
-  emptyText: { fontSize: 14, color: '#888' },
-  closeButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-});
 

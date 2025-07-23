@@ -29,8 +29,8 @@ export default function XAvatar({
       overflow: 'hidden',
       justifyContent: 'center',
       alignItems: 'center',
-      borderWidth: 2,
-      borderColor: theme.colors.primary,
+      // borderWidth: 2,
+      // borderColor: theme.colors.primary,
     },
     imageContainer: {
       position: 'relative',
