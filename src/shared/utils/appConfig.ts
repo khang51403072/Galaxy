@@ -19,6 +19,7 @@
  */
 import DeviceInfo from 'react-native-device-info';
 import { keychainHelper } from './keychainHelper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const USER_KEY = 'user';
 const DEVICE_ID_KEY = 'GALAXYME_DEVICE_ID';
@@ -39,37 +40,39 @@ class AppConfig {
   }
 
   /**
-   * Lưu thông tin user vào keychain và cache in-memory.
+   * Lưu thông tin user vào AsyncStorage và cache in-memory.
    * @param userObj Thông tin user (object)
-   * @example
-   *   await appConfig.saveUser(userObj);
    */
   async saveUser(userObj: any) {
     this.cachedUser = userObj;
-    return keychainHelper.saveObjectWithKey(userObj, USER_KEY);
+    await AsyncStorage.setItem(USER_KEY, JSON.stringify(userObj));
   }
 
   /**
-   * Lấy thông tin user từ cache hoặc keychain.
+   * Lấy thông tin user từ cache hoặc AsyncStorage.
    * @returns user object hoặc null nếu chưa có
-   * @example
-   *   const user = await appConfig.getUser();
    */
   async getUser() {
     if (this.cachedUser) return this.cachedUser;
-    const user = await keychainHelper.getObjectWithKey(USER_KEY);
-    if (user) this.cachedUser = user;
-    return user;
+    const userStr = await AsyncStorage.getItem(USER_KEY);
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        this.cachedUser = user;
+        return user;
+      } catch {
+        return null;
+      }
+    }
+    return null;
   }
 
   /**
-   * Xoá thông tin user khỏi cache và keychain.
-   * @example
-   *   await appConfig.clearUser();
+   * Xoá thông tin user khỏi cache và AsyncStorage.
    */
   async clearUser() {
     this.cachedUser = null;
-    return keychainHelper.clearObjectWithKey(USER_KEY);
+    await AsyncStorage.removeItem(USER_KEY);
   }
 
   /**
@@ -122,33 +125,35 @@ class AppConfig {
   }
 
   /**
-   * Lưu trạng thái sử dụng biometric vào keychain.
+   * Lưu trạng thái sử dụng biometric vào AsyncStorage.
    * @param useBiometric boolean
-   * @example
-   *   appConfig.saveUseBiometric(true);
    */
-  saveUseBiometric(useBiometric: boolean) {
-    return keychainHelper.saveObjectWithKey({ useBiometric }, USE_BIOMETRIC_KEY);
+  async saveUseBiometric(useBiometric: boolean) {
+    await AsyncStorage.setItem(USE_BIOMETRIC_KEY, JSON.stringify({ useBiometric }));
   }
 
   /**
-   * Lấy trạng thái sử dụng biometric từ keychain.
+   * Lấy trạng thái sử dụng biometric từ AsyncStorage.
    * @returns boolean hoặc null nếu chưa lưu
-   * @example
-   *   const enabled = await appConfig.getUseBiometric();
    */
   async getUseBiometric(): Promise<boolean | null> {
-    const obj = await keychainHelper.getObjectWithKey(USE_BIOMETRIC_KEY);
-    return obj && typeof obj.useBiometric === 'boolean' ? obj.useBiometric : null;
+    const str = await AsyncStorage.getItem(USE_BIOMETRIC_KEY);
+    if (str) {
+      try {
+        const obj = JSON.parse(str);
+        return typeof obj.useBiometric === 'boolean' ? obj.useBiometric : null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
   }
 
   /**
-   * Xoá trạng thái biometric khỏi keychain.
-   * @example
-   *   appConfig.clearUseBiometric();
+   * Xoá trạng thái biometric khỏi AsyncStorage.
    */
-  clearUseBiometric() {
-    return keychainHelper.clearObjectWithKey(USE_BIOMETRIC_KEY);
+  async clearUseBiometric() {
+    await AsyncStorage.removeItem(USE_BIOMETRIC_KEY);
   }
 
   /**

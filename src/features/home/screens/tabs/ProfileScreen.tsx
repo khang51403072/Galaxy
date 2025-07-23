@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Switch, View } from 'react-native';
 import XButton from '../../../../shared/components/XButton';
 import XDivider from '../../../../shared/components/XDivider';
 import XText from '../../../../shared/components/XText';
@@ -19,11 +19,17 @@ import { isFailure } from '../../../../shared/types/Result';
 import { useTheme } from '../../../../shared/theme/ThemeProvider';
 import { navigate, reset } from '@/app/NavigationService';
 import { appConfig } from '@/shared/utils/appConfig';
+import Tooltip from 'react-native-walkthrough-tooltip';
+import { Text } from 'react-native';
+import { checkBiometricAvailable, simpleBiometricAuth } from '@/shared/services/BiometricService';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
-  const route = useRoute();
+  const route = useRoute<any>();
   const theme = useTheme();
+  const [showTooltip, setShowTooltip] = useState((route.params as any)?.showBiometricTooltip);
+
+  
   // User store for profile data with selectors
   const { profile, isLoading: profileLoading, getProfile, changePassword, logout, setIsUseFaceId, isUseFaceId } = useUserStore(
     useShallow((state) => ({
@@ -190,9 +196,37 @@ export default function ProfileScreen() {
         <RowInfo titleLeft="Income" titleRight={getFormattedIncome() || 'Loading...'} />
         <RowInfo titleLeft="Store" titleRight={profile?.storeName || 'Loading...'} />
         <XDivider />
-        <TitleGroup title="Sign In With Face ID" onPress={() => {}} type="switch" switchValue={isUseFaceId} onToggleChange={() => {
-        setIsUseFaceId(!isUseFaceId);
+        <TitleGroup isShowTooltip={showTooltip} onCloseTooltip={
+          () => setShowTooltip(false)} title="Sign In With Face ID" 
+          onPress={() => {}} 
+          type="switch" 
+          switchValue={isUseFaceId} 
+          onToggleChange={async () => {
+            try{
+            const { available, biometryType, error } = await checkBiometricAvailable();
+            
+
+            if (!available) {
+              useUserStore.setState({ error: 'Thiết bị không hỗ trợ Face ID/Touch ID' });
+              return;
+            }
+           
+            const result = await simpleBiometricAuth();
+            console.log('result', result);
+            if(result) {
+              console.log('result', result);
+              appConfig.saveUseBiometric(!isUseFaceId);
+              setIsUseFaceId(!isUseFaceId);
+            }
+            else{
+              setIsUseFaceId(false);
+            }
+            }catch(error){
+              setIsUseFaceId(false);
+              useUserStore.setState({ error: 'Xác thực bằng Face ID/Touch ID thất bại' });
+            }
         }} />
+        
         
         <XButton
           title="Log out"
@@ -208,6 +242,7 @@ export default function ProfileScreen() {
           Version 1.0.0
         </XText>
       </View>
+      
     </XScreen>
   );
 }

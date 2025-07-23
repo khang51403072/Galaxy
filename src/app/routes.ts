@@ -26,7 +26,7 @@ export const ROUTES = {
     [ROUTES.SPLASH]: undefined;
     [ROUTES.LOGIN]: undefined;
     [ROUTES.HOME]: { updatedProfile?: ProfileEntity };
-    [ROUTES.PROFILE]: { updatedProfile?: ProfileEntity };
+    [ROUTES.PROFILE]: { updatedProfile?: ProfileEntity, showBiometricTooltip?: boolean };
     [ROUTES.UPDATE_PROFILE]: { profileId?: string };
     [ROUTES.CHANGE_PASSWORD]: { profileId?: string };
     [ROUTES.TICKET]: undefined;
