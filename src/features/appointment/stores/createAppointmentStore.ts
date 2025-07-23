@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { ApptResResponse } from '../types/ApptResResponse';
-import { Failure, isSuccess, Result, success, Success } from '../../../shared/types/Result';
-import { ApiAuthRepository } from '@/features/auth/repositories';
+import { isSuccess, Result, success } from '../../../shared/types/Result';
 import { AppointmentRepositoryImplement } from '../repositories/AppointmentRepositoryImplement';
 import { AppointmentUsecase } from '../usecases/AppointmentUsecase';
 import { CustomerEntity, CustomerResponse } from '../types/CustomerResponse';
@@ -11,47 +10,42 @@ export type ServicesEntity = {
   technician?: EmployeeEntity|null
 }
 export type CreateAppointmentState = {
-  customerList: CustomerEntity[] | null;
-  selectedCustomer: CustomerEntity | null;
-  service: string | null;
-  date: Date | null;
-  time: Date | null;
-  confirmOnline: boolean;
-  groupAppointment: boolean;
+  error: string | null;
   isLoading: boolean;
+  customerList: CustomerEntity[] | null;
+  selectedCustomer: CustomerEntity | null;  
+  isConfirmOnline: boolean;
+  isGroupAppointment: boolean;
   selectedApptType: ApptType| null;
   listApptType: ApptType[];
   listCategories: CategoryEntity[];
   listItemMenu: MenuItemEntity[];
-  listServices: ServicesEntity[];
+  listBookingServices: ServicesEntity[];
+  
+  reset: () => void;
+  ///GET
   getListCategories: ()=> Promise<Result<CategoryEntity[], Error>>;
   getListItemMenu: ()=> Promise<Result<MenuItemEntity[], Error>>
-  setService: (service: string | null) => void;
-  setDate: (date: Date | null) => void;
-  setTime: (time: Date | null) => void;
-  setConfirmOnline: (value: boolean) => void;
-  setGroupAppointment: (value: boolean) => void;
-  reset: () => void;
-  setSelectedCustomer: (value: CustomerEntity)=> void,
   getApptResource: () => Promise<Result<ApptResResponse, Error>>;
   getCustomerLookup: (pageNumber?: number, pageSize?: number, phoneNumber?: string) => Promise<Result<CustomerResponse, Error>>;
+  ///SET
+  setConfirmOnline: (value: boolean) => void;
+  setGroupAppointment: (value: boolean) => void;
+  setSelectedCustomer: (value: CustomerEntity)=> void,
 };
 
 import { ApptType, createApptType } from '../types/AppointmentType';
-import { CategoriesResponse, CategoryEntity } from '../types/CategoriesResponse';
+import { CategoryEntity } from '../types/CategoriesResponse';
 import { MenuItemEntity } from '../types/MenuItemResponse';
-import { TedTechnician } from '../types/AppointmentResponse';
 import { EmployeeEntity } from '@/features/ticket/types/TicketResponse';
 
 
 export const initialCreateAppointmentState = {
-  customerList: null,
-  service: null,
-  date: null,
-  time: null,
-  confirmOnline: false,
-  groupAppointment: false,
   isLoading: false,
+  error: null,
+  customerList: null,
+  isConfirmOnline: false,
+  isGroupAppointment: false,
   selectedCustomer: null,
   selectedApptType: null,
   listCategories: [],
@@ -64,7 +58,7 @@ export const initialCreateAppointmentState = {
     createApptType("WalkIn", "Walk In"),
     createApptType("Online", "Online"),
   ],
-  listServices: [{
+  listBookingServices: [{
     service: null,
     technician:null
   }]
@@ -128,13 +122,10 @@ export const useCreateAppointmentStore = create<CreateAppointmentState>(createAp
 export const createAppointmentSelectors = {
   selectSelectedCustomer: (state: CreateAppointmentState) => state.selectedCustomer,
   selectCustomerList: (state: CreateAppointmentState) => state.customerList,
-  selectService: (state: CreateAppointmentState) => state.service,
-  selectDate: (state: CreateAppointmentState) => state.date,
-  selectTime: (state: CreateAppointmentState) => state.time,
   selectListApptType: (state: CreateAppointmentState)=>state.listApptType,
   selectIsLoading: (state: CreateAppointmentState)=>state.isLoading,
-  selectConfirmOnline: (state: CreateAppointmentState) => state.confirmOnline,
-  selectGroupAppointment: (state: CreateAppointmentState) => state.groupAppointment,
+  selectConfirmOnline: (state: CreateAppointmentState) => state.isConfirmOnline,
+  selectGroupAppointment: (state: CreateAppointmentState) => state.isGroupAppointment,
   selectGetApptResource: (state: CreateAppointmentState) => state.getApptResource,
   selectGetCustomerLookup: (state: CreateAppointmentState) => state.getCustomerLookup,
   selectSetSelectedCustomer: (state: CreateAppointmentState) => state.setSelectedCustomer,
@@ -143,6 +134,6 @@ export const createAppointmentSelectors = {
   selectListItemMenu: (state: CreateAppointmentState) => state.listItemMenu,
   selectGetListItemMenu: (state: CreateAppointmentState) => state.getListItemMenu,
   selectGetListCategories: (state: CreateAppointmentState) => state.getListCategories,
-  selectListService: (state: CreateAppointmentState) => state.listServices
+  selectListService: (state: CreateAppointmentState) => state.listBookingServices
 }; 
 

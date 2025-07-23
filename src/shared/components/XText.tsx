@@ -11,7 +11,7 @@ type Props = TextProps & {
 export default function XText({ variant = 'body', style, color, ...rest }: Props) {
   const theme = useTheme();
   const textStyle = theme.typography[variant];
-  const textColor = color || theme.colors.text;
+  const textColor = color || theme.colors.gray700;
   
   return <Text style={[textStyle, { color: textColor }, style]} {...rest} />;
 }

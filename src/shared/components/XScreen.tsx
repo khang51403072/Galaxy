@@ -82,6 +82,7 @@ interface XScreenProps {
   footer?: ReactNode;
   style?: any;
   rightIcon?: ReactNode;
+  haveBottomTabBar?: boolean;
 }
 
 
@@ -106,6 +107,7 @@ export default function XScreen({
   footer,
   style,
   rightIcon,
+  haveBottomTabBar = false,
 }: XScreenProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -185,7 +187,7 @@ export default function XScreen({
         contentContainerStyle={[
           styles.scrollContent,
           {
-            paddingBottom: safeArea ? insets.bottom + 100 : 0,
+            paddingBottom: safeArea ? insets.bottom + (haveBottomTabBar ? 100 : 0) : 0,
           }
         ]}
         showsVerticalScrollIndicator={false}

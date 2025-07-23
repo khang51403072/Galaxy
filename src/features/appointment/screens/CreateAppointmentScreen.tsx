@@ -1,4 +1,4 @@
-import { XDateTimePicker } from "@/shared/components/XDatePicker";
+import { XDatePicker } from "@/shared/components/XDatePicker";
 import XDropdown, { DropdownOption } from "@/shared/components/XDropdown";
 import XIcon from "@/shared/components/XIcon";
 import XInput from "@/shared/components/XInput";
@@ -161,7 +161,7 @@ export default function CreateAppointmentScreen() {
                     <XIcon name="date" width={16} height={16} />
                     <XText variant="createAppointmentContent">Date</XText>
                 </View>
-                <XDateTimePicker
+                <XDatePicker
                     style={{ width: '40%' }}
                     value={selectedDate}
                     onChange={setSelectedDate}
@@ -178,7 +178,7 @@ export default function CreateAppointmentScreen() {
                 <XIcon name="time" width={16} height={16} />
                 <XText variant="createAppointmentContent">Time</XText>
             </View>
-            <XDateTimePicker mode="time" style={{ width: '40%' }} value={selectedDate} onChange={setSelectedDate} />
+            <XDatePicker mode="time" style={{ width: '40%' }} value={selectedDate} onChange={setSelectedDate} />
         </View>
         )
     }
@@ -270,7 +270,7 @@ export default function CreateAppointmentScreen() {
                     // setSelectedService(service);
                     setShowServiceSheet(false);
                     const newList = updateOrInsertPenultimate(listServices, serviceIndex, {service: service, technician: null})
-                    useCreateAppointmentStore.setState({listServices: newList})
+                    useCreateAppointmentStore.setState({listBookingServices: newList})
                     
                 }}
             />
