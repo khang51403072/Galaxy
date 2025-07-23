@@ -4,6 +4,7 @@ import XText from '../../../shared/components/XText';
 import ActionGroup from './ActionGroup';
 import XSwitch from '../../../shared/components/XSwitch';
 import { iconMap } from '../../../shared/components/XIcon';
+import Tooltip from 'react-native-walkthrough-tooltip';
 
 type TitleGroupType = 'text' | 'edit' | 'switch';
 
@@ -15,6 +16,8 @@ type TitleGroupProps = {
   onPress?: () => void; // dùng cho edit
   switchValue?: boolean; // dùng cho switch
   onToggleChange?: (val: boolean) => void; // dùng cho switch
+  isShowTooltip?: boolean;
+  onCloseTooltip?: () => void;
 };
 
 export default function TitleGroup({
@@ -25,6 +28,8 @@ export default function TitleGroup({
   onPress,
   switchValue = false,
   onToggleChange,
+  isShowTooltip = false,
+  onCloseTooltip,
 }: TitleGroupProps) {
   const [internalValue, setInternalValue] = useState(switchValue);
 
@@ -42,7 +47,17 @@ export default function TitleGroup({
       )}
 
       {type === 'switch' && (
-        <XSwitch value={internalValue} onValueChange={handleToggle} />
+        <Tooltip
+          isVisible={isShowTooltip}
+          content={<XText variant="content300">Bấm vào đây để bật FaceID/TouchID cho lần đăng nhập sau!</XText>}
+          placement="bottom"
+          onClose={onCloseTooltip}
+          showChildInTooltip={true}
+          childContentSpacing={0}
+          contentStyle={{ padding: 12 }}
+        >
+          <XSwitch value={internalValue} onValueChange={handleToggle} />
+        </Tooltip>
       )}
     </View>
   );

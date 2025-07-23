@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import XText from '../../../../shared/components/XText';
 import XScreen from '../../../../shared/components/XScreen';
 import { useShallow } from 'zustand/react/shallow';
@@ -15,6 +15,8 @@ import { isSuccess } from '../../../../shared/types/Result';
 import { ChartEntity } from '../../types/HomeResponse';
 import { XSkeleton } from '../../../../shared/components/XSkeleton';
 import { navigate } from '@/app/NavigationService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { appConfig } from '@/shared/utils/appConfig';
 
 export default function HomeScreen() {
   const { homeData, isLoading, error, getHomeData, getChartData,  isLoadingChart, toggleSwitch, json, chartDisplayData, setChartDisplayData } = useHomeStore(
@@ -34,18 +36,27 @@ export default function HomeScreen() {
   );
   
   const theme = useTheme();  
-
-  // Xóa state chartData cục bộ
-  // const [chartData, setChartData] = useState<{label: string, value: number[]}[]>([
-  //   { label: 'Mon', value: [20, 40] },
-  //   { label: 'Tue', value: [35, 25] },
-  //   { label: 'Wed', value: [30, 50] },
-  //   { label: 'Thu', value: [80, 60] },
-  //   { label: 'Fri', value: [20, 30] },
-  // ]);
+  async function checkShowBiometricGuide() {
+    const shown = await appConfig.getUseBiometric();
+    if (!shown) {
+      Alert.alert(
+        'Thông báo',
+        'Bạn chưa bật tính năng đăng nhập bằng sinh trắc học, bạn có muốn bật tính năng đó ở phần profile không?',
+        [
+          { text: 'Để sau', style: 'cancel' },
+          { text: 'Đồng ý', onPress: () => {
+              // AsyncStorage.setItem('biometricGuideShown', '0');
+              navigate(ROUTES.PROFILE, { showBiometricTooltip: true });
+            }
+          }
+        ]
+      );
+    }
+  }
 
   useEffect(() => {
     loadData();
+    checkShowBiometricGuide();
   }, []);
   
   useEffect(() => {

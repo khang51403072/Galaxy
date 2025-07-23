@@ -80,13 +80,7 @@ export default function LoginScreen() {
     const json = await appConfig.getUser();
     const useBiometric = await appConfig.getUseBiometric();
     if (!useBiometric) return;
-    const { available } = await checkBiometricAvailable();
-    if (!available) {
-      useAuthStore.setState({ error: 'Thiết bị không hỗ trợ Face ID/Touch ID' });
-      return;
-    }
-    const success = await simpleBiometricAuth();
-    if (success && json) {
+    if (json) {
       handleLogin({ username: json.userName, password: json.password });
     } 
     return;
