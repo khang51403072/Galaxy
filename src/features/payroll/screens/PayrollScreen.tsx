@@ -14,6 +14,7 @@ import { useEmployeeStore, employeeSelectors } from '@/shared/stores/employeeSto
 import XDateRangerSearch from "@/shared/components/XDateRangerSearch";
 import XNoDataView from "@/shared/components/XNoDataView";
 import { appConfig } from "@/shared/utils/appConfig";
+import { XSkeleton } from '../../../shared/components/XSkeleton';
 
 export default function  TicketScreen() {
     const [json, setJson] = useState<KeychainObject | null>(null);
@@ -91,10 +92,10 @@ export default function  TicketScreen() {
     : isFirstLoad ? null : <XNoDataView/>
     const renderScene = SceneMap({
       technician: () => (
-        webView
+        isLoading ? <PayrollSkeleton /> :webView
       ),
       owner: () => (
-        webViewOwner
+        isLoading ? <PayrollSkeleton /> :webViewOwner
       ),
     });
     const layout = useWindowDimensions();
@@ -116,9 +117,20 @@ export default function  TicketScreen() {
       style={{ flex: 1 }}
     />
 
+    // PayrollSkeleton component
+    const PayrollSkeleton = () => {
+      const theme = useTheme();
+      return (
+        <View style={{ flex: 1, padding: 16, alignItems: 'center', justifyContent: 'center' }}>
+          <XSkeleton width="100%" height={32} style={{ marginBottom: 16 }} />
+          <XSkeleton width="100%" height={300} style={{ marginBottom: 16 }} />
+          <XSkeleton width="80%" height={24} />
+        </View>
+      );
+    };
    
   return (
-    <XScreen title="Payroll" loading={isLoading} error={error} style={{ flex: 1 }}> 
+    <XScreen title="Payroll" loading={false} error={error} style={{ flex: 1 }}> 
       {/* View header */}
       <View style={styles.header}>
         {json?.isOwner && employeePicker}
@@ -140,8 +152,8 @@ export default function  TicketScreen() {
           }}
         />
       </View>
-      {/* TabView */}
-      {json?.isOwner ? tabView : webView}
+      {/* TabView or Skeleton */}
+      { (json?.isOwner ? tabView : isLoading ? <PayrollSkeleton /> :webView)}
       <XBottomSheetSearch
         visible={visible}
         onClose={() => {
