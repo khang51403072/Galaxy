@@ -56,7 +56,7 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
     set({ isLoading: true });
     const json = await appConfig.getUser();
     const changeResult = await profileUseCase.changePassword(request, json?.password);
-    set({ isLoading: false });
+    set({ isLoading: false, error: null });
     if(isSuccess(changeResult)) {
       const json = await appConfig.getUser();
       if(json) {

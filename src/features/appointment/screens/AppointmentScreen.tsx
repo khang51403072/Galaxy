@@ -232,6 +232,7 @@ export default function AppointmentScreen() {
   const employeePicker = 
   <TouchableOpacity style={{marginTop: theme.spacing.md}} onPress={async () => {
     setVisible(true);
+
   }}>
     <XInput value={selectedEmployee != null ? getDisplayNameEmployee(selectedEmployee) : ""} editable={false} placeholder="Choose Technician"  label="Technician" pointerEvents="none"/>
   </TouchableOpacity>
@@ -337,10 +338,12 @@ export default function AppointmentScreen() {
         visible={visible}
         onClose={() => {
           setVisible(false);
+
         }}
         data={employees}
         onSelect={(item) => {
           setSelectedEmployee(item);
+          loadData();
         }}
         placeholder="Search..."
         title="Technician "

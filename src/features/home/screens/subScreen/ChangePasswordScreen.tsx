@@ -8,7 +8,9 @@ import { useAuthStore } from '../../../auth/stores/authStore';
 import { isSuccess } from '../../../../shared/types/Result';
 import XDialog from '../../../../shared/components/XDialog';
 import { ChangePasswordRequest } from '../../types/ProfileRequest';
-import { goBack } from '@/app/NavigationService';
+import { goBack, reset } from '@/app/NavigationService';
+import { ROUTES } from '@/app/routes';
+import { appConfig } from '@/shared/utils/appConfig';
 
 
 export default function ChangePasswordScreen() {
@@ -19,6 +21,8 @@ export default function ChangePasswordScreen() {
     oldPassword: true,
     newPassword: true
   });
+
+  const logout = useUserStore(useShallow((state)=>userSelectors.selectLogout(state)));
   const fields: XFormField[] = [
     {
       name: 'oldPassword',
@@ -78,6 +82,7 @@ export default function ChangePasswordScreen() {
     const changePasswordRequest: ChangePasswordRequest = {
       employeeId: employeeId || '',
       newPassword: data.newPassword,
+      oldPassword: data.oldPassword
     };
     setDefaultValues({
       newPassword: data.newPassword,
@@ -92,12 +97,18 @@ export default function ChangePasswordScreen() {
     setVisible(false);
     const result = await changePassword(pendingData as ChangePasswordRequest);
     if (isSuccess(result)) {
-      goBack();
+
+      await logout();
+      await appConfig.clearAutoLogin();
+      await appConfig.clearUseBiometric();
+      reset([{ name: ROUTES.LOGIN }], 0);
     } else {
       useUserStore.setState({ error: result.error?.message});
     }
   };
-
+  useEffect(() => {
+    useUserStore.setState({ error: null });
+  }, []);
   return (
     <XScreen title='Change Password' showHeader loading={isLoading} error={error} >
       <XForm style={{paddingTop: 16}} gap={16} fields={fields} onSubmit={handleSubmit} defaultValues={defaultValues} />
@@ -111,4 +122,5 @@ export default function ChangePasswordScreen() {
     </XScreen>
   );
 }
+
 

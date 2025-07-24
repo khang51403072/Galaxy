@@ -5,6 +5,7 @@ import { ProfileEntity } from '../types/ProfileResponse';
 import { UserError } from '../types/UserError';
 import { ChangePasswordRequest, UpdateProfileRequest } from '../types/ProfileRequest';
 import { ProfileRepository } from '../repositories/ProfileRepository';
+import { appConfig } from '@/shared/utils/appConfig';
 
 export class ProfileUseCase {
   constructor(private userRepository: ProfileRepository) {}
@@ -18,8 +19,12 @@ export class ProfileUseCase {
   }
 
   async changePassword(request: ChangePasswordRequest, oldPassword: string): Promise<Result<void, UserError>> {
-    if(oldPassword === request.newPassword) {
+    const json = await appConfig.getUser();
+    if(json?.password === request.newPassword) {
       return failure(new UserError('New password is exist', 'NEW_PASSWORD_EXIST'));
+    }
+    if(oldPassword !== request.oldPassword) {
+      return failure(new UserError('Old password is incorrect', 'OLD_PASSWORD_INCORRECT'));
     }
     
     return await this.userRepository.changePassword(request);
