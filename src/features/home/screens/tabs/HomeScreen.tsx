@@ -17,6 +17,7 @@ import { XSkeleton } from '../../../../shared/components/XSkeleton';
 import { navigate } from '@/app/NavigationService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { appConfig } from '@/shared/utils/appConfig';
+import { employeeSelectors, useEmployeeStore } from '@/shared/stores/employeeStore';
 
 export default function HomeScreen() {
   const { homeData, isLoading, error, getHomeData, getChartData,  isLoadingChart, toggleSwitch, json, chartDisplayData, setChartDisplayData } = useHomeStore(
@@ -34,7 +35,7 @@ export default function HomeScreen() {
       setChartDisplayData: state.setChartDisplayData,
     }))
   );
-  
+  const fetchEmployees = useEmployeeStore(employeeSelectors.selectFetchEmployees);
   const theme = useTheme();  
   async function checkShowBiometricGuide() {
     const shown = await appConfig.getUseBiometric();
@@ -69,6 +70,7 @@ export default function HomeScreen() {
   }, [toggleSwitch]);
   
   const loadData = async () => {
+    fetchEmployees();
     await getHomeData();
     getChartData().then((result) => {
       if(isSuccess(result)) {

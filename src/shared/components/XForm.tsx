@@ -65,6 +65,7 @@ type XFormProps<T extends FieldValues> = {
   cancelTitle?: string;
   maxHeight?: DimensionValue|undefined;
   scrollEnabled?: boolean;
+  gap?: number;
 };
 
 export default function XForm<T extends FieldValues = any>({
@@ -80,6 +81,7 @@ export default function XForm<T extends FieldValues = any>({
   cancelTitle = 'CANCEL',
   maxHeight = '100%',
   scrollEnabled = true,
+  gap = 8,
 }: XFormProps<T>) {
   const { control, handleSubmit, formState: { errors, isValid } } = useForm<T>({
     mode: 'onChange',
@@ -104,7 +106,7 @@ export default function XForm<T extends FieldValues = any>({
       ref: (ref: TextInput | null) => { inputRefs.current[idx] = ref; },
     };
   };
-  let children = <>{fields.map((field, idx) => (
+  let children = <View style={{gap: gap, flexDirection: 'column'}}>{fields.map((field, idx) => (
     <Controller
       key={field.name}
       control={control}
@@ -157,7 +159,7 @@ export default function XForm<T extends FieldValues = any>({
   ))}
   {errorMessage ? (
     <XText style={{ color: 'red', marginBottom: 12, textAlign: 'center' }}>{errorMessage}</XText>
-  ) : null}</>
+  ) : null}</View>
   
   if(scrollEnabled) 
   {
@@ -177,7 +179,7 @@ export default function XForm<T extends FieldValues = any>({
   return (
     <View style={[{ flex: scrollEnabled?1:0, backgroundColor: theme.colors.background, maxHeight: maxHeight }, style]}>
       {children}
-      <View style={{ paddingBottom:theme.spacing.md, backgroundColor: theme.colors.background }}>
+      <View style={{ paddingBottom: theme.spacing.md,}}>
         <View style={{ flexDirection: 'row', justifyContent: onCancel ? 'space-between' : 'center', alignItems: 'center' }}>
           {onCancel && (
             <XButton

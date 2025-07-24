@@ -34,7 +34,7 @@ export function isEmployee(obj: any): obj is EmployeeEntity {
 export interface WorkOrderEntity {
   nickName: string;
   ticketNumber: number;
-  detail: string;
+  detail: any;
   ticketDate: string;
   serviceStartTime: string;
   serviceEndTime: string;

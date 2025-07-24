@@ -105,11 +105,13 @@ export default function UpdateProfileScreen() {
   };
 
   const handleConfirm = async () => {
+    setVisible(false);
     const result = await updateProfile(pendingData);
       
     if (isSuccess(result)) {
       // Success - back về Profile screen với data mới
-      setVisible(false);
+      
+      useUserStore.setState({ profile: result.value });
       goBack();
     } else {
       // Error - hiển thị error message
@@ -117,8 +119,10 @@ export default function UpdateProfileScreen() {
     }
   };  
   return (
-    <XScreen title="Information" showHeader>
+    <XScreen title="Information" showHeader loading={isUpdating} error={errorMessage}>
       <XForm
+        style={{paddingTop: 16}}
+        gap={16}
         fields={fields}
         onSubmit={handleSubmit}
         loading={isUpdating}

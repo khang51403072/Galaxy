@@ -22,6 +22,7 @@ import { appConfig } from '@/shared/utils/appConfig';
 import Tooltip from 'react-native-walkthrough-tooltip';
 import { Text } from 'react-native';
 import { checkBiometricAvailable, simpleBiometricAuth } from '@/shared/services/BiometricService';
+import DeviceInfo from 'react-native-device-info';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
@@ -77,20 +78,21 @@ export default function ProfileScreen() {
     appConfig.getUseBiometric().then(isUseFaceId => {
       setIsUseFaceId(isUseFaceId??false);
     });
+    loadProfile();
   }, []);
   // Load profile data when screen comes into focus
-  useFocusEffect(
-    React.useCallback(() => {
-      // Kiểm tra xem có data mới từ UpdateProfileScreen không
-      const updatedProfile = (route.params as any)?.updatedProfile;
-      if (updatedProfile) {
-        useUserStore.setState({ profile: updatedProfile });
-      }
-      else{
-        loadProfile();
-      }
-    }, [route.params, navigation])
-  );
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     // Kiểm tra xem có data mới từ UpdateProfileScreen không
+  //     const updatedProfile = (route.params as any)?.updatedProfile;
+  //     if (updatedProfile) {
+  //       useUserStore.setState({ profile: updatedProfile });
+  //     }
+  //     else{
+  //       loadProfile();
+  //     }
+  //   }, [route.params, navigation])
+  // );
 
   
   const handlePickImage = async (type: 'camera' | 'library') => {
@@ -160,6 +162,7 @@ export default function ProfileScreen() {
         colors={theme.colors.primaryGradient}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
+        locations={[0, 1]}
         style={{ width: '100%', height: '25%', alignItems: 'center', justifyContent: 'center' }}
       >
         <XAvatar
@@ -203,18 +206,12 @@ export default function ProfileScreen() {
           switchValue={isUseFaceId} 
           onToggleChange={async () => {
             try{
-            const { available, biometryType, error } = await checkBiometricAvailable();
-            
-
+            const  available = await checkBiometricAvailable();
             if (!available) {
-              useUserStore.setState({ error: 'Thiết bị không hỗ trợ Face ID/Touch ID' });
-              return;
+             return;
             }
-           
             const result = await simpleBiometricAuth();
-            console.log('result', result);
-            if(result) {
-              console.log('result', result);
+            if(result) {        
               appConfig.saveUseBiometric(!isUseFaceId);
               setIsUseFaceId(!isUseFaceId);
             }
@@ -239,7 +236,7 @@ export default function ProfileScreen() {
           style={{ borderRadius: 8, marginTop: 16 }}
         />
         <XText variant="content300" style={{ textAlign: 'center', marginTop: 16}}>
-          Version 1.0.0
+          Version {DeviceInfo.getVersion()}
         </XText>
       </View>
       

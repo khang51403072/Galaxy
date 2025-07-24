@@ -13,12 +13,13 @@ import XNoDataView from "@/shared/components/XNoDataView";
 import XRenderHTML from "@/shared/components/XRenderHTML";
 import XDateRangerSearch from "@/shared/components/XDateRangerSearch";
 import { appConfig } from "@/shared/utils/appConfig";
+import { WebView } from "react-native-webview";
 
 export default function  TicketScreen() {
   const {width} = useWindowDimensions();
   const theme = useTheme();
 
-
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
   const {setJson, json,isLoading, error, visible, getWorkOrders, getWorkOrderOwners, workOrderOwners, workOrders, startDate, endDate, selectedEmployee} = useTicketStore(useShallow(
       (state: TicketState) => ({
           json: state.json,
@@ -47,26 +48,44 @@ export default function  TicketScreen() {
   }, []);
   const dashed = <View
     style={{
+      flexDirection: 'row',
       borderBottomWidth: 1,
-      borderColor: '#aaa',
+      borderColor: theme.colors.gray800,
       borderStyle: 'dashed',
       marginVertical: 16,
+      width: '100%',
     }}
   />
-  const serviceLine = (item: WorkOrderEntity)=>{
-    return <View style={{flexDirection: "row", alignItems:'flex-start'}}>
-      <XText variant="contentTitle">{item.ticketDate}   </XText>
-      <XText variant="contentTitle">{item.ticketDate}   {item.serviceStartTime} - {item.serviceEndTime}</XText>
-      <XText variant="contentTitle">{item.ticketDate}   {item.serviceStartTime} - {item.serviceEndTime}</XText>
-      
-    </View>
-  }
+
   // Hàm renderItem nhận đầu vào là html
-  const renderItem = ({ item }: { item: { detail: string } }) => (
-    <View style={{ marginVertical: 8, backgroundColor: '#fff', borderRadius: 8, padding: 8, overflow: 'hidden', ...theme.shadows.sm }}>
-      <XRenderHTML html={item.detail} width={undefined} />
-    </View>
-  );
+  const renderItem =  ({ item }: { item: WorkOrderEntity }) =>
+    {
+      
+
+      const view = <View 
+      style={{backgroundColor: theme.colors.white, 
+      padding: theme.spacing.md, borderRadius: theme.spacing.md, ...theme.shadows.sm}}>
+        <XText variant="contentTitle">{(item.detail as any).title}</XText>
+        <XText variant="content400">{item.detail.time}</XText>
+        {dashed}
+        <XText variant="contentTitle">{item.detail.services.map((service: any) => service.name).join(', ')}</XText>
+        {dashed}
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <XText variant="content300">Service Deductions</XText>
+          <XText variant="content300">{item.detail.ServiceDeductions}</XText>
+        </View>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <XText variant="content300">Non Cash Tip</XText>
+          <XText variant="content300">{item.detail.NonCashTip}</XText>
+        </View>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <XText variant="content300">Total</XText>
+          <XText variant="content300">{item.detail.Total}</XText>
+        </View>
+      </View>
+      return (view) 
+      
+    } ;
   return (
     <XScreen title="Tickets" loading={isLoading} error={error} style={{ flex: 1 }}> 
       {/* View header */}
@@ -86,6 +105,7 @@ export default function  TicketScreen() {
           onFromChange={(date) => useTicketStore.setState({startDate: date})}
           onToChange={(date) => useTicketStore.setState({endDate: date})}
           onSearch={() => {
+            setIsFirstLoad(false);
             if(json?.isOwner){
               getWorkOrderOwners(selectedEmployee?.id??"");
             }else{
@@ -98,8 +118,8 @@ export default function  TicketScreen() {
         data={json?.isOwner ? workOrderOwners : workOrders}
         keyExtractor={(item, idx) => item.ticketNumber?.toString()+ idx.toString()}
         renderItem={renderItem}
-        contentContainerStyle={{ padding: 16 }}
-        ListEmptyComponent={<XNoDataView />}
+        contentContainerStyle={{ padding: 16, gap: 16 }}
+        ListEmptyComponent={isFirstLoad ? null : <XNoDataView />}
       />
       <XBottomSheetSearch
         visible={visible}
@@ -116,3 +136,4 @@ export default function  TicketScreen() {
     </XScreen>
   );
 };
+

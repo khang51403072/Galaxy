@@ -14,9 +14,11 @@ import XAvatar from "@/shared/components/XAvatar";
 import CustomTabBar from "@/shared/components/CustomTabBar";
 import XDateRangerSearch from "@/shared/components/XDateRangerSearch";
 import { appConfig } from "@/shared/utils/appConfig";
+import XNoDataView from "@/shared/components/XNoDataView";
 
 export default function  TicketScreen() {
     const theme = useTheme();
+    const [isFirstLoad, setIsFirstLoad] = useState(true);
     const { closeOut,json, isLoading, error, startDate, endDate, reportTechnician, reportSales, reportTimeSheet, reportBatchHistory, getReportTechnician, getReportSales, getReportTimeSheet, getReportBatchHistory, getCloseOut, setJson } = useReportStore(useShallow(
         (state: ReportState) => ({
             isLoading: reportSelectors.selectIsLoading(state),
@@ -59,12 +61,7 @@ export default function  TicketScreen() {
           style={{ width: '100%', flex: 1 }}
           scrollEnabled={true}
         />
-        : (
-          <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
-            <XIcon name="noData" width={48} height={48} />
-            <XText variant="content400">No data</XText>
-          </View>
-        )
+        : isFirstLoad ? null : <XNoDataView/>
       ),
       sales: () => (
         reportSales.length > 0 ? 
@@ -74,12 +71,7 @@ export default function  TicketScreen() {
             style={{ width: '100%', flex: 1 }}
             scrollEnabled={true}
           />        
-          : (
-            <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
-              <XIcon name="noData" width={48} height={48} />
-              <XText variant="content400">No data</XText>
-            </View>
-          )
+          : isFirstLoad ? null : <XNoDataView/>
       ),
       timesheet: () => (
         reportTimeSheet.length > 0 ? 
@@ -106,12 +98,7 @@ export default function  TicketScreen() {
             )
           }}
         />
-        : (
-          <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
-            <XIcon name="noData" width={48} height={48} />
-            <XText variant="content400">No data</XText>
-          </View>
-        )
+        : isFirstLoad ? null : <XNoDataView/>
       ),
       batchHistory: () => (
         reportBatchHistory.length > 0 ? (
@@ -136,12 +123,7 @@ export default function  TicketScreen() {
               }}
             />
           </View>
-        ) : (
-          <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
-            <XIcon name="noData" width={48} height={48} />
-            <XText variant="content400">No data</XText>
-          </View>
-        )
+        ) : isFirstLoad ? null : <XNoDataView/>
       ),
     });
     const layout = useWindowDimensions();
@@ -209,12 +191,7 @@ export default function  TicketScreen() {
               style={{ width: '100%', flex: 1 }}
               scrollEnabled={true}
             />
-          : (
-            <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: theme.spacing.xxxl }}>
-              <XIcon name="noData" width={48} height={48} />
-              <XText variant="content400">No data</XText>
-            </View>
-          )}
+          : isFirstLoad ? null : <XNoDataView/>}
         </XScreen>
     );
 };

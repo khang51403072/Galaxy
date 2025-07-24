@@ -17,6 +17,7 @@ import { appConfig } from "@/shared/utils/appConfig";
 
 export default function  TicketScreen() {
     const [json, setJson] = useState<KeychainObject | null>(null);
+    const [isFirstLoad, setIsFirstLoad] = useState(true);
     useEffect(() => {
       usePayrollStore.getState().reset();
       appConfig.getUser().then((user) => {
@@ -62,6 +63,7 @@ export default function  TicketScreen() {
       { key: 'owner', title: 'Owner' },
       { key: 'technician', title: 'Technician' },
     ]);
+    // Render employee picker
     const employeePicker = 
     <TouchableOpacity onPress={async () => {
       usePayrollStore.setState({visible: true});
@@ -69,6 +71,7 @@ export default function  TicketScreen() {
     }}>
       <XInput value={selectedEmployee != null ? getDisplayName(selectedEmployee) : ""} editable={false} placeholder="Choose Technician"  label="Technician" pointerEvents="none"/>
     </TouchableOpacity>
+    // Render webview
     const webView = payrolls.length > 0 
     ? <WebView
         originWhitelist={['*']}
@@ -76,7 +79,7 @@ export default function  TicketScreen() {
         style={{ width: '100%', flex: 1 }}
         scrollEnabled={true}
       />
-    : <XNoDataView/>
+    : isFirstLoad ? null : <XNoDataView/>
 
     const webViewOwner = payrollOwners.length > 0 
     ? <WebView
@@ -85,13 +88,13 @@ export default function  TicketScreen() {
         style={{ width: '100%', flex: 1 }}
         scrollEnabled={true}
       />
-    : <XNoDataView/>
+    : isFirstLoad ? null : <XNoDataView/>
     const renderScene = SceneMap({
       technician: () => (
-        payrolls.length > 0 ? webView : <XNoDataView/>
+        webView
       ),
       owner: () => (
-        payrollOwners.length > 0 ? webViewOwner : <XNoDataView/>
+        webViewOwner
       ),
     });
     const layout = useWindowDimensions();
@@ -120,13 +123,17 @@ export default function  TicketScreen() {
       <View style={styles.header}>
         {json?.isOwner && employeePicker}
         <XDateRangerSearch
-          fromDate={startDate||new Date()}
-          toDate={endDate||new Date()}
+          fromDate={startDate}
+          toDate={endDate}
           onFromChange={(date) => usePayrollStore.setState({startDate: date})}
           onToChange={(date) => usePayrollStore.setState({endDate: date})}
           onSearch={() => {
+            setIsFirstLoad(false);
             if(json?.isOwner){
               getPayrollOwner(selectedEmployee?.id??"");
+              if(selectedEmployee){
+                getPayroll(selectedEmployee?.id??"");
+              }
             }else{
               getPayroll(selectedEmployee?.id??"");
             }
@@ -134,7 +141,7 @@ export default function  TicketScreen() {
         />
       </View>
       {/* TabView */}
-      {json?.isOwner ? tabView :webView}
+      {json?.isOwner ? tabView : webView}
       <XBottomSheetSearch
         visible={visible}
         onClose={() => {

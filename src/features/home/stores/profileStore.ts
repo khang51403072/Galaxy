@@ -92,6 +92,7 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
       const avatarUri = json.avatarUri;
       await appConfig.saveUser({userName: userName, password: password, firstName: firstName, lastName: lastName, avatarUri: avatarUri});
       await appConfig.saveUseBiometric(get().isUseFaceId??false);
+      await appConfig.clearAutoLogin();
     }
     set({ profile: null, isLoading: false });
   },

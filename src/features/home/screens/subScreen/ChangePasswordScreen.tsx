@@ -100,7 +100,7 @@ export default function ChangePasswordScreen() {
 
   return (
     <XScreen title='Change Password' showHeader loading={isLoading} error={error} >
-      <XForm fields={fields} onSubmit={handleSubmit} defaultValues={defaultValues} />
+      <XForm style={{paddingTop: 16}} gap={16} fields={fields} onSubmit={handleSubmit} defaultValues={defaultValues} />
       <XDialog
         visible={visible}
         content= "Are you sure you want to change your password?"

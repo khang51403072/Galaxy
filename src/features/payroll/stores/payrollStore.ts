@@ -15,8 +15,8 @@ export type PayrollState = {
   error: string | null;
   visible: boolean;
   selectedEmployee: EmployeeEntity | null;
-  startDate: Date | null;
-  endDate: Date | null;
+  startDate: Date ;
+  endDate: Date ;
   getPayroll: (employeeId: string) => Promise<Result<string, TicketError>>;
   getPayrollOwner: (employeeId: string) => Promise<Result<string, TicketError>>;
   reset: () => void;
@@ -42,8 +42,8 @@ const initialState = {
   error: null,
   visible: false,
   selectedEmployee: null,
-  startDate: null,
-  endDate: null,
+  startDate: new Date(),
+  endDate: new Date(),
 };
 
 // Refactor: nhận payrollUsecase, ticketUsecase từ ngoài vào
@@ -55,7 +55,7 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase
       let commonRequest: CommonRequest = {
           dateStart: get().startDate?.toYYYYMMDD('-'),
           dateEnd: get().endDate?.toYYYYMMDD('-'),
-          employeeId: employeeId??json?.employeeId??"",
+          employeeId: employeeId,
       }
       const result = await payrollUsecase.getPayroll(commonRequest);
       if(isSuccess(result)) {
@@ -71,7 +71,7 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase
       let commonRequest: CommonRequest = {
           dateStart: get().startDate?.toYYYYMMDD('-'),
           dateEnd: get().endDate?.toYYYYMMDD('-'),
-          employeeId: employeeId??json?.employeeId??"",
+          employeeId: '',
       }
       const result = await payrollUsecase.getPayrollOwner(commonRequest);
       if(isSuccess(result)) {
