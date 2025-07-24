@@ -331,7 +331,7 @@ export default function AppointmentScreen() {
           navigation.navigate(ROUTES.CREATE_APPOINTMENT as never);
         }}
       >
-        <XIcon name="appointment" width={28} height={28} color="#fff" />
+        <XIcon name="addAppointment" width={24} height={24} color="#fff" />
       </TouchableOpacity>
       <XBottomSheetSearch
         visible={visible}

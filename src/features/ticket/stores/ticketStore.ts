@@ -175,7 +175,7 @@ const parseHtmlToJson = (htmlString: string) => {
           } 
           else if (attribs.class === 'column-right') {
             parser.ontext = (text) => {
-              currentService.columnRight += text.trim();
+              currentService.columnRight = (currentService.columnRight??'')+ text.trim();
             };
           }
           else if (!attribs.class) {

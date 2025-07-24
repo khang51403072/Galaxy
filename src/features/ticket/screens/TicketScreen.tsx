@@ -14,6 +14,7 @@ import XRenderHTML from "@/shared/components/XRenderHTML";
 import XDateRangerSearch from "@/shared/components/XDateRangerSearch";
 import { appConfig } from "@/shared/utils/appConfig";
 import { WebView } from "react-native-webview";
+import { XSkeleton } from '../../../shared/components/XSkeleton';
 
 export default function  TicketScreen() {
   const {width} = useWindowDimensions();
@@ -46,16 +47,19 @@ export default function  TicketScreen() {
       setJson(user);
     });
   }, []);
-  const dashed = <View
-    style={{
-      flexDirection: 'row',
-      borderBottomWidth: 1,
-      borderColor: theme.colors.gray800,
-      borderStyle: 'dashed',
-      marginVertical: 16,
-      width: '100%',
-    }}
-  />
+  const Dashed = () => (
+    <View
+      style={{
+        flexDirection: 'row',
+        borderWidth: 1,
+        borderColor: theme.colors.gray600,
+        borderStyle: 'dashed',
+        marginVertical: 16,
+        width: '100%',
+        // height: 1,
+      }}
+    />
+  );
 
   // Hàm renderItem nhận đầu vào là html
   const renderItem =  ({ item }: { item: WorkOrderEntity }) =>
@@ -67,9 +71,16 @@ export default function  TicketScreen() {
       padding: theme.spacing.md, borderRadius: theme.spacing.md, ...theme.shadows.sm}}>
         <XText variant="contentTitle">{(item.detail as any).title}</XText>
         <XText variant="content400">{item.detail.time}</XText>
-        {dashed}
-        <XText variant="contentTitle">{item.detail.services.map((service: any) => service.name).join(', ')}</XText>
-        {dashed}
+        <Dashed />
+        <View style={{flexDirection: 'column', justifyContent: 'space-between'}}>
+          {item.detail.services.map((service: any) => (
+            <View key={service.id} style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <XText numberOfLines={2} variant="content400" style={{width: '80%'}}>{service.name}</XText>
+              <XText numberOfLines={1} variant="content400">{service.columnRight}</XText>
+            </View>
+          ))}
+        </View>
+        <Dashed />
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <XText variant="content300">Service Deductions</XText>
           <XText variant="content300">{item.detail.ServiceDeductions}</XText>
@@ -86,8 +97,38 @@ export default function  TicketScreen() {
       return (view) 
       
     } ;
+
+// TicketSkeleton component
+const TicketSkeleton = () => {
+  const theme = useTheme();
   return (
-    <XScreen title="Tickets" loading={isLoading} error={error} style={{ flex: 1 }}> 
+    <View style={{ padding: 16 }}>
+      {[...Array(5)].map((_, idx) => (
+        <View key={idx} style={{ marginBottom: 16, backgroundColor: theme.colors.white, borderRadius: theme.spacing.md, ...theme.shadows.sm, padding: theme.spacing.md }}>
+          <XSkeleton width={120} height={18} style={{ marginBottom: 8 }} />
+          <XSkeleton width={80} height={14} style={{ marginBottom: 8 }} />
+          <XSkeleton width={'100%'} height={1} style={{ marginBottom: 8 }} />
+          <XSkeleton width={180} height={14} style={{ marginBottom: 8 }} />
+          <XSkeleton width={'100%'} height={1} style={{ marginBottom: 8 }} />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+            <XSkeleton width={100} height={12} />
+            <XSkeleton width={60} height={12} />
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+            <XSkeleton width={100} height={12} />
+            <XSkeleton width={60} height={12} />
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <XSkeleton width={100} height={12} />
+            <XSkeleton width={60} height={12} />
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+};
+  return (
+    <XScreen title="Tickets" loading={false} error={error} style={{ flex: 1 }}> 
       {/* View header */}
       <View style={{ flexDirection: 'column', paddingTop: theme.spacing.md, borderBottomWidth: 1, borderBottomColor: theme.colors.border, paddingBottom: theme.spacing.sm,}}>
       {json?.isOwner ? 
@@ -114,13 +155,17 @@ export default function  TicketScreen() {
           }}
         />
       </View>
-      <FlatList
-        data={json?.isOwner ? workOrderOwners : workOrders}
-        keyExtractor={(item, idx) => item.ticketNumber?.toString()+ idx.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={{ padding: 16, gap: 16 }}
-        ListEmptyComponent={isFirstLoad ? null : <XNoDataView />}
-      />
+      {isLoading ? (
+        <TicketSkeleton />
+      ) : (
+        <FlatList
+          data={json?.isOwner ? workOrderOwners : workOrders}
+          keyExtractor={(item, idx) => item.ticketNumber?.toString()+ idx.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={{ padding: 16, gap: 16 }}
+          ListEmptyComponent={isFirstLoad ? null : <XNoDataView />}
+        />
+      )}
       <XBottomSheetSearch
         visible={visible}
         onClose={() => {
