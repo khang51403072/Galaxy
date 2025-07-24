@@ -12,4 +12,5 @@ export interface UpdateProfileRequest {
 export interface ChangePasswordRequest {
   employeeId: string;
   newPassword: string;
+  oldPassword: string;
 }

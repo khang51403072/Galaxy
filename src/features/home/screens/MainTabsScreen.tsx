@@ -18,6 +18,7 @@ export default function MainTabsScreen() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
+        
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.textInputPlaceholder,
         tabBarLabelStyle: { fontSize: 12 },

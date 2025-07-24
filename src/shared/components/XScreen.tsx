@@ -198,6 +198,7 @@ export default function XScreen({
         contentContainerStyle={[
           styles.scrollContent,
           {
+            backgroundColor: backgroundColor||theme.colors.background,
             paddingBottom: safeArea ? insets.bottom + (haveBottomTabBar || onSave || onCancel ? 80 : 0) : 0,
           }
         ]}
