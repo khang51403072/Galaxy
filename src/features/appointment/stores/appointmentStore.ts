@@ -11,12 +11,14 @@ export type AppointmentState = {
     isLoading: boolean;
     error: string | null;
     selectedDate: Date;
+    selectedEmployee: EmployeeEntity | null;
     appointmentList: AppointmentEntity[];
     json: KeychainObject | null;
     companyProfile: CompanyProfileResponse | null;
     getAppointmentList: () => Promise<Result<AppointmentEntity[], Error>>;
     getAppointmentListOwner: () => Promise<Result<AppointmentEntity[], Error>>;
     getCompanyProfile: () => Promise<Result<CompanyProfileResponse, Error>>;
+    setSelectedEmployee: (employee: EmployeeEntity) => void;
 }
 
 export const appointmentSelectors = {
@@ -29,6 +31,8 @@ export const appointmentSelectors = {
     selectJson: (state: AppointmentState) => state.json,
     selectCompanyProfile: (state: AppointmentState) => state.companyProfile,
     selectGetCompanyProfile: (state: AppointmentState) => state.getCompanyProfile,
+    selectSelectedEmployee: (state: AppointmentState) => state.selectedEmployee,
+    selectSetSelectedEmployee: (state: AppointmentState) => state.setSelectedEmployee,
 }
 
 // Refactor: nhận appointmentUsecase từ ngoài vào
@@ -39,6 +43,10 @@ export const createAppointmentStore = (usecase: AppointmentUsecase): StateCreato
     appointmentList: [],
     json: null,
     companyProfile: null,
+    selectedEmployee: null,
+    setSelectedEmployee: (employee: EmployeeEntity) => {
+        set({ selectedEmployee: employee });
+    },
     getAppointmentList: async (): Promise<Result<AppointmentEntity[], Error>> => {
         set({ isLoading: true });
         const employeeId = get().json?.employeeId ?? "";
@@ -60,6 +68,7 @@ export const createAppointmentStore = (usecase: AppointmentUsecase): StateCreato
         const request: CommonRequest = {
             dateStart: get().selectedDate?.toYYYYMMDD('-'),
             dateEnd: get().selectedDate?.toYYYYMMDD('-'),
+            employeeId: get().selectedEmployee?.id ?? "",
         }
         const response = await usecase.getAppointmentListOwner(request);
         if (isSuccess(response)) {
@@ -83,5 +92,6 @@ export const createAppointmentStore = (usecase: AppointmentUsecase): StateCreato
 
 // Khởi tạo real usecase ở production
 import { AppointmentRepositoryImplement } from "../repositories/AppointmentRepositoryImplement";
+import { EmployeeEntity } from "@/features/ticket/types/TicketResponse";
 const realAppointmentUsecase = new AppointmentUsecase(new AppointmentRepositoryImplement());
 export const useAppointmentStore = create<AppointmentState>()(createAppointmentStore(realAppointmentUsecase)); 

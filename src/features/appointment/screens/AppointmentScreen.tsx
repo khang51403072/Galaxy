@@ -6,7 +6,8 @@ import XScreen from "../../../shared/components/XScreen";
 import XIcon, { iconMap } from "../../../shared/components/XIcon";
 import {  useAppointmentStore, appointmentSelectors, AppointmentState } from "../stores/appointmentStore";
 import XText from "../../../shared/components/XText";
-import { getAppointmentDateTime, getServiceName, AppointmentEntity } from "../types/AppointmentResponse";
+import { getAppointmentDateTime, getServiceName, AppointmentEntity, getDisplayName } from "../types/AppointmentResponse";
+import { EmployeeEntity, getDisplayName as getDisplayNameEmployee } from "@/features/ticket/types/TicketResponse";
 import CustomTabBar from "@/shared/components/CustomTabBar";
 import { SceneMap, TabView } from "react-native-tab-view";
 import XCalendarStrip from "@/shared/components/XCalendarStrip";
@@ -16,6 +17,9 @@ import { appConfig } from "@/shared/utils/appConfig";
 import XNoDataView from "@/shared/components/XNoDataView";
 import { spacing } from "@/shared/theme";
 import AppointmentItemSkeleton from "../components/AppointmentItemSkeleton";
+import XInput from "@/shared/components/XInput";
+import XBottomSheetSearch from "@/shared/components/XBottomSheetSearch";
+import { employeeSelectors, useEmployeeStore } from "@/shared/stores/employeeStore";
 
 export default function AppointmentScreen() {
   const theme = useTheme();
@@ -28,7 +32,9 @@ export default function AppointmentScreen() {
     getAppointmentList,
     getAppointmentListOwner,
     getCompanyProfile,
-    json
+    json,
+    selectedEmployee,
+    setSelectedEmployee,
   } = useAppointmentStore(
     useShallow((state: AppointmentState) => ({
       isLoading: appointmentSelectors.selectIsLoading(state),
@@ -38,10 +44,13 @@ export default function AppointmentScreen() {
       appointmentList: appointmentSelectors.selectAppointmentList(state),
       getAppointmentList: appointmentSelectors.selectGetAppointmentList(state),
       getAppointmentListOwner: appointmentSelectors.selectGetAppointmentListOwner(state),
-      getCompanyProfile: appointmentSelectors.selectGetCompanyProfile(state)
+      getCompanyProfile: appointmentSelectors.selectGetCompanyProfile(state),
+      selectedEmployee: appointmentSelectors.selectSelectedEmployee(state),
+      setSelectedEmployee: appointmentSelectors.selectSetSelectedEmployee(state),
     }))
   );
-
+  const [visible, setVisible] = useState(false);
+  const employees = useEmployeeStore(employeeSelectors.selectEmployees);
   useEffect(() => {
     loadKeychainData();
    
@@ -52,6 +61,7 @@ export default function AppointmentScreen() {
       const keychainData = await appConfig.getUser();
       useAppointmentStore.setState({ json: keychainData });
       getCompanyProfile();
+      loadData();
     } catch (error) {
       console.error('Error loading keychain data:', error);
     }
@@ -198,7 +208,13 @@ export default function AppointmentScreen() {
       );
     },
   });
-  
+  const loadData = async () => {
+    if(json?.isOwner){
+      await getAppointmentListOwner();
+    }else{
+      await getAppointmentList();
+    }
+  }
   const layout = useWindowDimensions();
   const colorMapText: { [key: string]: string } = {
     all: theme.colors.primary,
@@ -212,19 +228,27 @@ export default function AppointmentScreen() {
     checkin: theme.colors.cyan200,
     checkout: theme.colors.primary200,
   }
+  // Render employee picker
+  const employeePicker = 
+  <TouchableOpacity style={{marginTop: theme.spacing.md}} onPress={async () => {
+    setVisible(true);
+  }}>
+    <XInput value={selectedEmployee != null ? getDisplayNameEmployee(selectedEmployee) : ""} editable={false} placeholder="Choose Technician"  label="Technician" pointerEvents="none"/>
+  </TouchableOpacity>
   return (
     <XScreen 
       title="Appointment" 
       error={error} 
       style={{ flex: 1}} 
-      paddingHorizontal={0}
+      paddingHorizontal={16}
       backgroundColor={theme.colors.background}
     > 
+      {json?.isOwner && employeePicker}
       <XCalendarStrip
         value={selectedDate}
         onChange={(date) => {
             useAppointmentStore.setState({ selectedDate: date })
-            getAppointmentList()
+            loadData();
         }}
       />
       
@@ -309,6 +333,22 @@ export default function AppointmentScreen() {
       >
         <XIcon name="appointment" width={28} height={28} color="#fff" />
       </TouchableOpacity>
+      <XBottomSheetSearch
+        visible={visible}
+        onClose={() => {
+          setVisible(false);
+        }}
+        data={employees}
+        onSelect={(item) => {
+          setSelectedEmployee(item);
+        }}
+        placeholder="Search..."
+        title="Technician "
+      /> 
     </XScreen>
   );
 } 
+
+function fetchEmployees() {
+  throw new Error("Function not implemented.");
+}

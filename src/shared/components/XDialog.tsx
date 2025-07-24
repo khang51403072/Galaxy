@@ -48,6 +48,7 @@ export default function XDialog({
               onPress={onCancel}
               backgroundColor={colorCancel || theme.colors.gray200}
               style={styles.button}
+              defaultTextColor={theme.colors.gray700}
               useGradient={false}
             />
             <XButton
@@ -80,6 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 2,
+    marginHorizontal: 16,
   },
   dialog: {
     minWidth: 280,

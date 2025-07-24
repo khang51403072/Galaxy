@@ -65,7 +65,13 @@ export const createTicketStore = (ticketUsecase: TicketUsecase): StateCreator<Ti
             dateEnd: get().endDate.toYYYYMMDD('-'),
         });
         if(isSuccess(result)) {
-            set({ workOrders: result.value });
+            const workOrders = await Promise.all(result.value.map(async (item)=>{
+                const json = await parseHtmlToJson(item.detail);
+                item.detail = json;
+                return item;
+              }))
+            
+            set({ workOrders: workOrders });
         } else {
             set({ error: result.error });
         }
@@ -86,7 +92,13 @@ export const createTicketStore = (ticketUsecase: TicketUsecase): StateCreator<Ti
             dateEnd: get().endDate.toYYYYMMDD('-'),
         });
         if(isSuccess(result)) {
-            set({ workOrderOwners: result.value });
+            const workOrders = await Promise.all(result.value.map(async (item)=>{
+                const json = await parseHtmlToJson(item.detail);
+                item.detail = json;
+                return item;
+              }))
+            
+            set({ workOrderOwners: workOrders });
         } else {
             set({ error: result.error });
         }
@@ -107,5 +119,144 @@ import { useHomeStore } from "@/features/home/stores/homeStore";
 const realTicketUsecase = new TicketUsecase(new TicketRepositoryImplement(TicketApi));
 export const useTicketStore = create<TicketState>()(createTicketStore(realTicketUsecase));
 
+import { Parser } from 'htmlparser2';
 
+interface Service {
+  qtyLeft?: string;
+  columnRight?: string;
+  name?: string;
+}
+
+// Hàm chuyển đổi HTML sang JSON
+const parseHtmlToJson = (htmlString: string) => {
+  return new Promise((resolve, reject) => {
+    const jsonResult = {
+      title: '',
+      time: '',
+      services: [] as Service[],
+      ServiceDeductions: '',
+      NonCashTip: '',
+      Total: '',
+    };
+
+    let currentService: Service = {};
+    let currentSummary: Service = {};
+    let isInServicesTable = false;
+    let isInSummaryTable = false;
+    let countTable = 0;
+    const parser = new Parser({
+      onopentag(name, attribs) {
+        if (name === 'div' && attribs.class === 'ticket-name') {
+          parser.ontext = (text) => {
+            jsonResult.title += " "+text.trim();
+          };
+        }
+        if (name === 'div' && attribs.class === 'time') {
+          parser.ontext = (text) => {
+            jsonResult.time += text.trim();
+          };
+        }
+        if (name === 'table' && attribs.class === 'table-work-order') {
+          countTable++;
+          if (!isInServicesTable&& countTable == 1) {
+            isInServicesTable = true;
+          } else if (!isInSummaryTable&& countTable == 2) {
+            isInSummaryTable = true;
+          }
+        }
+        if (countTable == 1 && isInServicesTable && name === 'tr') {
+          currentService = {};
+        }
+        if (countTable == 1 && isInServicesTable && name === 'td') {
+          if (attribs.class === 'qty-left') {
+            parser.ontext = (text) => {
+              currentService.qtyLeft += text.trim();
+            };
+          } 
+          else if (attribs.class === 'column-right') {
+            parser.ontext = (text) => {
+              currentService.columnRight += text.trim();
+            };
+          }
+          else if (!attribs.class) {
+            parser.ontext = (text) => {
+              currentService.name = (currentService.name??'')+ text.trim();
+            };
+          } 
+        }
+
+        if (countTable == 2 && isInSummaryTable && name === 'tr') {
+          currentSummary = {};
+        }
+        if (countTable == 2 && isInSummaryTable && name === 'td') {
+          if (attribs.class === 'qty-left') {
+            parser.ontext = (text) => {
+              currentSummary.qtyLeft += text.trim();
+            };
+          } 
+          else if (attribs.class === 'column-right') {
+            parser.ontext = (text) => {
+              currentSummary.columnRight = (currentSummary.columnRight??'')+ text.trim();
+            };
+          }
+          else if (!attribs.class) {
+            parser.ontext = (text) => {
+              currentSummary.name = (currentSummary.name??'')+ text.trim();
+            };
+          } 
+          
+        }
+        // if (isInSummaryTable && name === 'tr') {
+        //   let summaryKey = '';
+        //   parser.ontext = (text) => {
+        //     const trimmedText = text.trim();
+        //     if (trimmedText) {
+        //       if (!summaryKey) {
+        //         summaryKey = trimmedText.replace(/\s/g, '');
+        //       } else {
+        //         jsonResult[summaryKey as keyof typeof jsonResult] = trimmedText as never;
+        //         summaryKey = '';
+        //       }
+        //     }
+        //   };
+        // }
+      },
+      onclosetag(name) {
+        if (isInServicesTable && name === 'tr') {
+          if (currentService.qtyLeft && currentService.name && currentService.columnRight) {
+            jsonResult.services.push(currentService as never);
+          }
+          
+        }
+        if (isInSummaryTable && name === 'tr' && currentSummary.name && currentSummary.columnRight) {
+          if(currentSummary.name.includes('Deductions')){
+            jsonResult.ServiceDeductions = currentSummary.columnRight;
+          }
+          else if(currentSummary.name.includes('Tip')){
+            jsonResult.NonCashTip = currentSummary.columnRight;
+          }
+          else if(currentSummary.name.includes('Total')){
+            jsonResult.Total = currentSummary.columnRight;
+          }
+        }
+        if (name === 'table') {
+          if (isInServicesTable) {
+            isInServicesTable = false;
+          } else if (isInSummaryTable) {
+            isInSummaryTable = false;
+          }
+        }
+      },
+      onend() {
+        resolve(jsonResult);
+      },
+      onerror(error) {
+        reject(error);
+      },
+    });
+
+    parser.write(htmlString);
+    parser.end();
+  });
+};
 

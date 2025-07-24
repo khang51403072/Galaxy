@@ -44,6 +44,7 @@ export const createAuthStore = (authUseCase: AuthUseCase) => (set: any, get: any
     }
     set(user);
     await appConfig.saveUser( user);
+    await appConfig.saveAutoLogin(true);
   },
   login: async (email: string, password: string): Promise<Result<LoginResult, AuthError>> => {
     set({ isLoading: true });

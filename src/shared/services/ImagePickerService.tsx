@@ -30,11 +30,11 @@ import {
   
     if (status === RESULTS.BLOCKED) {
       Alert.alert(
-        'Quyền bị từ chối',
-        'Vui lòng mở Cài đặt và cấp quyền truy cập.',
+        'Permission denied',
+        'Please open settings and grant access.',
         [
-          { text: 'Huỷ' },
-          { text: 'Mở Cài đặt', onPress: () => openSettings() },
+          { text: 'Cancel' },
+          { text: 'Open settings', onPress: () => openSettings() },
         ]
       );
       return false;

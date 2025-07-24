@@ -13,14 +13,17 @@ import XAvatar from '../../../shared/components/XAvatar';
 import { checkBiometricAvailable, simpleBiometricAuth } from '../../../shared/services/BiometricService';
 import { reset } from '@/app/NavigationService';
 import { appConfig } from '@/shared/utils/appConfig';
+import XDialog from '@/shared/components/XDialog';
 
 export default function LoginScreen() {
   const { login, isLoading, error } = useAuthStore();
   const theme = useTheme();
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [isShowUsername, setIsShowUsername] = useState(true);
+  const [isShowBiometric, setIsShowBiometric] = useState(false);
   const [fullName, setFullName] = useState('');
   const [avatarUri, setAvatarUri] = useState(null);
+  const [isShowDialog, setIsShowDialog] = useState(false);
   const fields: XFormField[] = [
     {
       name: 'username',
@@ -79,9 +82,14 @@ export default function LoginScreen() {
   const handleFaceIdLogin = useCallback(async () => {
     const json = await appConfig.getUser();
     const useBiometric = await appConfig.getUseBiometric();
-    if (!useBiometric) return;
-    if (json) {
-      handleLogin({ username: json.userName, password: json.password });
+    
+    if (json&&useBiometric) {
+      const result = await simpleBiometricAuth();
+      if(result) {        
+        handleLogin({ username: json.userName, password: json.password });
+      }
+      
+      
     } 
     return;
   }, [login]);
@@ -92,10 +100,6 @@ export default function LoginScreen() {
       reset([{ name: ROUTES.HOME }], 0);
     }
     else{
-      setDefaultValues({
-        username: data.username,
-        password: data.password,
-      });
       useAuthStore.setState({ error: loginResult.error?.message });
     }
   }, [login]);
@@ -105,6 +109,9 @@ export default function LoginScreen() {
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     useAuthStore.setState({ isLoading: true });
+    appConfig.getUseBiometric().then(useBiometric => {
+      setIsShowBiometric(useBiometric || false);
+    });
     appConfig.getUser().then(json => {
       if(json!=null && json.userName!=null) {
         setIsShowUsername(false);
@@ -114,13 +121,19 @@ export default function LoginScreen() {
           });
         setFullName(json?.firstName + ' ' + json?.lastName);
         setAvatarUri(json?.avatarUri || null);
-        //  timeout = setTimeout(() => {
-        //   handleFaceIdLogin();
-        // }, 500);
+
+        timeout = setTimeout(() => {
+          appConfig.getAutoLogin().then(autoLogin => {
+          console.log('autoLogin', autoLogin);
+          if(autoLogin) {
+            handleFaceIdLogin();
+          }
+        });
+        }, 500);
       }
       useAuthStore.setState({ isLoading: false });
     });
-    // return () => clearTimeout(timeout);
+    return () => clearTimeout(timeout);
   }, []);
 
   const backgroundLogo = <XIcon
@@ -137,7 +150,7 @@ export default function LoginScreen() {
   />
   const faceIdLoginButton = 
   <TouchableOpacity onPress={handleFaceIdLogin}>
-    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
+    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
       <View style={{padding: 10, backgroundColor: theme.colors.buttonFaceID, borderRadius: 10}}>
         <XIcon name="faceID" height={20} width={20} color="#999" />
       </View>
@@ -148,23 +161,21 @@ export default function LoginScreen() {
   </TouchableOpacity>
 
 const useAnotherUser = 
+<View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
+ 
+  <XText variant="signInFaceID" style={{ color: theme.colors.gray700 }}>
+    Use another account?
+  </XText>
   <TouchableOpacity onPress={()=>{
-    setFullName('');
-    setDefaultValues({
-      username: '',
-      password: '',
-    });
-    setIsShowUsername(true);
+    setIsShowDialog(true);
   }}>
-  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
-    <View style={{padding: 10, backgroundColor: theme.colors.buttonFaceID, borderRadius: 10}}>
-      <XIcon name="faceID" height={20} width={20} color="#999" />
-    </View>
-    <XText variant="signInFaceID" style={{ marginLeft: 10 }}>
-      Use another user
+    <XText variant="signInFaceID" style={{ color: theme.colors.primary, marginLeft: 10 }}>
+      Switch user
     </XText>
-  </View>
-</TouchableOpacity>
+  </TouchableOpacity>
+  
+</View>
+  
   const avatarAndImage = 
   <View style={{ alignItems: 'center', marginBottom: 20, flexDirection: 'column' }}>
     <XAvatar
@@ -185,11 +196,12 @@ const useAnotherUser =
   const loginForm = 
   <XForm 
     fields={fields} 
-    style={{width: '100%', gap: theme.spacing.md}} 
-    onSubmit={handleLogin} 
-
+    style={{width: '100%', gap: theme.spacing.md, backgroundColor: theme.colors.white}} 
+    onSubmit={(values)=>{
+      setDefaultValues(values);
+      handleLogin(values);
+    }} 
     defaultValues={defaultValues} 
-    // maxHeight={isShowUsername ? "30%" : "20%"} 
     scrollEnabled={false}
   />
   
@@ -213,11 +225,30 @@ const useAnotherUser =
         {appName}
         {fullName!='' && avatarAndImage}        
         {loginForm}
-        {fullName!='' && faceIdLoginButton}
+        {fullName!='' && isShowBiometric && faceIdLoginButton}
         {fullName!='' && useAnotherUser}
       </View>  
       {backgroundLogo}
-      
+      <XDialog
+      onCancel={()=>{
+        setIsShowDialog(false);
+      }}
+      title='Switch User' textCancel='No' textConfirm='Yes' 
+      onConfirm={()=>{
+        setIsShowDialog(false);
+        setFullName('');
+        setDefaultValues({
+          username: '',
+          password: '',
+        });
+        setIsShowUsername(true);
+      }}
+
+      visible={isShowDialog} content={<View>
+        <XText variant="content300" style={{ textAlign: 'center' }}>
+        {`Are you sure you want to\nswitch user?`}
+        </XText>
+      </View>} />
     </XScreen>
   );
 }
