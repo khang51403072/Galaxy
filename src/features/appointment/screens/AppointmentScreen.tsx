@@ -35,6 +35,7 @@ export default function AppointmentScreen() {
     json,
     selectedEmployee,
     setSelectedEmployee,
+    reset
   } = useAppointmentStore(
     useShallow((state: AppointmentState) => ({
       isLoading: appointmentSelectors.selectIsLoading(state),
@@ -47,11 +48,13 @@ export default function AppointmentScreen() {
       getCompanyProfile: appointmentSelectors.selectGetCompanyProfile(state),
       selectedEmployee: appointmentSelectors.selectSelectedEmployee(state),
       setSelectedEmployee: appointmentSelectors.selectSetSelectedEmployee(state),
+      reset: appointmentSelectors.selectReset(state),
     }))
   );
   const [visible, setVisible] = useState(false);
   const employees = useEmployeeStore(employeeSelectors.selectEmployees);
   useEffect(() => {
+    reset();
     loadKeychainData();
    
   }, []);
@@ -208,6 +211,8 @@ export default function AppointmentScreen() {
       );
     },
   });
+
+  
   const loadData = async () => {
     if(json?.isOwner){
       await getAppointmentListOwner();
@@ -216,44 +221,7 @@ export default function AppointmentScreen() {
     }
   }
   const layout = useWindowDimensions();
-  const colorMapText: { [key: string]: string } = {
-    all: theme.colors.primary,
-    new: theme.colors.skyBlue,
-    checkin: theme.colors.cyan,
-    checkout: theme.colors.primary600,
-  }
-  const colorMapBackground: { [key: string]: string } = {
-    all: theme.colors.primary200,
-    new: theme.colors.skyBlue200,
-    checkin: theme.colors.cyan200,
-    checkout: theme.colors.primary200,
-  }
-  // Render employee picker
-  const employeePicker = 
-  <TouchableOpacity style={{marginTop: theme.spacing.md}} onPress={async () => {
-    setVisible(true);
-
-  }}>
-    <XInput value={selectedEmployee != null ? getDisplayNameEmployee(selectedEmployee) : ""} editable={false} placeholder="Choose Technician" pointerEvents="none"/>
-  </TouchableOpacity>
-  return (
-    <XScreen 
-      title="Appointment" 
-      error={error} 
-      style={{ flex: 1}} 
-      paddingHorizontal={16}
-      backgroundColor={theme.colors.background}
-    > 
-      <XCalendarStrip
-        value={selectedDate}
-        onChange={(date) => {
-            useAppointmentStore.setState({ selectedDate: date })
-            loadData();
-        }}
-      />
-      {json?.isOwner && employeePicker}
-      
-      
+  const renderTabview =  
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
@@ -310,6 +278,46 @@ export default function AppointmentScreen() {
           />
         )}
       />
+  const colorMapText: { [key: string]: string } = {
+    all: theme.colors.primary,
+    new: theme.colors.skyBlue,
+    checkin: theme.colors.cyan,
+    checkout: theme.colors.primary600,
+  }
+  const colorMapBackground: { [key: string]: string } = {
+    all: theme.colors.primary200,
+    new: theme.colors.skyBlue200,
+    checkin: theme.colors.cyan200,
+    checkout: theme.colors.primary200,
+  }
+  // Render employee picker
+  const employeePicker = 
+  <TouchableOpacity style={{marginTop: theme.spacing.md}} onPress={async () => {
+    setVisible(true);
+
+  }}>
+    <XInput value={selectedEmployee != null ? getDisplayNameEmployee(selectedEmployee) : ""} editable={false} placeholder="Choose Technician" pointerEvents="none"/>
+  </TouchableOpacity>
+  return (
+    <XScreen 
+      title="Appointment" 
+      error={error} 
+      style={{ flex: 1}} 
+      paddingHorizontal={0}
+      backgroundColor={theme.colors.background}
+    > 
+      <XCalendarStrip
+        value={selectedDate}
+        onChange={(date) => {
+            useAppointmentStore.setState({ selectedDate: date })
+            loadData();
+        }}
+      />
+      <View style={{ paddingHorizontal: theme.spacing.md , flex:1}}>
+        {json?.isOwner && employeePicker}
+        {renderTabview}
+      </View>
+      
       {/* Floating Button */}
       <TouchableOpacity
         style={{
@@ -339,7 +347,6 @@ export default function AppointmentScreen() {
         visible={visible}
         onClose={() => {
           setVisible(false);
-
         }}
         data={employees}
         onSelect={(item) => {

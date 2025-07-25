@@ -36,6 +36,33 @@ export const XCalendarStrip: React.FC<XCalendarStripProps> = ({ value, onChange,
   const scrollRef = useRef<ScrollView>(null);
   const [displayMonth, setDisplayMonth] = useState(getStartOfWeek(value));
 
+  const styles = React.useMemo(() => StyleSheet.create({
+    container: {
+      alignItems: 'center',
+      backgroundColor: theme.colors.white,
+      marginHorizontal: 0,
+      paddingVertical: 8,
+      ...theme.shadows.sm,
+    },
+    weekRow: {
+      flexDirection: 'row',
+      width: '100%',
+      marginBottom: 4,
+    },
+    weekDay: {
+      textAlign: 'center',
+      color: '#6C6C6C',
+    },
+    dayCell: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      // width set inline
+      // height set by aspectRatio of parent row
+    },
+    dayText: {
+      color: '#464646',
+    },
+  }), [theme]);
   // Tìm tuần chứa ngày đang chọn
   const startOfWeek = getStartOfWeek(value);
 
@@ -147,31 +174,5 @@ export const XCalendarStrip: React.FC<XCalendarStripProps> = ({ value, onChange,
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    marginHorizontal: 0,
-    paddingVertical: 8,
-  },
-  weekRow: {
-    flexDirection: 'row',
-    width: '100%',
-    marginBottom: 4,
-  },
-  weekDay: {
-    textAlign: 'center',
-    color: '#6C6C6C',
-  },
-  dayCell: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    // width set inline
-    // height set by aspectRatio of parent row
-  },
-  dayText: {
-    color: '#464646',
-  },
-});
 
 export default XCalendarStrip; 
