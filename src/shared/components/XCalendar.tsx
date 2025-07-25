@@ -19,6 +19,8 @@ import {
   getDate,
   getDay,
   format,
+  startOfDay,
+  endOfDay,
 } from 'date-fns';
 import { useTheme } from '../theme';
 import { PanGestureHandler, PanGestureHandlerGestureEvent, State } from 'react-native-gesture-handler';
@@ -26,6 +28,8 @@ import { PanGestureHandler, PanGestureHandlerGestureEvent, State } from 'react-n
 export type XCalendarProps = {
   onSelect: (date: Date) => void;
   selected?: Date;
+  minDate?: Date;
+  maxDate?: Date;
 };
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -33,7 +37,7 @@ const NUM_COLUMNS = 7;
 const SWIPE_THRESHOLD = 20; // px
 const ANIMATION_DURATION = 220;
 
-export default function XCalendar({ onSelect, selected }: XCalendarProps) {
+export default function XCalendar({ onSelect, selected, minDate, maxDate }: XCalendarProps) {
   const [current, setCurrent] = useState(new Date());
   const { width: SCREEN_W } = Dimensions.get('window');
   const theme = useTheme();
@@ -62,8 +66,10 @@ export default function XCalendar({ onSelect, selected }: XCalendarProps) {
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: theme.spacing.sm,
-        width: calendarWidth / 2,
         alignSelf: 'center',
+        width: '60%',
+        minWidth: 200,
+        maxWidth: 400,
       },
       headerText: {
         fontSize: 16,
@@ -76,7 +82,7 @@ export default function XCalendar({ onSelect, selected }: XCalendarProps) {
       weekdays: {
         flexDirection: 'row',
         marginBottom: gap,
-        width: calendarWidth,
+        width: '100%',
         alignSelf: 'center',
       },
       weekdayText: {
@@ -88,7 +94,7 @@ export default function XCalendar({ onSelect, selected }: XCalendarProps) {
       },
       weekRow: {
         flexDirection: 'row',
-        width: calendarWidth,
+        width: '100%',
         alignSelf: 'center',
       },
       cell: {
@@ -125,6 +131,12 @@ export default function XCalendar({ onSelect, selected }: XCalendarProps) {
     return result;
   }, [current]);
 
+  const isDateDisabled = (date: Date) => {
+    if (minDate && date < startOfDay(minDate)) return true;
+    if (maxDate && date > endOfDay(maxDate)) return true;
+    return false;
+  };
+
   // Render cell (memoized)
   const renderCell = useCallback(
     (date: Date | null, index: number) => {
@@ -134,10 +146,11 @@ export default function XCalendar({ onSelect, selected }: XCalendarProps) {
       const dateStr = format(date, 'yyyy-MM-dd');
       const isToday = dateStr === format(new Date(), 'yyyy-MM-dd');
       const isSelected = selected && dateStr === format(selected, 'yyyy-MM-dd');
+      const disabled = isDateDisabled(date);
       return (
         <TouchableOpacity
           key={index}
-          onPress={() => onSelect(date)}
+          onPress={() => !disabled && onSelect(date)}
           style={[
             styles.cell,
             isToday && {
@@ -149,8 +162,9 @@ export default function XCalendar({ onSelect, selected }: XCalendarProps) {
               backgroundColor: theme.colors.primary,
               borderRadius: theme.borderRadius.full,
             },
+            disabled && { opacity: 0.3 },
           ]}
-          activeOpacity={0.7}
+          activeOpacity={disabled ? 1 : 0.7}
           accessibilityLabel={
             isToday
               ? isSelected
@@ -161,6 +175,7 @@ export default function XCalendar({ onSelect, selected }: XCalendarProps) {
               : `Ngày ${getDate(date)}`
           }
           accessibilityRole="button"
+          disabled={disabled}
         >
           <Text
             style={[
@@ -173,7 +188,7 @@ export default function XCalendar({ onSelect, selected }: XCalendarProps) {
         </TouchableOpacity>
       );
     },
-    [selected, onSelect, styles, theme]
+    [selected, onSelect, styles, theme, minDate, maxDate]
   );
 
   // Render header
