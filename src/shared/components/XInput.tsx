@@ -61,7 +61,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
         borderRadius: 8,
         paddingHorizontal: 12,
         paddingVertical: 8,
-        backgroundColor: '#fff',
+        backgroundColor: theme.colors.background,
       },
       iconLeft: {
         marginRight: ICON_MARGIN_HORIZONTAL,

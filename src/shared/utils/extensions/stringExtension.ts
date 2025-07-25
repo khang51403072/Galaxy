@@ -2,9 +2,13 @@ declare global {
   interface String {
     dateOfMonth(): number;
     formatPhoneNumber(): string
+    toDDMMYYYY(divider?: string): string;
   }
 }
-
+String.prototype.toDDMMYYYY = function(divider?: string): string {
+  const date = new Date(this.toString());
+  return date.toDDMMYYYY(divider);
+};
 // Extend String prototype
 String.prototype.dateOfMonth = function(): number {
   try {

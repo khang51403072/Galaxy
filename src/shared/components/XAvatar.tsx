@@ -75,7 +75,7 @@ export default function XAvatar({
   const handlePress = () => {
     if (!editable || !onPickImage) return;
     
-    const options = ['Chụp ảnh', 'Chọn từ thư viện', 'Huỷ'];
+    const options = ['Take photo', 'Choose from library', 'Cancel'];
     const cancelButtonIndex = 2;
 
     showActionSheetWithOptions(
@@ -91,12 +91,8 @@ export default function XAvatar({
   };
   return (
     <View style={styles.container}>
-      <TouchableOpacity 
-        onPress={handlePress} 
-        activeOpacity={editable ? 0.8 : 1}
-        disabled={!editable}
-      >
-        <View style={[styles.avatarWrapper, avatarSize]}>
+      
+      <View style={[styles.avatarWrapper, avatarSize]}>
           {uri!=undefined ? (
             <View style={[styles.imageContainer, avatarSize]}>
               <Image 
@@ -117,11 +113,13 @@ export default function XAvatar({
             </View>
           )}
         </View>
-      </TouchableOpacity>
-      
       {/* Edit indicator - đặt ngoài avatar */}
       {editable && (
-        <View style={[
+        <TouchableOpacity 
+        onPress={handlePress} 
+        activeOpacity={editable ? 0.8 : 1}
+        disabled={!editable}
+        style={[
           styles.editIndicator, 
           { 
             width: size * 0.3, 
@@ -129,14 +127,15 @@ export default function XAvatar({
             right: size * 0.05,
             bottom: size * 0.05,
           }
-        ]}>
-          <XIcon 
+        ]}
+      >
+        <XIcon 
             name="camera" 
             color="#FFF" 
             width={size * 0.15} 
             height={size * 0.15} 
-          />
-        </View>
+        />
+      </TouchableOpacity>
       )}
     </View>
   );

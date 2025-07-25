@@ -14,7 +14,7 @@ export default function XDivider({ color = '#E0E0E0', thickness = 1, spacing = 1
       style={{
         height: thickness,
         backgroundColor: color,
-        marginVertical: spacing,
+        // marginVertical: spacing,
         width: '100%',
       }}
     />

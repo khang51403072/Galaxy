@@ -62,36 +62,36 @@ export const typography = {
   // Button text
   buttonText: {
     fontFamily: Fonts.Outfit500,
-    fontSize: 14,
+    fontSize: 17,
     lineHeight: 20,
-    letterSpacing: 0.14,
+    letterSpacing: 0.17,
   },
 
   // Content text
   contentTitle: {
     fontFamily: Fonts.Outfit500,
-    fontSize: 16,
+    fontSize: 20,
     lineHeight: 20,
     letterSpacing: 0.14,
   },
   content300: {
     fontFamily: Fonts.Outfit300,
-    fontSize: 14,
+    fontSize: 17,
     lineHeight: 20,
-    letterSpacing: 0.14,
+    letterSpacing: 0.17,
   },
   content400: {
     fontFamily: Fonts.Outfit400,
-    fontSize: 14,
+    fontSize: 17,
     lineHeight: 20,
-    letterSpacing: 0.14,
+    letterSpacing: 0.17,
   },
 
   // Tab bar
   tabBar: {
     fontFamily: Fonts.Outfit400,
     fontSize: 12,
-    lineHeight: 16,
+    lineHeight: 20,
     letterSpacing: 0.12,
   },
   signInFaceID: {

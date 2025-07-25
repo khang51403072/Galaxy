@@ -110,9 +110,13 @@ const createAppointmentCreator = (set: any, get:any) => ({
     set({ isLoading: false });
     return result; 
   },
-  getCustomerLookup: async (pageNumber: number = 1, pageSize: number = 10, phoneNumber: string = '') => {
+  getCustomerLookup: async (pageNumber: number = 1, pageSize: number = 10000, phoneNumber: string = '') => {
     set({ isLoading: true });
-    const payload: CustomerPayload = {
+    if(get().customerList?.length > 0){
+      set({ isLoading: false });
+      return success(get().customerList)
+    }
+      const payload: CustomerPayload = {
       pageNumber,
       pageSize,
       phoneNumber: phoneNumber,
@@ -142,7 +146,7 @@ const createAppointmentCreator = (set: any, get:any) => ({
       set({ isLoading: false });
       return Promise.resolve(failure(new Error(get().error)));
     }
-    ///continue save
+    //continue save
     const payloadSave: ApptPayload = {
       id: "",
       apptDate: get().selectedDate.toYYYYMMDD("-"),
