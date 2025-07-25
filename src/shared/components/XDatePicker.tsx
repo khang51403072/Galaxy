@@ -26,11 +26,13 @@ type Props = {
   onChange: (d: Date) => void;
   placeholder?: string;
   style?: any;
-  label?: string
+  label?: string;
+  minDate?: Date;
+  maxDate?: Date;
 };
 
 export function XDatePicker({
-  mode='date', value, onChange, placeholder='Chọn...', label,style
+  mode='date', value, onChange, placeholder='Chọn...', label, style, minDate, maxDate
 }: Props) {
   const touchableRef = useRef<any>(null);
   const [show, setShow] = useState(false);
@@ -86,7 +88,7 @@ export function XDatePicker({
         backgroundStyle={{ backgroundColor: 'rgba(0,0,0,0.1)' }}
         onCloseComplete={unregisterPopover}
       >
-        <View style={{ width: mode =='date'? SW - 16 * 2:SW/2 - 16 * 2, maxHeight: POPUP_H }}>
+        <View style={{ maxWidth: SW - 16, minWidth: 280, maxHeight: POPUP_H }}>
           {(mode==='date' || mode==='datetime') && (
             <XCalendar
               selected={temp}
@@ -94,11 +96,13 @@ export function XDatePicker({
                 if(mode==='date'){
                   onChange(d);
                   setTemp(d)
-                  
+                  setShow(false);
                 } else {
                   setTemp(d);
                 }
               }}
+              minDate={minDate}
+              maxDate={maxDate}
             />
           )}
           {(mode==='time' || mode==='datetime') && (

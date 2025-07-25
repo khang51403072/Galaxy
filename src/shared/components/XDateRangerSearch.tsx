@@ -31,12 +31,14 @@ const XDateRangerSearch: React.FC<Props> = ({
         value={fromDate}
         onChange={onFromChange}
         style={styles.datePicker}
+        maxDate={toDate}
       />
       <XDatePicker
         label={labelTo}
         value={toDate}
         onChange={onToChange}
         style={[styles.datePicker, { width: '40%' }]}
+        minDate={fromDate}
       />
       <TouchableOpacity
         style={styles.searchBtn}
