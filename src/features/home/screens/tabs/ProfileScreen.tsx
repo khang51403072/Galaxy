@@ -174,8 +174,8 @@ export default function ProfileScreen() {
       </LinearGradient>
       
       {/* Content Section */}
-      <View style={{ width: '100%', paddingHorizontal: 16 }}>
-        <TitleGroup titleIcon="Edit" title="Information" icon="pen" onPress={() => {
+      <View style={{ width: '100%', paddingHorizontal: theme.spacing.md, gap: theme.spacing.sm, paddingTop: theme.spacing.md }}>
+        <TitleGroup  titleIcon="Edit" title="Information" icon="pen" onPress={() => {
           navigate(ROUTES.UPDATE_PROFILE)
           }
         } type="edit"/>
@@ -195,7 +195,7 @@ export default function ProfileScreen() {
         <XDivider />
 
         <TitleGroup title="Work Details" onPress={() => {}} />
-        <RowInfo titleLeft="Start Date" titleRight={profile?.startDate || 'Loading...'} />
+        <RowInfo titleLeft="Start Date" titleRight={ (profile?.startDate?.toDDMMYYYY("/") || 'Loading...')} />
         <RowInfo titleLeft="Income" titleRight={getFormattedIncome() || 'Loading...'} />
         <RowInfo titleLeft="Store" titleRight={profile?.storeName || 'Loading...'} />
         <XDivider />
@@ -220,7 +220,7 @@ export default function ProfileScreen() {
             }
             }catch(error){
               setIsUseFaceId(false);
-              useUserStore.setState({ error: 'Xác thực bằng Face ID/Touch ID thất bại' });
+              useUserStore.setState({ error: 'Authentication failed' });
             }
         }} />
         

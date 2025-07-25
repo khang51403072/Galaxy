@@ -28,14 +28,15 @@ export default function SelectCustomerScreen() {
     if (!search) return customerList || [];
     return customerList?.filter(
       c =>
-        c.cellPhone?.toLowerCase().includes(search.toLowerCase())
+        c.cellPhone?.toLowerCase().includes(search.toLowerCase()) ||
+        (c.firstName?.toLowerCase() + " " + c.lastName?.toLowerCase()).includes(search.toLowerCase())
     );
   }, [search, customerList]);
 
   // Chỉ cho nhập số vào input
   const handleSearch = (text: string) => {
     // Loại bỏ ký tự không phải số
-    const onlyNumber = text.replace(/[^0-9]/g, '');
+    const onlyNumber = text;//.replace(/[^0-9]/g, '');
     setSearch(onlyNumber);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (onlyNumber.length === 0) {
@@ -59,11 +60,11 @@ export default function SelectCustomerScreen() {
     <XScreen title="Select Customer" dismissKeyboard={true} >
       <View style={{ paddingTop: 8 }}>
         <XInput
-          placeholder="Nhập số điện thoại..."
+          placeholder="Search..."
           value={search}
           onChangeText={handleSearch}
           iconLeft="search"
-          keyboardType="phone-pad"
+          keyboardType="default"
           iconRight={search ? "x" : undefined}
           onIconRightPress={() => {
             setSearch('');
@@ -82,7 +83,7 @@ export default function SelectCustomerScreen() {
               style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#eee' }}
             >
               <XText style={{ fontSize: 16 }}>{item.firstName} {item.lastName}</XText>
-              <XText style={{ color: '#888', fontSize: 14 }}>{item.cellPhone.formatPhoneNumber()}</XText>
+              <XText style={{ color: '#888', fontSize: 14 }}>{item.cellPhone}</XText>
             </TouchableOpacity>
           )}
         />

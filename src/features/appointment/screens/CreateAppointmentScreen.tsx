@@ -36,7 +36,8 @@ export default function CreateAppointmentScreen() {
         getListCategories, getListItemMenu, listCategories,
         listItemMenu,isLoading, listServices,selectedDate,setSelectedDate,
         isConfirmOnline,setIsConfirmOnline,
-        isGroupAppt,setIsGroupAppt
+        isGroupAppt,setIsGroupAppt, 
+        getCustomerLookup
     } = useCreateAppointmentStore(useShallow((state) => ({
         getApptResource: createAppointmentSelectors.selectGetApptResource(state),
         selectedCustomer: createAppointmentSelectors.selectSelectedCustomer(state),
@@ -53,7 +54,8 @@ export default function CreateAppointmentScreen() {
         isConfirmOnline: createAppointmentSelectors.selectIsConfirmOnline(state),
         setIsConfirmOnline: createAppointmentSelectors.selectSetIsConfirmOnline(state),
         isGroupAppt: createAppointmentSelectors.selectIsGroupAppt(state),
-        setIsGroupAppt: createAppointmentSelectors.selectSetIsGroupAppt(state)
+        setIsGroupAppt: createAppointmentSelectors.selectSetIsGroupAppt(state),
+        getCustomerLookup: createAppointmentSelectors.selectGetCustomerLookup(state)
         
     })));
 
@@ -68,6 +70,7 @@ export default function CreateAppointmentScreen() {
 
     useEffect(()=>{
         loadCompanyProfile();
+        getCustomerLookup();
     },[])
 
     const loadCompanyProfile = async () => {
