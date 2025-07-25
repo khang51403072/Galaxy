@@ -19,8 +19,17 @@ export type AppointmentState = {
     getAppointmentListOwner: () => Promise<Result<AppointmentEntity[], Error>>;
     getCompanyProfile: () => Promise<Result<CompanyProfileResponse, Error>>;
     setSelectedEmployee: (employee: EmployeeEntity) => void;
+    reset: () => void;
 }
-
+const initialState: Partial<AppointmentState> = {
+    isLoading: false,
+    error: null,
+    selectedDate: new Date(),
+    selectedEmployee: null,
+    appointmentList: [],
+    json: null,
+    companyProfile: null
+}
 export const appointmentSelectors = {
     selectIsLoading: (state: AppointmentState) => state.isLoading,
     selectError: (state: AppointmentState) => state.error,
@@ -33,17 +42,12 @@ export const appointmentSelectors = {
     selectGetCompanyProfile: (state: AppointmentState) => state.getCompanyProfile,
     selectSelectedEmployee: (state: AppointmentState) => state.selectedEmployee,
     selectSetSelectedEmployee: (state: AppointmentState) => state.setSelectedEmployee,
+    selectReset: (state: AppointmentState) => state.reset,
 }
 
 // Refactor: nhận appointmentUsecase từ ngoài vào
 export const createAppointmentStore = (usecase: AppointmentUsecase): StateCreator<AppointmentState> => (set, get) => ({
-    isLoading: false,
-    error: null,
-    selectedDate: new Date(),
-    appointmentList: [],
-    json: null,
-    companyProfile: null,
-    selectedEmployee: null,
+    ...initialState as AppointmentState,
     setSelectedEmployee: (employee: EmployeeEntity) => {
         set({ selectedEmployee: employee });
     },
@@ -87,6 +91,9 @@ export const createAppointmentStore = (usecase: AppointmentUsecase): StateCreato
             set({ companyProfile: response.value });
         }
         return response;
+    },
+    reset: () => {
+        set(initialState as AppointmentState);
     }
 });
 
