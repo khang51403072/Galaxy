@@ -55,7 +55,7 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase
       let commonRequest: CommonRequest = {
           dateStart: get().startDate?.toYYYYMMDD('-'),
           dateEnd: get().endDate?.toYYYYMMDD('-'),
-          employeeId: employeeId,
+          employeeId: employeeId ?? json?.employeeId,
       }
       const result = await payrollUsecase.getPayroll(commonRequest);
       if(isSuccess(result)) {

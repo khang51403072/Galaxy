@@ -243,7 +243,7 @@ export default function XScreen({
         styles.container,
       ]}
     >
-      {showHeader && (
+      {(
         <XAppBar
           title={title ?? ""}
           showBack={true}
