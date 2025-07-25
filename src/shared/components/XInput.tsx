@@ -87,8 +87,8 @@ const XInput = forwardRef<TextInput, XInputProps>(
             <XIcon
               style={[styles.iconLeft]}
               name={iconLeft}
-              width={16}
-              height={16}
+              width={24}
+              height={24}
               color={iconColor}
             />
           )}
@@ -122,7 +122,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
           />
           {iconRight && (
             <TouchableOpacity onPress={onIconRightPress} style={styles.iconRight}>
-              <XIcon name={iconRight} width={16} height={16} color="#999" />
+              <XIcon name={iconRight} width={24} height={24} color={theme.colors.textInputPlaceholder} />
             </TouchableOpacity>
           )}
         </View>

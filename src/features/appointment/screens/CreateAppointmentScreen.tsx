@@ -22,6 +22,7 @@ import { employeeSelectors, useEmployeeStore } from "@/shared/stores/employeeSto
 import XBottomSheetSearch from "@/shared/components/XBottomSheetSearch";
 import { useTicketStore } from "@/features/ticket/stores/ticketStore";
 import { EmployeeEntity, getDisplayName, isEmployee } from "@/features/ticket/types/TicketResponse";
+import XButton from "@/shared/components/XButton";
 
 
 export default function CreateAppointmentScreen() {
@@ -64,10 +65,6 @@ export default function CreateAppointmentScreen() {
             getCompanyProfile: appointmentSelectors.selectGetCompanyProfile(state)
         })
     ));
-
-    
-
-
     useEffect(()=>{
         loadCompanyProfile();
         getCustomerLookup();
@@ -187,14 +184,13 @@ export default function CreateAppointmentScreen() {
     }
     const timePicker = ()=>{
         return (
-            
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                <XIcon name="time" width={16} height={16} />
-                <XText variant="createAppointmentContent">Time</XText>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                    <XIcon name="time" width={16} height={16} />
+                    <XText variant="createAppointmentContent">Time</XText>
+                </View>
+                <XDatePicker mode="time" style={{ width: '40%' }} value={selectedDate} onChange={setSelectedDate} />
             </View>
-            <XDatePicker mode="time" style={{ width: '40%' }} value={selectedDate} onChange={setSelectedDate} />
-        </View>
         )
     }
     const menuText = ()=>{
@@ -278,22 +274,37 @@ export default function CreateAppointmentScreen() {
             }}>
                 <TouchableOpacity  onPress={
                     async () => {
-                        setServiceIndex(index)
+                    setServiceIndex(index)
                     setShowServiceSheet(true)
                     
                 }}>
                     <XInput value={e?.service?.name} editable={false} 
-                        placeholder="Add Service" pointerEvents="none"/>
+                        placeholder="Add Service" pointerEvents="none" 
+                        iconRight= {e.service ? "closeCircle" : "addCircle"}
+                        onIconRightPress={()=>{
+                            if(e.service) {
+                                useCreateAppointmentStore.setState({
+                                    listBookingServices: listServices.filter((item, i) => i !== index)
+                                })
+                            } else {
+                                setServiceIndex(index)
+                                setShowServiceSheet(true)
+                            }
+                        }}
+                    />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={
-                    async () => {
+                
+                {
+                    e.service && <TouchableOpacity onPress={
+                        async () => {
                         setServiceIndex(index)
-                    setIsShowTechnician(true);
-                    
-                }}>
-                    <XInput value={ e.technician ? getDisplayName(e.technician) : ""} 
-                        editable={false} placeholder="Choose Technician" pointerEvents="none"/>
-                </TouchableOpacity>
+                        setIsShowTechnician(true);
+                        
+                    }}>
+                        <XInput value={ e.technician ? getDisplayName(e.technician) : ""} 
+                            editable={false} placeholder="Choose Technician" pointerEvents="none"/>
+                    </TouchableOpacity>
+                }
             </View>
         })
     }
@@ -301,14 +312,9 @@ export default function CreateAppointmentScreen() {
     
     return (
         <XScreen 
-            
-            onSave={()=>{
-                console.log("onSave")
-            }}
-            onCancel={()=>{
-                goBack();    
-            }}
-            scrollable title="Booking Appointment" loading = {isLoading} >    
+            scrollable 
+            title="Booking Appointment" 
+            loading = {isLoading} >    
             <View style={{ gap: theme.spacing.md, paddingTop: theme.spacing.md }}>
                 {customerPicker()}
                 {dropdownPicker()}
@@ -329,6 +335,17 @@ export default function CreateAppointmentScreen() {
                 }}
             />
             {technicianPicker()}
+            <View style={{ 
+                position: 'absolute', 
+                bottom: 0, 
+                left: 0, 
+                right: 0, 
+                backgroundColor: 'transparent' 
+            }}>
+                <XButton title="Save" onPress={() => {
+                    
+                 }} />
+            </View>
         </XScreen>
     )
 }   

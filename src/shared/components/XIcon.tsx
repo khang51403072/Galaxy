@@ -34,6 +34,10 @@ import Group1 from '../assets/icons/Group1.svg';
 import Group2 from '../assets/icons/Group2.svg';
 import ReadAll from '../assets/icons/ReadAll.svg';
 import AddAppointment from '../assets/icons/AddAppointment.svg';
+import CloseCircle from '../assets/icons/CloseCircle.svg';
+import AddCircle from '../assets/icons/AddCircle.svg';
+import CaretDown from '../assets/icons/CaretDown.svg';
+import CaretUp from '../assets/icons/CaretUp.svg';
 
 export const iconMap = {
   user: User,
@@ -69,7 +73,11 @@ export const iconMap = {
   group1: Group1,
   group2: Group2,
   readAll: ReadAll,
-  addAppointment: AddAppointment
+  addAppointment: AddAppointment,
+  closeCircle: CloseCircle,
+  addCircle: AddCircle,
+  caretDown: CaretDown,
+  caretUp: CaretUp,
 };
 
  type XIconProps = {

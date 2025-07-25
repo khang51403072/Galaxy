@@ -129,7 +129,8 @@ export default function  TicketScreen() {
     const layout = useWindowDimensions();
   return (
     <XScreen title="Reports" loading={isLoading} error={error} style={{ flex: 1 }}> 
-      <View style={{ flexDirection: 'column', paddingTop: theme.spacing.md, paddingBottom: theme.spacing.sm,}}>
+      <View style={{ flexDirection: 'column', 
+        paddingTop: theme.spacing.md, paddingBottom: theme.spacing.md,}}>
           <XDateRangerSearch
             fromDate={startDate||new Date()}
             toDate={endDate||new Date()}
@@ -170,9 +171,9 @@ export default function  TicketScreen() {
                     
                     backgroundColor: focused ? theme.colors.white : 'transparent',
                     borderRadius: theme.borderRadius.md,
-                    marginHorizontal: theme.spacing.sm,
+                    marginHorizontal: theme.spacing.xs,
                     paddingVertical: theme.spacing.sm,
-                    paddingHorizontal: theme.spacing.lg,
+                    paddingHorizontal: theme.spacing.md,
                     
                   }}
                   activeOpacity={0.8}
