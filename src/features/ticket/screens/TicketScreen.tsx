@@ -15,6 +15,7 @@ import XDateRangerSearch from "@/shared/components/XDateRangerSearch";
 import { appConfig } from "@/shared/utils/appConfig";
 import { WebView } from "react-native-webview";
 import { XSkeleton } from '../../../shared/components/XSkeleton';
+import TicketSkeleton from '../components/TicketSkeleton';
 
 export default function  TicketScreen() {
   const {width} = useWindowDimensions();
@@ -98,39 +99,11 @@ export default function  TicketScreen() {
       
     } ;
 
-// TicketSkeleton component
-const TicketSkeleton = () => {
-  const theme = useTheme();
-  return (
-    <View style={{ padding: 16 }}>
-      {[...Array(5)].map((_, idx) => (
-        <View key={idx} style={{ marginBottom: 16, backgroundColor: theme.colors.white, borderRadius: theme.spacing.md, ...theme.shadows.sm, padding: theme.spacing.md }}>
-          <XSkeleton width={120} height={18} style={{ marginBottom: 8 }} />
-          <XSkeleton width={80} height={14} style={{ marginBottom: 8 }} />
-          <XSkeleton width={'100%'} height={1} style={{ marginBottom: 8 }} />
-          <XSkeleton width={180} height={14} style={{ marginBottom: 8 }} />
-          <XSkeleton width={'100%'} height={1} style={{ marginBottom: 8 }} />
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-            <XSkeleton width={100} height={12} />
-            <XSkeleton width={60} height={12} />
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-            <XSkeleton width={100} height={12} />
-            <XSkeleton width={60} height={12} />
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <XSkeleton width={100} height={12} />
-            <XSkeleton width={60} height={12} />
-          </View>
-        </View>
-      ))}
-    </View>
-  );
-};
   return (
     <XScreen title="Tickets" loading={false} error={error} style={{ flex: 1 }}> 
       {/* View header */}
-      <View style={{ flexDirection: 'column', paddingTop: theme.spacing.md, borderBottomWidth: 1, borderBottomColor: theme.colors.border, paddingBottom: theme.spacing.sm,}}>
+      <View style={{ flexDirection: 'column', paddingTop: theme.spacing.md, 
+        borderBottomWidth: 1, borderBottomColor: theme.colors.border, paddingBottom: theme.spacing.md,}}>
       {json?.isOwner ? 
         <TouchableOpacity style={{marginBottom: theme.spacing.md}} onPress={async () => {
           useTicketStore.setState({visible: true});
@@ -138,8 +111,6 @@ const TicketSkeleton = () => {
         }}>
           <XInput value={selectedEmployee != null ? getDisplayName(selectedEmployee) : ""} editable={false} placeholder="Choose Technician"  label="Technician" pointerEvents="none"/>
         </TouchableOpacity>:null}
-        
-
         <XDateRangerSearch
           fromDate={startDate}
           toDate={endDate}
