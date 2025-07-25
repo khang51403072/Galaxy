@@ -49,9 +49,9 @@ export const typography = {
   // Input text
   inputText: {
     fontFamily: Fonts.Outfit400,
-    fontSize: 14,
+    fontSize: 17,
     lineHeight: 20,
-    letterSpacing: 0.14,
+    letterSpacing: 0.17,
   },
   inputLabel: {
     fontFamily: Fonts.Outfit400,

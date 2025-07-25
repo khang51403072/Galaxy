@@ -15,6 +15,7 @@ import XDateRangerSearch from "@/shared/components/XDateRangerSearch";
 import XNoDataView from "@/shared/components/XNoDataView";
 import { appConfig } from "@/shared/utils/appConfig";
 import { XSkeleton } from '../../../shared/components/XSkeleton';
+import React from "react";
 
 export default function  TicketScreen() {
     const [json, setJson] = useState<KeychainObject | null>(null);
@@ -26,17 +27,16 @@ export default function  TicketScreen() {
       });
     }, []);
     const theme = useTheme();
-    const styles = StyleSheet.create({
+    const styles = React.useMemo(() => StyleSheet.create({
       header: {
-        flexDirection: 'column', 
-        paddingTop: theme.spacing.md, 
-        borderBottomWidth: 1, 
-        borderBottomColor: 
-        theme.colors.border, 
-        paddingBottom: theme.spacing.sm,
-        gap: theme.spacing.sm,
+        flexDirection: 'column',
+        paddingTop: theme.spacing.md,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+        paddingBottom: theme.spacing.md,
+        gap: theme.spacing.md,
       },
-    });
+    }), [theme]);
    
     const { isLoading, payrolls, payrollOwners, getPayroll, getPayrollOwner, error, visible, selectedEmployee, startDate, endDate } = usePayrollStore(useShallow(
         (state: PayrollState) => ({

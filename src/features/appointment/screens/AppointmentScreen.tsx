@@ -234,7 +234,7 @@ export default function AppointmentScreen() {
     setVisible(true);
 
   }}>
-    <XInput value={selectedEmployee != null ? getDisplayNameEmployee(selectedEmployee) : ""} editable={false} placeholder="Choose Technician"  label="Technician" pointerEvents="none"/>
+    <XInput value={selectedEmployee != null ? getDisplayNameEmployee(selectedEmployee) : ""} editable={false} placeholder="Choose Technician" pointerEvents="none"/>
   </TouchableOpacity>
   return (
     <XScreen 
@@ -244,7 +244,6 @@ export default function AppointmentScreen() {
       paddingHorizontal={16}
       backgroundColor={theme.colors.background}
     > 
-      {json?.isOwner && employeePicker}
       <XCalendarStrip
         value={selectedDate}
         onChange={(date) => {
@@ -252,6 +251,8 @@ export default function AppointmentScreen() {
             loadData();
         }}
       />
+      {json?.isOwner && employeePicker}
+      
       
       <TabView
         navigationState={{ index, routes }}
