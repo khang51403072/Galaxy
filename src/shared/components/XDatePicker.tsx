@@ -94,7 +94,7 @@ export function XDatePicker({
                 if(mode==='date'){
                   onChange(d);
                   setTemp(d)
-                  setShow(false);
+                  
                 } else {
                   setTemp(d);
                 }
