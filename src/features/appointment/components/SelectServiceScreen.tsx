@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import BottomSheet, { BottomSheetFlatList, BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import type BottomSheetType from "@gorhom/bottom-sheet";
-import { View, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Modal } from "react-native";
 import XInput from "@/shared/components/XInput";
 import XText from "@/shared/components/XText";
 import XIcon from "@/shared/components/XIcon";
@@ -10,11 +10,18 @@ import { useShallow } from "zustand/react/shallow";
 import { useTheme } from "@/shared/theme/ThemeProvider";
 import { MenuItemEntity } from "../types/MenuItemResponse";
 import { CategoryEntity } from "../types/CategoriesResponse";
+import XNoDataView from "@/shared/components/XNoDataView";
 
-export default function SelectServiceScreen({ visible = true, onClose = () => {}, onSelect = (item: MenuItemEntity) => {} }) {
+interface SelectServiceScreenProps {
+  visible?: boolean;
+  onClose?: () => void;
+  onSelect?: (item: MenuItemEntity) => void;
+}
+
+export default function SelectServiceScreen({ visible = true, onClose = () => {}, onSelect = (item: MenuItemEntity) => {} }: SelectServiceScreenProps) {
   const theme = useTheme();
   const sheetRef = useRef<BottomSheetType>(null);
-  const snapPoints = useMemo(() => ["75%"], []);
+  const snapPoints = useMemo(() => ["90%"], []);
   const [searchText, setSearchText] = useState("");
   const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({});
 
@@ -57,117 +64,123 @@ export default function SelectServiceScreen({ visible = true, onClose = () => {}
   };
 
   return (
-    <BottomSheet
-      ref={sheetRef}
-      index={visible ? 0 : -1}
-      snapPoints={snapPoints}
-      onClose={onClose}
-      enablePanDownToClose
-      style={{borderTopLeftRadius: 100}}
+    <Modal
+      visible={visible}
+      animationType="fade"
+      transparent
+      onRequestClose={onClose}
+      statusBarTranslucent
     >
-      {/* HEADER */}
-      <View style={styles.header}>
-        <XText variant="contentTitle" style={styles.title}>Chọn dịch vụ</XText>
-        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-          <XIcon name="x" width={20} height={20} color="#999" />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.searchInput}>
-        <XInput
-          placeholder="Tìm kiếm dịch vụ..."
-          value={searchText}
-          onChangeText={setSearchText}
-          iconLeft="search"
-          blurOnSubmit={false}
-        />
-      </View>
-      {/* LIST GROUPED BY CATEGORY */}
-      <BottomSheetScrollView style={{ marginTop: 8 }}>
-        {groupedByCategory.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <XText style={styles.emptyText}>
-              {searchText.trim() === '' ? 'Không có dịch vụ nào' : 'Không tìm thấy kết quả'}
-            </XText>
-          </View>
-        ) : (
-          groupedByCategory.map((cat) => (
-            <View key={cat.id}>
-              <TouchableOpacity
-                onPress={() =>
-                  setExpanded((prev) => ({
-                    ...prev,
-                    [cat.id]: !prev[cat.id],
-                  }))
-                }
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  paddingVertical: 12,
-                  paddingHorizontal: 16,
-                  borderBottomWidth: 1,
-                  borderBottomColor: theme.colors.border,
-                  backgroundColor: '#fafbfc',
-                }}
-              >
-                <XText variant="content400">{cat.name}</XText>
-                <XText>{expanded[cat.id] ? "▲" : "▼"}</XText>
-              </TouchableOpacity>
-              {expanded[cat.id] && cat.items.length > 0 && (
-                <View style={{ backgroundColor: "#fff" }}>
-                  {cat.items.map((service: MenuItemEntity) => (
-                    <TouchableOpacity
-                      key={service.id}
-                      style={styles.itemContainer}
-                      onPress={() => handleSelect(service)}
-                    >
-                      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                        <XText style={styles.itemText}>{service.name}</XText>
-                      </View>
-                      <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-                        <XText style={{ color: theme.colors.gray500, fontSize: 12 }}>{service.duration} mins</XText>
+      <View style={{ flex: 1, backgroundColor: theme.colors.overlay }} />
+      <BottomSheet
+        ref={sheetRef}
+        index={visible ? 0 : -1}
+        snapPoints={snapPoints}
+        onClose={onClose}
+        enablePanDownToClose
+        style={{ borderTopLeftRadius: 100 }}
+      >
+        {/* HEADER */}
+        <View style={styles(theme).header}>
+          <XText variant="contentTitle" style={styles(theme).title}>Services</XText>
+          <TouchableOpacity onPress={onClose} style={styles(theme).closeButton} accessibilityLabel="Close service selection">
+            <XIcon name="x" width={20} height={20} color={theme.colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
+        <View style={styles(theme).searchInput}>
+          <XInput
+            placeholder="Search..."
+            value={searchText}
+            onChangeText={setSearchText}
+            iconLeft="search"
+            blurOnSubmit={false}
+          />
+        </View>
+        {/* LIST GROUPED BY CATEGORY */}
+        <BottomSheetScrollView style={{ marginTop: 8 }}>
+          {groupedByCategory.length === 0 ? (
+            <XNoDataView/>
+          ) : (
+            groupedByCategory.map((cat) => (
+              <View key={cat.id}>
+                <TouchableOpacity
+                  onPress={() =>
+                    setExpanded((prev) => ({
+                      ...prev,
+                      [cat.id]: !prev[cat.id],
+                    }))
+                  }
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    borderBottomWidth: 1,
+                    borderBottomColor: theme.colors.border,
+                    backgroundColor: theme.colors.background,
+                  }}
+                  accessibilityLabel={`Toggle category ${cat.name}`}
+                >
+                  <XText variant="contentTitle">{cat.name}</XText>
+                  <XIcon name={expanded[cat.id] ? "caretUp" : "caretDown"} width={22} height={22} color={theme.colors.text} />
+                </TouchableOpacity>
+                {expanded[cat.id] && cat.items.length > 0 && (
+                  <View style={{ backgroundColor: theme.colors.card }}>
+                    {cat.items.map((service: MenuItemEntity) => (
+                      <TouchableOpacity
+                        key={service.id}
+                        style={styles(theme).itemContainer}
+                        onPress={() => handleSelect(service)}
+                        accessibilityLabel={`Select service ${service.name}`}
+                      >
+                        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                          <XText variant="content400" style={{ }}>{service.name}</XText>
+                          <XText variant="content300" style={{ color: theme.colors.gray500,}}>{service.duration} mins</XText>
+                        </View>
                         <XText style={{ color: theme.colors.primary, fontWeight: "bold" }}>
                           ${service.regularPrice.toFixed(2)}
                         </XText>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-          ))
-        )}
-      </BottomSheetScrollView>
-    </BottomSheet>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+            ))
+          )}
+        </BottomSheetScrollView>
+      </BottomSheet>
+    </Modal>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
     paddingHorizontal: 16,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: theme.colors.border,
   },
   searchInput: {
     paddingHorizontal: 16,
     marginTop: 8,
     marginBottom: 4,
   },
-  title: { fontSize: 18, fontWeight: 'bold' },
-  itemContainer: { 
-    padding: 16, 
-    borderBottomWidth: 1, 
-    borderBottomColor: '#f0f0f0',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  title: { color: theme.colors.text },
+  itemContainer: {
+    paddingVertical: 8,
+    paddingLeft: 32,
+    paddingRight: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    backgroundColor: theme.colors.card,
   },
-  itemText: { fontSize: 16 },
   emptyContainer: { padding: 40, alignItems: 'center' },
-  emptyText: { fontSize: 14, color: '#888' },
   closeButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,

@@ -243,14 +243,12 @@ export default function XScreen({
         styles.container,
       ]}
     >
-      {(
-        <XAppBar
+      <XAppBar
           title={title ?? ""}
           showBack={true}
           rightIcon={rightIcon}
           safeArea={safeArea}
-        />
-      )}
+      />
       {content}
       
     </View>
