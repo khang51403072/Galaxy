@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import XIcon from './XIcon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { goBack } from '@/app/NavigationService';
@@ -58,7 +58,13 @@ export default function XAppBar({ title, showBack = true, onBackPress, rightIcon
     }
   };
   return (
-    <View style={[
+    <>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="#fff"
+        translucent={false}
+      />
+      {title !== "" && <View style={[
       styles.container,
       safeArea && { paddingTop: insets.top }
     ]}>
@@ -77,7 +83,9 @@ export default function XAppBar({ title, showBack = true, onBackPress, rightIcon
       ) : (
         <View style={styles.rightIconPlaceholder} />
       )}
-    </View>
+      
+    </View>}
+    </>
   );
 }
 
