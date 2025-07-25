@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import XText from '../../../../shared/components/XText';
 import XScreen from '../../../../shared/components/XScreen';
 import { useShallow } from 'zustand/react/shallow';
@@ -86,7 +86,7 @@ export default function HomeScreen() {
       displayData = data.map(item => {
         return {
           label: item.dayOfWeek.substring(0, 3),
-          value: [item.saleAmount, -item.nonCashTipAmount]
+          value: [item.saleAmount, item.nonCashTipAmount]
         }
       });
     } else {
@@ -162,40 +162,10 @@ export default function HomeScreen() {
   };
 
   
-  const chartSkeleton = () => {
-    return (
-      <View style={{ 
-        padding: 16,
-        backgroundColor: theme.colors.white,
-        borderRadius: 8,
-        ...theme.shadows.sm,
-        marginBottom: 20
-      }}>
-        <XSkeleton width={120} height={18} borderRadius={4} style={{ marginBottom: 12 }} />
-        
-        {/* Color Notes Skeleton */}
-        <View style={{ flexDirection: 'row', marginBottom: 16 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 20 }}>
-            <XSkeleton width={10} height={10} borderRadius={5} />
-            <XSkeleton width={40} height={12} borderRadius={4} style={{ marginLeft: 8 }} />
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <XSkeleton width={10} height={10} borderRadius={5} />
-            <XSkeleton width={40} height={12} borderRadius={4} style={{ marginLeft: 8 }} />
-          </View>
-        </View>
-        
-        <XSkeleton width="100%" height={200} borderRadius={8} />
-        {/* Skeleton cho toggle switch */}
-        <View style={{ width: '100%', alignItems: 'center', marginTop: theme.spacing.md }}>
-          <XSkeleton width={60} height={32} borderRadius={16} style={{ width: "60%",
-          height: 32,
-          paddingHorizontal: theme.spacing.xs,
-          paddingVertical: theme.spacing.xs, }}/>
-        </View>
-      </View>
-    )
-  }
+  const window = useWindowDimensions();
+  const CHART_WIDTH = Math.max(320, Math.min(window.width - 32, 500)); // paddingHorizontal: 16*2, min 320, max 500
+
+  
   
 
   const header = 
@@ -261,14 +231,19 @@ const tipCard =
   </View>
 
 
-const chart = 
+const totalRevenue = 
   <View style={{
     flexDirection: 'column',
     alignItems: 'flex-start',
     padding: 16,
     backgroundColor: theme.colors.white,
     borderRadius: 8,
-    ...theme.shadows.sm
+    ...theme.shadows.sm,
+    marginBottom: 16,
+    width: CHART_WIDTH,
+    minWidth: 280,
+    maxWidth: 500,
+    alignSelf: 'center',
   }}>
     <XText variant='helloText400' style={{ color: theme.colors.gray800 }}>
       Total revenue
@@ -276,24 +251,25 @@ const chart =
     <View style={{ flexDirection: 'row', alignItems: 'center', width: 100, backgroundColor: 'transparent', borderRadius: 50, marginTop: theme.spacing.xs }}>
       {buildColorNote('Sales', theme.colors.primary)}
       {buildColorNote('Tips', theme.colors.cyan)}
-
     </View>
-
-    <XChart
-      data={chartDisplayData}
-      width={320}
-      height={200}
-      barColors={[theme.colors.primary, theme.colors.cyan]}
-      labelColor="#333"
-      style={{ paddingTop: theme.spacing.md }}
-    />
-    <View style={{ width: '100%', alignItems: 'center', marginTop: theme.spacing.md }}>
+    {/* Chỉ skeleton cho XChart */}
+    (
+      <XChart
+        data={chartDisplayData}
+        width={CHART_WIDTH}
+        height={200}
+        isLoading={isLoadingChart}
+        barColors={[theme.colors.primary, theme.colors.cyan]}
+        labelColor="#333"
+        style={{ paddingTop: theme.spacing.md }}
+      />
+    )
+    <View style={{ width: '100%', alignItems: 'center', marginTop: theme.spacing.lg }}>
       <ToggleSwitch value={toggleSwitch} onChange={(val) => {
         useHomeStore.setState({ toggleSwitch: val });
       }} />
     </View>
-  
-</View>
+  </View>
   return (
     <XScreen
       loading={isLoading}
@@ -312,7 +288,7 @@ const chart =
           {saleCard}  
           {tipCard}          
         </View>
-        {isLoadingChart ? chartSkeleton() : chart}
+        {totalRevenue}
         <XText variant='helloText400' style={{ color: theme.colors.gray800, marginVertical: theme.spacing.md }}>
           Category
         </XText>
