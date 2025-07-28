@@ -7,7 +7,7 @@ import XSwitch from "@/shared/components/XSwitch";
 import XText from "@/shared/components/XText";
 import { useTheme } from "@/shared/theme/ThemeProvider";
 import { useEffect, useRef, useState } from "react";
-import { FlatList, TouchableOpacity, View } from "react-native";
+import { FlatList, ScrollView, TouchableOpacity, View } from "react-native";
 import { createAppointmentSelectors, ServicesEntity, useCreateAppointmentStore } from "../stores/createAppointmentStore";
 import { useShallow } from "zustand/react/shallow";
 import { ROUTES } from "@/app/routes";
@@ -38,7 +38,10 @@ export default function CreateAppointmentScreen() {
         listItemMenu,isLoading, listServices,selectedDate,setSelectedDate,
         isConfirmOnline,setIsConfirmOnline,
         isGroupAppt,setIsGroupAppt, 
-        getCustomerLookup
+        getCustomerLookup,
+        saveAppointment,
+        error,
+        reset
     } = useCreateAppointmentStore(useShallow((state) => ({
         getApptResource: createAppointmentSelectors.selectGetApptResource(state),
         selectedCustomer: createAppointmentSelectors.selectSelectedCustomer(state),
@@ -56,8 +59,10 @@ export default function CreateAppointmentScreen() {
         setIsConfirmOnline: createAppointmentSelectors.selectSetIsConfirmOnline(state),
         isGroupAppt: createAppointmentSelectors.selectIsGroupAppt(state),
         setIsGroupAppt: createAppointmentSelectors.selectSetIsGroupAppt(state),
-        getCustomerLookup: createAppointmentSelectors.selectGetCustomerLookup(state)
-        
+        getCustomerLookup: createAppointmentSelectors.selectGetCustomerLookup(state),
+        saveAppointment: createAppointmentSelectors.selectSaveAppointment(state),
+        error: createAppointmentSelectors.selectError(state),
+        reset: createAppointmentSelectors.selectReset(state)
     })));
 
     const {getCompanyProfile} = useAppointmentStore(useShallow(
@@ -66,14 +71,18 @@ export default function CreateAppointmentScreen() {
         })
     ));
     useEffect(()=>{
+        reset();
         loadCompanyProfile();
-        getCustomerLookup();
+        
     },[])
 
     const loadCompanyProfile = async () => {
+        await getCustomerLookup();
+        
+        if(selectedCustomer == null){
+            navigate(ROUTES.SELECT_CUSTOMER as never);
+        }
         const profile = await getCompanyProfile();
-        await getListItemMenu();
-        await getListCategories(); 
         if(isSuccess(profile)) {
             let tmplist = listApptType
             tmplist[0].bgColor = profile.value.data.posTheme.miscBackColor
@@ -91,6 +100,8 @@ export default function CreateAppointmentScreen() {
             // AppointmentSetting.workHour = config.businessHours
             // AppointmentSetting.allowAddEditInPast   = config.appointments.isAllowAppointmentPriorToCurrentDate
         }
+        getListItemMenu();
+        getListCategories(); 
         
     }
     const customerPicker = async ()=>{
@@ -116,7 +127,6 @@ export default function CreateAppointmentScreen() {
             renderItem={
                 (item, isSelected) =>{
                     return <View 
-                   
                     style={{
                         borderBottomColor: theme.colors.border,
                         borderBottomWidth:1,
@@ -176,7 +186,11 @@ export default function CreateAppointmentScreen() {
                 <XDatePicker
                     style={{ width: '40%' }}
                     value={selectedDate}
-                    onChange={setSelectedDate}
+                    onChange={(date)=>{
+                        date.setHours(selectedDate.getHours(),selectedDate.getMinutes(),0,0);
+                        setSelectedDate(date);
+                        
+                    }}
                     mode='date'
                 />
             </View>
@@ -189,7 +203,12 @@ export default function CreateAppointmentScreen() {
                     <XIcon name="time" width={16} height={16} />
                     <XText variant="createAppointmentContent">Time</XText>
                 </View>
-                <XDatePicker mode="time" style={{ width: '40%' }} value={selectedDate} onChange={setSelectedDate} />
+                <XDatePicker mode="time" style={{ width: '40%' }} value={selectedDate} onChange={
+                    (date)=>{
+                        date.setDate(selectedDate.getDate());
+                        setSelectedDate(date);
+                    }
+                } />
             </View>
         )
     }
@@ -269,7 +288,9 @@ export default function CreateAppointmentScreen() {
     }
     const listServiceComponent = () =>{
         return listServices.map((e, index)=>{
-            return <View style={{
+            return <View
+            key={index}
+            style={{
                 gap: theme.spacing.sm
             }}>
                 <TouchableOpacity  onPress={
@@ -312,10 +333,21 @@ export default function CreateAppointmentScreen() {
     
     return (
         <XScreen 
-            scrollable 
             title="Booking Appointment" 
-            loading = {isLoading} >    
-            <View style={{ gap: theme.spacing.md, paddingTop: theme.spacing.md }}>
+            loading = {isLoading} 
+            error={error}
+            scrollable={true}
+            footer={<XButton title="Save" onPress={
+                async () => {
+                   
+                    const result = await saveAppointment();
+                    
+                }
+            } />}
+            >    
+            <View style={{ gap: theme.spacing.md, paddingTop: theme.spacing.md, flex: 1 }}>
+                
+                
                 {customerPicker()}
                 {dropdownPicker()}
                 {confirmOnlineToggle()}
@@ -327,6 +359,7 @@ export default function CreateAppointmentScreen() {
                 {menuText()}
                 {listServiceComponent()}
             </View>
+        
             <SelectServiceScreen
                 visible={showServiceSheet}
                 onClose={() => setShowServiceSheet(false)}
@@ -335,17 +368,7 @@ export default function CreateAppointmentScreen() {
                 }}
             />
             {technicianPicker()}
-            <View style={{ 
-                position: 'absolute', 
-                bottom: 0, 
-                left: 0, 
-                right: 0, 
-                backgroundColor: 'transparent' 
-            }}>
-                <XButton title="Save" onPress={() => {
-                    
-                 }} />
-            </View>
+            
         </XScreen>
     )
 }   

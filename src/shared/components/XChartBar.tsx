@@ -60,26 +60,21 @@ const XChart: React.FC<XChartProps> = ({
   const absMax = Math.max(Math.abs(rawMax), Math.abs(rawMin));
   const maxValue = absMax + Math.ceil(absMax * 0.22);
 
-  // Tính các mốc trục Y (chỉ dương)
   const yTickValues = Array.from({ length: yTicks + 1 }, (_, i) =>
     Math.round((maxValue * (yTicks - i)) / yTicks)
   );
 
-  // 1. Tính width lớn nhất của label trục Y
   const maxYLabel = Math.max(...yTickValues).toString();
-  // Ước lượng width: fontSizeYTick * 0.6 * số ký tự
-  const yLabelWidth = Math.ceil(maxYLabel.length * fontSizeYTick * 0.6) + 8; // +8 padding
+  const yLabelWidth = Math.ceil(maxYLabel.length * fontSizeYTick * 0.6) + 8; 
   const paddingHorizontal = chartWidth * 0.03;
   const chartPaddingLeft = yLabelWidth + paddingHorizontal;
   
-  // 2. Tính toán layout chart
   const groupWidth = (chartWidth - chartPaddingLeft - paddingHorizontal) / data.length;
   const barWidth = groupWidth / (groupCount + 1);
   const innerChartHeight = chartHeight - fontSizeLabel * 2.2 - fontSizeYTick * 0.5;
   const paddingTop = fontSizeYTick * 1;
   const paddingBottom = fontSizeLabel * 2.2;
 
-  // Skeleton layout
   if (isLoading) {
     return (
       <View style={{ width: chartWidth, height: chartHeight, 
@@ -87,13 +82,13 @@ const XChart: React.FC<XChartProps> = ({
       paddingTop: paddingTop,
       paddingBottom: paddingBottom,
       }}>
-        {/* Skeleton cho label trục Y */}
+       
         <View style={{ width: yLabelWidth, height: chartHeight, justifyContent: 'space-between', paddingTop, paddingBottom }}>
           {yTickValues.map((v, i) => (
             <XSkeleton key={i} width={yLabelWidth - 8} height={fontSizeYTick} borderRadius={2} style={{ marginBottom: 2 }} />
           ))}
         </View>
-        {/* Skeleton cho chart */}
+      
         <XSkeleton width={chartWidth - yLabelWidth - 2*paddingHorizontal} height={chartHeight} borderRadius={8} />
       </View>
     );
@@ -102,7 +97,7 @@ const XChart: React.FC<XChartProps> = ({
   return (
     <View style={[{ width: chartWidth, height: chartHeight, alignSelf: 'center' }, style]}>
       <Svg width={chartWidth} height={chartHeight} onPress={() => setTooltip(null)}>
-        {/* Trục Y */}
+       
         <Line
           x1={chartPaddingLeft}
           y1={paddingTop}
@@ -111,7 +106,7 @@ const XChart: React.FC<XChartProps> = ({
           stroke="#bbb"
           strokeWidth={1}
         />
-        {/* Trục X (dưới cùng) */}
+ 
         <Line
           x1={chartPaddingLeft}
           y1={chartHeight - paddingBottom}
@@ -120,12 +115,12 @@ const XChart: React.FC<XChartProps> = ({
           stroke="#bbb"
           strokeWidth={1}
         />
-        {/* Các mốc trục Y */}
+  
         {yTickValues.map((v, i) => {
           const y = paddingTop + (innerChartHeight * i) / yTicks;
           return (
             <G key={i}>
-              {/* Đường kẻ ngang */}
+           
               <Line
                 x1={chartPaddingLeft}
                 y1={y}
@@ -134,7 +129,7 @@ const XChart: React.FC<XChartProps> = ({
                 stroke="#eee"
                 strokeWidth={1}
               />
-              {/* Nhãn mốc */}
+      
               <SvgText
                 x={chartPaddingLeft - 8}
                 y={y + fontSizeYTick / 2 - 2}
@@ -147,11 +142,10 @@ const XChart: React.FC<XChartProps> = ({
             </G>
           );
         })}
-        {/* Vẽ các cột */}
+
         {data.map((item, i) => {
-          // Tooltip hiển thị ở giữa nhóm cột
           const totalX = chartPaddingLeft + i * groupWidth + (barWidth * groupCount) / 2;
-          // Tìm cột cao nhất để đặt tooltip phía trên
+        
           const maxBarHeight = Math.max(...item.value.map(v => Math.abs((v / maxValue) * innerChartHeight)));
           const tooltipY = chartHeight - paddingBottom - maxBarHeight - 8;
           return (
@@ -183,7 +177,7 @@ const XChart: React.FC<XChartProps> = ({
                   </G>
                 );
               })}
-              {/* Label trục X */}
+         
               {(() => {
                 let labelX = chartPaddingLeft + i * groupWidth + (barWidth * groupCount) / 2;
                 let textAnchor: 'start' | 'middle' | 'end' = 'middle';
@@ -207,7 +201,6 @@ const XChart: React.FC<XChartProps> = ({
                   </SvgText>
                 );
               })()}
-              {/* Tooltip hiển thị tất cả value của nhóm này */}
               {tooltip && tooltip.groupIndex === i && (
                 <G>
                   {tooltip.values.map((val, idx) => (

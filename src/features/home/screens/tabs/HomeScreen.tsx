@@ -102,14 +102,15 @@ export default function HomeScreen() {
 
 
   const buildColorNote = (text: string, color: string)=>{
-    return <View style={{  flexDirection: 'row', alignItems: 'center', width: 100, backgroundColor: 'transparent', borderRadius: 50 }}>
-      <View style={{ width: 10, height: 10, backgroundColor: color, borderRadius: 50 }}>
-        
-      </View>
-      <XText variant='content300' style={{ color: theme.colors.gray800, marginLeft: theme.spacing.xs }}>
+    return (
+      <View style={{  flexDirection: 'row', alignItems: 'center', width: 100, backgroundColor: 'transparent', borderRadius: 50 }}>
+        <View style={{ width: 10, height: 10, backgroundColor: color, borderRadius: 50 }}>
+        </View>
+        <XText variant='content300' style={{ color: theme.colors.gray800, marginLeft: theme.spacing.xs }}>
           {text}
         </XText>
-    </View>;
+      </View>
+    );
   };
   const ToggleSwitch = ({ value, onChange }: { value: 'week' | 'month', onChange: (val: 'week' | 'month') => void }) => {
     return (
@@ -252,18 +253,15 @@ const totalRevenue =
       {buildColorNote('Sales', theme.colors.primary)}
       {buildColorNote('Tips', theme.colors.cyan)}
     </View>
-    {/* Chỉ skeleton cho XChart */}
-    (
-      <XChart
-        data={chartDisplayData}
-        width={CHART_WIDTH}
-        height={200}
-        isLoading={isLoadingChart}
-        barColors={[theme.colors.primary, theme.colors.cyan]}
-        labelColor="#333"
-        style={{ paddingTop: theme.spacing.md }}
-      />
-    )
+    <XChart
+      data={chartDisplayData}
+      width={CHART_WIDTH}
+      height={200}
+      isLoading={isLoadingChart}
+      barColors={[theme.colors.primary, theme.colors.cyan]}
+      labelColor="#333"
+      style={{ paddingTop: theme.spacing.md }}
+    />
     <View style={{ width: '100%', alignItems: 'center', marginTop: theme.spacing.lg }}>
       <ToggleSwitch value={toggleSwitch} onChange={(val) => {
         useHomeStore.setState({ toggleSwitch: val });
@@ -282,7 +280,7 @@ const totalRevenue =
       haveBottomTabBar={true}
     >
       {header}
-      <View style={{ width: '100%',  }}>
+      <View style={{ width: '100%' }}>
         {meEarningsToday}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
           {saleCard}  
@@ -292,11 +290,11 @@ const totalRevenue =
         <XText variant='helloText400' style={{ color: theme.colors.gray800, marginVertical: theme.spacing.md }}>
           Category
         </XText>
-        <View style={{ flexDirection: 'row' , width: '100%', justifyContent: 'space-between'}}>
+        <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
           <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.TICKET)}} title='Tickets' icon='ticket' color={theme.colors.skyBlue} textColor={theme.colors.white} />
           <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.APPOINTMENT)}} title='Appointment' icon='appointment' color={theme.colors.purple} textColor={theme.colors.white} />
         </View>
-        <View style={{ marginTop: theme.spacing.md, flexDirection: 'row' , width: '100%', justifyContent: 'space-between'}}>
+        <View style={{ marginTop: theme.spacing.md, flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
           <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.PAYROLL)}} title='Payroll' icon='payroll' color={theme.colors.indigoBlue} textColor={theme.colors.white} />
           <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.REPORT)}} title='Report' icon='report' color={theme.colors.blue} textColor={theme.colors.white} /> 
         </View>

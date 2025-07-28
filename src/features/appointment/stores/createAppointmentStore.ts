@@ -9,9 +9,11 @@ import { ApptType, createApptType } from '../types/AppointmentType';
 import { CategoryEntity } from '../types/CategoriesResponse';
 import { MenuItemEntity } from '../types/MenuItemResponse';
 import { EmployeeEntity } from '@/features/ticket/types/TicketResponse';
-import { ApptPayload, DataAppt } from '../types/ApptSaveResponse';
+import { ApptPackageItem, ApptPayload, ApptServiceItem, DataAppt, StartTime } from '../types/ApptSaveResponse';
 import { useAppointmentStore } from './appointmentStore';
-import { dateFromTimeEntity, TimeRange } from '../types/CompanyProfileResponse';
+import { dateFromTimeEntity, TimeEntity, TimeRange } from '../types/CompanyProfileResponse';
+import { ApptServicePackage } from '../types/ApptDetailsResponse';
+import { appConfig } from '@/shared/utils/appConfig';
 
 export type ServicesEntity = {
   service?: MenuItemEntity|null
@@ -52,15 +54,14 @@ export type CreateAppointmentState = {
 export const initialCreateAppointmentState = {
   isLoading: false,
   error: null,
-  customerList: null,
+  
   isConfirmOnline: false,
   isGroupAppointment: false,
   selectedCustomer: null,
   selectedApptType: null,
   selectedDate: new Date(),
   isAllowBookAnyway: false,
-  listCategories: [],
-  listItemMenu: [],
+  
   listApptType: [
     createApptType("Misc", "Misc",),
     createApptType("NewCustomer", "New Customer", ),
@@ -78,6 +79,9 @@ const appointmentRepository = new AppointmentRepositoryImplement();
 const appointmentUsecase = new AppointmentUsecase(appointmentRepository);
 const createAppointmentCreator = (set: any, get:any) => ({
   ...initialCreateAppointmentState,
+  listCategories: [],
+  listItemMenu: [],
+  customerList: [],
   setSelectedDate: (value: Date) => set({ selectedDate: value }),
   setIsConfirmOnline: (value: boolean) => set({ isConfirmOnline: value }),
   setIsGroupAppt: (value: boolean) => set({ isGroupAppointment: value }),
@@ -94,7 +98,8 @@ const createAppointmentCreator = (set: any, get:any) => ({
     set({ isLoading: true });
     const result = await appointmentUsecase.getCategories();
     if(isSuccess(result)) {
-      set({ listCategories: result.value});
+      set({ listCategories: result.value.filter(
+        (e: CategoryEntity)=>e.categoryType === "Service" || e.isHide === false)});
     }
     set({ isLoading: false });
     return result; 
@@ -146,6 +151,9 @@ const createAppointmentCreator = (set: any, get:any) => ({
       set({ isLoading: false });
       return Promise.resolve(failure(new Error(get().error)));
     }
+
+  
+    //
     //continue save
     const payloadSave: ApptPayload = {
       id: "",
@@ -155,20 +163,112 @@ const createAppointmentCreator = (set: any, get:any) => ({
       isGroupAppt: get().isGroupAppointment,
       apptStatus: "New",
       apptConfirmStatus: "None",
-      apptServiceItems: [],
-      apptServicePackages: [],
-      customer: get().selectedCustomer,
+      apptServiceItems: getListApptServiceItems(get()),
+      apptServicePackages: getListComboItems(get()),
+      customer: {
+        firstName: get().selectedCustomer?.firstName || "",
+        lastName: get().selectedCustomer?.lastName || "",
+        fullName: get().selectedCustomer?.fullName || "",
+        id: get().selectedCustomer?.id || "",
+        email: get().selectedCustomer?.email || "",
+        cellPhone: get().selectedCustomer?.cellPhone || "",
+      },
       customerNote: get().selectedCustomer.note,
       allowBookAnyway: get().isAllowBookAnyway
     }
     const result = await appointmentUsecase.saveAppointment(payloadSave);
-    set({ isLoading: false });
+    if(isSuccess(result)){  
+      set({ isLoading: false });
+    }
+    else{
+      set({ isLoading: false, error: result.error.message });
+    }
+    
     return result;
   },
   setIsAllowBookAnyway: (value: boolean) => set({ isAllowBookAnyway: value })
 });
 
+function getListComboItems(createAppointmentStore: CreateAppointmentState): ApptPackageItem[] {
+  let startTime = createAppointmentStore.selectedDate;
+  const apptServicePackages: ApptPackageItem[] = [];
+  for (const item of createAppointmentStore.listBookingServices) {
+    if (item.service?.menuItemType === "ServicePackage") {
+      const listComboItems = createAppointmentStore.listBookingServices.filter(
+        (e: ServicesEntity)=> item.service?.servicePackageMaps.findIndex((value, index)=>{
+          if(value.mapMenuItemId === e.service?.id)
+            return index
+          return -1
+        }) !== -1
+      );
 
+      const apptServiceItems = listComboItems.map((e: ServicesEntity)=>{
+        const apptServiceItem = {
+          id: e.service?.id || "",
+          name: e.service?.name || "",
+          duration: e.service?.duration || 0,
+          startTime: {
+            hours: startTime.getHours(),
+            minutes: startTime.getMinutes(),
+            seconds: 0,
+            nanos: 0
+          },
+          position: 0,
+
+          price: e.service?.regularPrice || 0,
+        } as ApptServiceItem
+        if(!createAppointmentStore.isGroupAppointment){
+          startTime = new Date(startTime.getTime() + (e.service?.duration || 0) * 60000);
+        }
+        return apptServiceItem;
+      });
+      apptServicePackages.push(
+        {
+          id: item.service?.id || "",
+          name: item.service?.name || "",
+          apptServiceItems: apptServiceItems,
+          position: item.service?.position || 0,
+          price: item.service?.regularPrice || 0,
+          duration: item.service?.duration || 0,
+          apptServicePackageFilter: "",
+        } as ApptPackageItem
+      );
+    }
+
+  }
+  
+  return apptServicePackages;
+}
+
+function getListApptServiceItems(createAppointmentStore: CreateAppointmentState): ApptServiceItem[] {
+  let startTime = createAppointmentStore.selectedDate;
+  const apptServiceItems: ApptServiceItem[] = [];
+  for (const item of createAppointmentStore.listBookingServices) {
+    if (item.service?.menuItemType === "ServicePackage") {
+      continue; 
+    }
+    apptServiceItems.push(
+      {
+        id: "",
+        name: item.service?.name || "",
+        duration: item.service?.duration || 0,
+        startTime: {
+          hours: startTime.getHours(),
+          minutes: startTime.getMinutes(),
+          seconds: 0,
+          nanos: 0
+        },
+        price: item.service?.regularPrice || 0,
+        employeeId: item.technician?.id || "",
+      } as ApptServiceItem
+    );
+    if(createAppointmentStore.isGroupAppointment){
+      startTime = new Date(startTime.getTime() + (item.service?.duration || 0) * 60000);
+    }
+  }
+  return apptServiceItems;
+
+}
 
 export const useCreateAppointmentStore = create<CreateAppointmentState>(createAppointmentCreator);
 
@@ -193,7 +293,9 @@ export const createAppointmentSelectors = {
   selectSelectedDate: (state: CreateAppointmentState) => state.selectedDate,
   selectSetSelectedDate: (state: CreateAppointmentState) => state.setSelectedDate,
   selectSetIsAllowBookAnyway: (state: CreateAppointmentState) => state.setIsAllowBookAnyway,
-
+  selectSaveAppointment: (state: CreateAppointmentState) => state.saveAppointment,
+  selectError: (state: CreateAppointmentState) => state.error,
+  selectReset: (state: CreateAppointmentState) => state.reset,
 }; 
 
 function validBookings(
@@ -213,24 +315,7 @@ function validBookings(
   // booking.startTime = toTimeEntity(booking.bookingTime); // Nếu cần set lại, xử lý ngoài hàm này
 
   for (const item of useCreateAppointmentStore.listBookingServices) {
-    // if (item.isCombo) {
-    //   for (const comboItem of item.comboItems) {
-    //     if (!comboItem.employee || !comboItem.employee.employeeId) {
-    //       setAlertMessage(
-    //         `Please select a technician for service: ${comboItem.serviceItem.name}`
-    //       );
-    //       return false;
-    //     }
-    //   }
-    // } else {
-    //   if (!item.employee || !item.employee.employeeId) {
-    //     setAlertMessage(
-    //       `Please select a technician for service: ${item.serviceItem.name}`
-    //     );
-    //     return false;
-    //   }
-    // }
-    if (!item.technician || !item.technician.id) {
+    if (item.service && item.technician === null) {
       setAlertMessage(
         `Please select a technician for service: ${item.service?.name}`
       );

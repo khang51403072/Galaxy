@@ -62,11 +62,7 @@ export type AppointmentResponse = ApiResponse<AppointmentEntity[]>;
 
 // Utility functions
 export const getDisplayName = (entity: AppointmentEntity): string => {
-  const customer = entity.customer;
-  if (customer.firstName && customer.lastName) {
-    return `${customer.firstName} ${customer.lastName}`;
-  }
-  return customer.fullName || 'Unknown Customer';
+  return entity.customer.firstName + " " + entity.customer.lastName;
 };
 
 export const getCustomerPhone = (entity: AppointmentEntity): string => {
