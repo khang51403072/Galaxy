@@ -15,8 +15,7 @@ export type AppointmentState = {
     appointmentList: AppointmentEntity[];
     json: KeychainObject | null;
     companyProfile: CompanyProfileResponse | null;
-    getAppointmentList: () => Promise<Result<AppointmentEntity[], Error>>;
-    getAppointmentListOwner: () => Promise<Result<AppointmentEntity[], Error>>;
+    getAppointmentList: (json: KeychainObject) => Promise<Result<AppointmentEntity[], Error>>;
     getCompanyProfile: () => Promise<Result<CompanyProfileResponse, Error>>;
     setSelectedEmployee: (employee: EmployeeEntity) => void;
     reset: () => void;
@@ -36,7 +35,6 @@ export const appointmentSelectors = {
     selectSelectedDate: (state: AppointmentState) => state.selectedDate,
     selectAppointmentList: (state: AppointmentState) => state.appointmentList,
     selectGetAppointmentList: (state: AppointmentState) => state.getAppointmentList,
-    selectGetAppointmentListOwner: (state: AppointmentState) => state.getAppointmentListOwner,
     selectJson: (state: AppointmentState) => state.json,
     selectCompanyProfile: (state: AppointmentState) => state.companyProfile,
     selectGetCompanyProfile: (state: AppointmentState) => state.getCompanyProfile,
@@ -51,15 +49,18 @@ export const createAppointmentStore = (usecase: AppointmentUsecase): StateCreato
     setSelectedEmployee: (employee: EmployeeEntity) => {
         set({ selectedEmployee: employee });
     },
-    getAppointmentList: async (): Promise<Result<AppointmentEntity[], Error>> => {
-        set({ isLoading: true });
-        const employeeId = get().json?.employeeId ?? "";
+    getAppointmentList: async (json: KeychainObject): Promise<Result<AppointmentEntity[], Error>> => {
+        set({ isLoading: true, json: json });
         const request: CommonRequest = {
             dateStart: get().selectedDate?.toYYYYMMDD('-'),
             dateEnd: get().selectedDate?.toYYYYMMDD('-'),
-            employeeId: employeeId,
+            employeeId: json?.isOwner
+                ? get().selectedEmployee?.id ?? "" 
+                : json?.employeeId ?? "",
         }
-        const response = await usecase.getAppointmentList(request);
+        const response = json?.isOwner 
+            ? await usecase.getAppointmentListOwner(request) 
+            : await usecase.getAppointmentList(request);
         if (isSuccess(response)) {
             set({ appointmentList: response.value, isLoading: false });
         } else {
@@ -67,21 +68,7 @@ export const createAppointmentStore = (usecase: AppointmentUsecase): StateCreato
         }
         return response;
     },
-    getAppointmentListOwner: async (): Promise<Result<AppointmentEntity[], Error>> => {
-        set({ isLoading: true });
-        const request: CommonRequest = {
-            dateStart: get().selectedDate?.toYYYYMMDD('-'),
-            dateEnd: get().selectedDate?.toYYYYMMDD('-'),
-            employeeId: get().selectedEmployee?.id ?? "",
-        }
-        const response = await usecase.getAppointmentListOwner(request);
-        if (isSuccess(response)) {
-            set({ appointmentList: response.value, isLoading: false });
-        } else {
-            set({ error: response.error.message, isLoading: false });
-        }
-        return response;
-    },
+   
     getCompanyProfile: async (): Promise<Result<CompanyProfileResponse, Error>> => {
         if (get().companyProfile != null) {
             return success(get().companyProfile!);
@@ -100,5 +87,6 @@ export const createAppointmentStore = (usecase: AppointmentUsecase): StateCreato
 // Khởi tạo real usecase ở production
 import { AppointmentRepositoryImplement } from "../repositories/AppointmentRepositoryImplement";
 import { EmployeeEntity } from "@/features/ticket/types/TicketResponse";
+import { appConfig } from "@/shared/utils/appConfig";
 const realAppointmentUsecase = new AppointmentUsecase(new AppointmentRepositoryImplement());
 export const useAppointmentStore = create<AppointmentState>()(createAppointmentStore(realAppointmentUsecase)); 

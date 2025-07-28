@@ -22,7 +22,7 @@ export interface MenuItemEntity {
   turnLevelID: string;
   turnCredit: number;
   isNotCountTurn: boolean;
-  menuItemType: string;
+  menuItemType: string;//"ServicePackage"
   priceOption: string;
   isAllowItemDiscount: boolean;
   isAllowTicketDiscount: boolean;

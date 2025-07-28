@@ -20,17 +20,17 @@ import AppointmentItemSkeleton from "../components/AppointmentItemSkeleton";
 import XInput from "@/shared/components/XInput";
 import XBottomSheetSearch from "@/shared/components/XBottomSheetSearch";
 import { employeeSelectors, useEmployeeStore } from "@/shared/stores/employeeStore";
+import { navigate } from "@/app/NavigationService";
 
 export default function AppointmentScreen() {
   const theme = useTheme();
-  const navigation = useNavigation();
+ 
   const {
     isLoading,
     error,
     selectedDate,
     appointmentList,
     getAppointmentList,
-    getAppointmentListOwner,
     getCompanyProfile,
     json,
     selectedEmployee,
@@ -44,7 +44,6 @@ export default function AppointmentScreen() {
       selectedDate: appointmentSelectors.selectSelectedDate(state),
       appointmentList: appointmentSelectors.selectAppointmentList(state),
       getAppointmentList: appointmentSelectors.selectGetAppointmentList(state),
-      getAppointmentListOwner: appointmentSelectors.selectGetAppointmentListOwner(state),
       getCompanyProfile: appointmentSelectors.selectGetCompanyProfile(state),
       selectedEmployee: appointmentSelectors.selectSelectedEmployee(state),
       setSelectedEmployee: appointmentSelectors.selectSetSelectedEmployee(state),
@@ -55,20 +54,10 @@ export default function AppointmentScreen() {
   const employees = useEmployeeStore(employeeSelectors.selectEmployees);
   useEffect(() => {
     reset();
-    loadKeychainData();
-   
+    loadData();
   }, []);
 
-  const loadKeychainData = async () => {
-    try {
-      const keychainData = await appConfig.getUser();
-      useAppointmentStore.setState({ json: keychainData });
-      getCompanyProfile();
-      loadData();
-    } catch (error) {
-      console.error('Error loading keychain data:', error);
-    }
-  };
+  
   const renderIconText = (icon: keyof typeof iconMap, text: string) => {
     return (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs }}>
@@ -117,7 +106,7 @@ export default function AppointmentScreen() {
         {/* Name */}
         {renderIconText("clock", item.duration.toString() + " min")}
         {renderIconText("currencyCircleDollar", item.price.toString())}
-        {renderIconText("customer", item.customer.fullName)}
+        {renderIconText("customer", getDisplayName(item))}
       
 
       
@@ -145,7 +134,7 @@ export default function AppointmentScreen() {
           contentContainerStyle={{padding: theme.spacing.sm }}
           data={appointmentList}
           renderItem={renderAppointmentItem}
-          keyExtractor={(item) => item.apptId}
+          keyExtractor={(item) => item.blockStart + "-" + item.apptId + "-" + item.serviceId + "-" + item.employeeID}
           ListEmptyComponent={<XNoDataView />}
         />
       );
@@ -165,7 +154,7 @@ export default function AppointmentScreen() {
             return value.apptStatus.toLowerCase() == "new"
           })}
           renderItem={renderAppointmentItem}
-          keyExtractor={(item) => item.apptId}
+          keyExtractor={(item) => item.blockStart + "-" + item.apptId + "-" + item.serviceId + "-" + item.employeeID}
           ListEmptyComponent={<XNoDataView />}
         />
       );
@@ -185,7 +174,7 @@ export default function AppointmentScreen() {
             return value.apptStatus.toLowerCase() == "checkin"
           })}
           renderItem={renderAppointmentItem}
-          keyExtractor={(item) => item.apptId}
+          keyExtractor={(item) => item.apptId + "-" + item.serviceId + "-" + item.employeeID}
           ListEmptyComponent={<XNoDataView />}
         />
       );
@@ -205,7 +194,7 @@ export default function AppointmentScreen() {
             return value.apptStatus.toLowerCase() == "checkout"
           })}
           renderItem={renderAppointmentItem}
-          keyExtractor={(item) => item.apptId}
+          keyExtractor={(item) => item.apptId + "-" + item.serviceId + "-" + item.employeeID}
           ListEmptyComponent={<XNoDataView />}
         />
       );
@@ -214,11 +203,8 @@ export default function AppointmentScreen() {
 
   
   const loadData = async () => {
-    if(json?.isOwner){
-      await getAppointmentListOwner();
-    }else{
-      await getAppointmentList();
-    }
+    const keychainData = await appConfig.getUser();
+    await getAppointmentList(keychainData);
   }
   const layout = useWindowDimensions();
   const renderTabview =  
@@ -338,7 +324,7 @@ export default function AppointmentScreen() {
         }}
         activeOpacity={0.85}
         onPress={() => {
-          navigation.navigate(ROUTES.CREATE_APPOINTMENT as never);
+          navigate(ROUTES.CREATE_APPOINTMENT as never);
         }}
       >
         <XIcon name="addAppointment" width={24} height={24} color="#fff" />
