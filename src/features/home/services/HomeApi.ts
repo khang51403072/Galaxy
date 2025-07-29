@@ -3,7 +3,6 @@ import { ApiResponse } from '../../../core/network/ApiResponse';
 import { API_ENDPOINTS } from '../../../core/network/endpoints';
 import { HomeChartRequest, HomeOwnerRequest } from '../types/HomeRequest';
 import { ChartEntity, HomeEntity } from '../types/HomeResponse';
-import { EmployeeEntity } from '@/features/ticket/types/TicketResponse';
 
 // ===== TYPES =====
 export interface DashboardStats {
@@ -18,7 +17,6 @@ export interface DashboardStats {
 // ===== API RESPONSES =====
 type HomeDataResponse = ApiResponse<HomeEntity>;
 type ChartDataResponse = ApiResponse<ChartEntity[]>;
-type EmployeeLookupResponse = ApiResponse<EmployeeEntity[]>;
 
 export const HomeAPI = {
   // Get dashboard statistics

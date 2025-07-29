@@ -15,9 +15,10 @@ import { dateFromTimeEntity, TimeEntity, TimeRange } from '../types/CompanyProfi
 import { ApptServicePackage } from '../types/ApptDetailsResponse';
 import { appConfig } from '@/shared/utils/appConfig';
 
-export type ServicesEntity = {
+export type BookingServiceEntity = {
   service?: MenuItemEntity|null
   technician?: EmployeeEntity|null
+  comboItems?: BookingServiceEntity[]|null
 }
 export type CreateAppointmentState = {
   error: string | null;
@@ -30,7 +31,7 @@ export type CreateAppointmentState = {
   listApptType: ApptType[];
   listCategories: CategoryEntity[];
   listItemMenu: MenuItemEntity[];
-  listBookingServices: ServicesEntity[];
+  listBookingServices: BookingServiceEntity[];
   selectedDate: Date;
   isAllowBookAnyway: boolean;
   reset: () => void;
@@ -142,7 +143,7 @@ const createAppointmentCreator = (set: any, get:any) => ({
     // Lấy businessHours từ store
     const businessHours = useAppointmentStore.getState().companyProfile?.data.businessHours;
     // Tính tổng thời lượng
-    const totalDuration = get().listBookingServices.reduce((acc: number, item: ServicesEntity) => {
+    const totalDuration = get().listBookingServices.reduce((acc: number, item: BookingServiceEntity) => {
       return acc + (item.service?.duration || 0);
     }, 0);
 
@@ -151,8 +152,66 @@ const createAppointmentCreator = (set: any, get:any) => ({
       set({ isLoading: false });
       return Promise.resolve(failure(new Error(get().error)));
     }
-
-  
+    //get list apptServiceItems và apptServicePackages
+    const apptServiceItems: ApptServiceItem[] = [];
+    const apptServicePackages: ApptPackageItem[] = [];
+    let startTime = get().selectedDate;
+    const listBookingServices: BookingServiceEntity[] = get().listBookingServices || [];
+    for(const item  of  listBookingServices){
+      if(item.service === null) continue;
+      if(item.service?.menuItemType === "ServicePackage"){
+        const listComboItems = item.comboItems || [];
+        const apptServiceItemsTmp= []
+        for(const comboItem of listComboItems){
+          const apptServiceItem = {
+            id: "",
+            name: comboItem.service?.name || "",
+            duration: comboItem.service?.duration || 0,
+            startTime: {
+              hours: startTime.getHours(),
+              minutes: startTime.getMinutes(),
+              seconds: 0,
+              nanos: 0
+            },
+            price: comboItem.service?.regularPrice || 0,
+            employeeId: comboItem.technician?.id || "",
+          } as ApptServiceItem;
+          apptServiceItemsTmp.push(apptServiceItem);
+          if(get().isGroupAppointment){
+            startTime = new Date(startTime.getTime() + (comboItem.service?.duration || 0) * 60000);
+          }
+        }
+        const apptServicePackage : ApptPackageItem = {
+          id: item.service?.id || "",
+          apptServicePackageFilter: "",
+          name: item.service?.name || "",
+          price: item.service?.regularPrice || 0,
+          duration: item.service?.duration || 0,
+          apptServiceItems: apptServiceItemsTmp,
+        } as ApptPackageItem
+        apptServicePackages.push(apptServicePackage);
+      } else {
+        const apptServiceItem = {
+          id: "",
+          name: item.service?.name || "",
+          duration: item.service?.duration || 0,
+          startTime: {
+            hours: startTime.getHours(),
+            minutes: startTime.getMinutes(),
+            seconds: 0,
+            nanos: 0
+          },
+          price: item.service?.regularPrice || 0,
+          employeeId: item.technician?.id || "",
+        } as ApptServiceItem;
+        apptServiceItems.push(
+          apptServiceItem
+        );
+        if(get().isGroupAppointment){
+          startTime = new Date(startTime.getTime() + (item.service?.duration || 0) * 60000);
+        }
+      }
+    }
     //
     //continue save
     const payloadSave: ApptPayload = {
@@ -163,8 +222,8 @@ const createAppointmentCreator = (set: any, get:any) => ({
       isGroupAppt: get().isGroupAppointment,
       apptStatus: "New",
       apptConfirmStatus: "None",
-      apptServiceItems: getListApptServiceItems(get()),
-      apptServicePackages: getListComboItems(get()),
+      apptServiceItems: apptServiceItems,
+      apptServicePackages: apptServicePackages,
       customer: {
         firstName: get().selectedCustomer?.firstName || "",
         lastName: get().selectedCustomer?.lastName || "",
@@ -195,14 +254,14 @@ function getListComboItems(createAppointmentStore: CreateAppointmentState): Appt
   for (const item of createAppointmentStore.listBookingServices) {
     if (item.service?.menuItemType === "ServicePackage") {
       const listComboItems = createAppointmentStore.listBookingServices.filter(
-        (e: ServicesEntity)=> item.service?.servicePackageMaps.findIndex((value, index)=>{
+        (e: BookingServiceEntity)=> item.service?.servicePackageMaps.findIndex((value, index)=>{
           if(value.mapMenuItemId === e.service?.id)
             return index
           return -1
         }) !== -1
       );
 
-      const apptServiceItems = listComboItems.map((e: ServicesEntity)=>{
+      const apptServiceItems = listComboItems.map((e: BookingServiceEntity)=>{
         const apptServiceItem = {
           id: e.service?.id || "",
           name: e.service?.name || "",
@@ -315,7 +374,7 @@ function validBookings(
   // booking.startTime = toTimeEntity(booking.bookingTime); // Nếu cần set lại, xử lý ngoài hàm này
 
   for (const item of useCreateAppointmentStore.listBookingServices) {
-    if (item.service && item.technician === null) {
+    if (item.service?.menuItemType !== "ServicePackage" && item.service && item.technician === null) {
       setAlertMessage(
         `Please select a technician for service: ${item.service?.name}`
       );
