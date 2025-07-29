@@ -17,6 +17,7 @@ import CustomBottomNotification from '@/shared/components/CustomBottomNotificati
 import { initFirebaseNotificationService, removeFirebaseNotificationListener } from './src/shared/services/FirebaseNotificationService';
 import { navigate } from '@/app/NavigationService';
 import { ROUTES } from '@/app/routes';
+import { XAlertProvider } from '@/shared/components/XAlertContext';
 
 
 function App() {
@@ -34,25 +35,27 @@ function App() {
     <GestureHandlerRootView>
       <BottomSheetModalProvider>
         <ThemeProvider>
-          <View style={styles.container}>
-            <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-            <ActionSheetProvider >
-              <AppNavigator/>
-            </ActionSheetProvider>
-            {notify && (
-              <CustomBottomNotification
-                title={notify.title}
-                message={notify.message}
-                onClose={() => setNotify(null)}
-                onViewDetails={() => {
-                  // Xử lý khi bấm View Details
-                  setNotify(null);
-                  navigate(ROUTES.NOTIFICATIONS);
-                  // ...navigate hoặc mở modal
-                }}
-              />
-            )}
-          </View>
+          <XAlertProvider>
+            <View style={styles.container}>
+              <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+              <ActionSheetProvider>
+                <AppNavigator/>
+              </ActionSheetProvider>
+              {notify && (
+                <CustomBottomNotification
+                  title={notify.title}
+                  message={notify.message}
+                  onClose={() => setNotify(null)}
+                  onViewDetails={() => {
+                    // Xử lý khi bấm View Details
+                    setNotify(null);
+                    navigate(ROUTES.NOTIFICATIONS);
+                    // ...navigate hoặc mở modal
+                  }}
+                />
+              )}
+            </View>
+          </XAlertProvider>
         </ThemeProvider>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>

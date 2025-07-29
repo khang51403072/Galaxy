@@ -23,6 +23,8 @@ import XBottomSheetSearch from "@/shared/components/XBottomSheetSearch";
 import { useTicketStore } from "@/features/ticket/stores/ticketStore";
 import { EmployeeEntity, getDisplayName, isEmployee } from "@/features/ticket/types/TicketResponse";
 import XButton from "@/shared/components/XButton";
+import { useXAlert } from "@/shared/components/XAlertContext";
+import { appConfig } from "@/shared/utils/appConfig";
 
 
 // Định nghĩa type cho params
@@ -101,7 +103,7 @@ const updateBookingServices = ({
 
 export default function CreateAppointmentScreen() {
     const theme = useTheme();
-   
+    const {showAlert} = useXAlert();
     const [showServiceSheet, setShowServiceSheet] = useState(false);
     const {employees} = useEmployeeStore(useShallow((state)=>({
         employees: employeeSelectors.selectEmployees(state)
@@ -139,9 +141,10 @@ export default function CreateAppointmentScreen() {
         reset: createAppointmentSelectors.selectReset(state)
     })));
 
-    const {getCompanyProfile} = useAppointmentStore(useShallow(
+    const {getCompanyProfile, getAppointmentList} = useAppointmentStore(useShallow(
         (state)=>({
-            getCompanyProfile: appointmentSelectors.selectGetCompanyProfile(state)
+            getCompanyProfile: appointmentSelectors.selectGetCompanyProfile(state),
+            getAppointmentList: appointmentSelectors.selectGetAppointmentList(state)
         })
     ));
     useEffect(()=>{
@@ -451,22 +454,22 @@ export default function CreateAppointmentScreen() {
     const listServiceComponent = () =>{
         return listServices.map((e, index)=>{
             return <View
-            key={index}
-            style={{
-                gap: theme.spacing.sm
-            }}>
-                {renderService(e, index)}
-                {
-                    e.service && e.service?.menuItemType !== "ServicePackage" && <TouchableOpacity onPress={
-                        async () => {
-                        setServiceIndex(index)
-                        setIsShowTechnician(true);
-                        
-                    }}>
-                        <XInput value={ e.technician ? getDisplayName(e.technician) : ""} 
-                            editable={false} placeholder="Choose Technician" pointerEvents="none"/>
-                    </TouchableOpacity>
-                }
+                key={index}
+                style={{
+                    gap: theme.spacing.sm
+                }}>
+                    {renderService(e, index)}
+                    {
+                        e.service && e.service?.menuItemType !== "ServicePackage" && <TouchableOpacity onPress={
+                            async () => {
+                            setServiceIndex(index)
+                            setIsShowTechnician(true);
+                            
+                        }}>
+                            <XInput value={ e.technician ? getDisplayName(e.technician) : ""} 
+                                editable={false} placeholder="Choose Technician" pointerEvents="none"/>
+                        </TouchableOpacity>
+                    }
             </View>
         })
     }
@@ -480,9 +483,20 @@ export default function CreateAppointmentScreen() {
             scrollable={true}
             footer={<XButton title="Save" onPress={
                 async () => {
-                   
                     const result = await saveAppointment();
-                    
+                    if(isSuccess(result)){  
+                        
+                        showAlert({
+                            title: "Appointment created successfully",
+                            message: "Appointment created successfully",
+                            type: "success",
+                            onClose: async () => {
+                                goBack();
+                                const json = await appConfig.getUser()
+                                getAppointmentList(json)
+                            }
+                        });
+                    }
                 }
             } />}
             >    
