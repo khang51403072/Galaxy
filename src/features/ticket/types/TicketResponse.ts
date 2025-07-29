@@ -3,6 +3,7 @@
  * Khi thêm mới thuộc tính, phải bổ sung vào hàm isEmployee
  */
 export interface EmployeeEntity {
+    __type: 'employee';
     id: string;
     firstName: string;
     lastName: string;
@@ -21,13 +22,7 @@ export interface EmployeeEntity {
 export function isEmployee(obj: any): obj is EmployeeEntity {
   return (
     obj &&
-    typeof obj.id === 'string' &&
-    typeof obj.firstName === 'string' &&
-    typeof obj.lastName === 'string' &&
-    typeof obj.nickName === 'string' &&
-    typeof obj.image === 'string' &&
-    typeof obj.avatar === 'string' &&
-    typeof obj.isUnassigned === 'boolean'
+    obj.__type === 'employee'
   );
 }
 
