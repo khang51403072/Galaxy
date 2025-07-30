@@ -1,3 +1,5 @@
+import { WorkHours } from "@/features/appointment/types/ApptResResponse";
+
 /**
  * Định nghĩa các thuộc tính của EmployeeEntity
  * Khi thêm mới thuộc tính, phải bổ sung vào hàm isEmployee
@@ -11,6 +13,7 @@ export interface EmployeeEntity {
     image: string;
     avatar: string;
     isUnassigned: boolean;
+    workHours?: WorkHours;
   }
 
 
