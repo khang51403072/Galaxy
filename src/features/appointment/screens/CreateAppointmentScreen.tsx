@@ -126,9 +126,7 @@ export default function CreateAppointmentScreen() {
     const theme = useTheme();
     const {showAlert} = useXAlert();
     const [showServiceSheet, setShowServiceSheet] = useState(false);
-    const {employees} = useEmployeeStore(useShallow((state)=>({
-        employees: employeeSelectors.selectEmployees(state)
-    })))
+   
     const [employeeForAvailable, setEmployeeForAvailable] = useState<EmployeeEntity[]>([]);
     const {sendMessage} = useSignalR();
     const {
@@ -140,8 +138,10 @@ export default function CreateAppointmentScreen() {
         getCustomerLookup,
         saveAppointment,
         error,
+        listEmployeeOnWork,
         reset
     } = useCreateAppointmentStore(useShallow((state) => ({
+        listEmployeeOnWork: createAppointmentSelectors.selectListEmployeeOnWork(state),
         getApptResource: createAppointmentSelectors.selectGetApptResource(state),
         selectedCustomer: createAppointmentSelectors.selectSelectedCustomer(state),
         selectedApptType: createAppointmentSelectors.selectSelectedApptType(state),
@@ -202,6 +202,7 @@ export default function CreateAppointmentScreen() {
                 listApptType: tmplist,
                 selectedApptType: apptType}) 
         }
+        getApptResource();
         getListItemMenu();
         getListCategories(); 
         
@@ -437,7 +438,7 @@ export default function CreateAppointmentScreen() {
                                                 setServiceIndex(serviceIndex)
                                                 setComboIndex(comboIndex)
                                                 const setEmployee = new Set(item.service?.allowedEmployees);
-                                                const listEmployee = employees.filter((employee)=>{
+                                                const listEmployee = listEmployeeOnWork.filter((employee)=>{
                                                     return setEmployee.has(employee.id)
                                                 });
                                                 setEmployeeForAvailable(listEmployee);
@@ -495,7 +496,7 @@ export default function CreateAppointmentScreen() {
                             setServiceIndex(index)
                             setComboIndex(-1);
                             const setEmployee = new Set(e.service?.allowedEmployees);
-                            const listEmployee = employees.filter((item)=>{
+                            const listEmployee = listEmployeeOnWork.filter((item)=>{
                                 return setEmployee.has(item.id)
                             });
                             setEmployeeForAvailable(listEmployee);

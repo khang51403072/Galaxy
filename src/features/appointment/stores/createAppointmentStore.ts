@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ApptResResponse } from '../types/ApptResResponse';
+import { ApptRes, ApptResResponse, Hour, WorkHours } from '../types/ApptResResponse';
 import { failure, isSuccess, Result, success } from '../../../shared/types/Result';
 import { AppointmentRepositoryImplement } from '../repositories/AppointmentRepositoryImplement';
 import { AppointmentUsecase } from '../usecases/AppointmentUsecase';
@@ -11,9 +11,10 @@ import { MenuItemEntity } from '../types/MenuItemResponse';
 import { EmployeeEntity } from '@/features/ticket/types/TicketResponse';
 import { ApptPackageItem, ApptPayload, ApptServiceItem, DataAppt, StartTime } from '../types/ApptSaveResponse';
 import { useAppointmentStore } from './appointmentStore';
-import { dateFromTimeEntity, TimeEntity, TimeRange } from '../types/CompanyProfileResponse';
+import { CompanyProfileResponse, dateFromTimeEntity, TimeEntity, TimeRange } from '../types/CompanyProfileResponse';
 import { ApptServicePackage } from '../types/ApptDetailsResponse';
 import { appConfig } from '@/shared/utils/appConfig';
+import { useEmployeeStore } from '@/shared/stores/employeeStore';
 
 export type BookingServiceEntity = {
   service?: MenuItemEntity|null
@@ -34,12 +35,16 @@ export type CreateAppointmentState = {
   listBookingServices: BookingServiceEntity[];
   selectedDate: Date;
   isAllowBookAnyway: boolean;
+  listEmployeeOnWork: EmployeeEntity[];
+  companyProfile: CompanyProfileResponse | null;
+  listApptResource: ApptRes[];
   reset: () => void;
   ///GET
   getListCategories: ()=> Promise<Result<CategoryEntity[], Error>>;
   getListItemMenu: ()=> Promise<Result<MenuItemEntity[], Error>>
   getApptResource: () => Promise<Result<ApptResResponse, Error>>;
   getCustomerLookup: (pageNumber?: number, pageSize?: number, phoneNumber?: string) => Promise<Result<CustomerResponse, Error>>;
+  getCompanyProfile: () => Promise<Result<CompanyProfileResponse, Error>>;
   ///SET
   setIsConfirmOnline: (value: boolean) => void;
   setIsGroupAppt: (value: boolean) => void;
@@ -48,6 +53,8 @@ export type CreateAppointmentState = {
   //
   saveAppointment: ()=> Promise<Result<DataAppt, Error>>;
   setIsAllowBookAnyway: (value: boolean)=> void;
+  //
+
 };
 
 
@@ -62,6 +69,7 @@ export const initialCreateAppointmentState = {
   selectedApptType: null,
   selectedDate: new Date(),
   isAllowBookAnyway: false,
+  
   
   listApptType: [
     createApptType("Misc", "Misc",),
@@ -83,12 +91,57 @@ const createAppointmentCreator = (set: any, get:any) => ({
   listCategories: [],
   listItemMenu: [],
   customerList: [],
+  companyProfile: null,
+  listApptResource: [],
+  listEmployeeOnWork: [],
   setSelectedDate: (value: Date) => set({ selectedDate: value }),
   setIsConfirmOnline: (value: boolean) => set({ isConfirmOnline: value }),
   setIsGroupAppt: (value: boolean) => set({ isGroupAppointment: value }),
   reset: () => set({ ...initialCreateAppointmentState }),
-  getApptResource: () => {
-    return appointmentUsecase.getApptResource();
+  getApptResource: async () => {
+    set({ isLoading: true });
+    const result = await appointmentUsecase.getApptResource();
+    if(isSuccess(result)){
+      
+      const listEmployee: EmployeeEntity[]= useEmployeeStore.getState().employees;
+      
+      const mapApptResource = new Map<string, WorkHours>();
+      
+      result.value.data.forEach((item)=>{
+        mapApptResource.set(item.id, item.workHours);
+      })
+      const listEmployeeOnWork: EmployeeEntity[] = listEmployee.map((item)=>{
+        return {
+          ...item,
+          workHours: mapApptResource.get(item.id)
+        }
+      })
+      
+      
+
+      set({ 
+        listApptResource: result.value.data,
+        listEmployeeOnWork: listEmployeeOnWork.filter((item)=>{
+          return isEmployeeAvailableForDay(item, get().selectedDate)
+        }), 
+        isLoading: false, 
+        error: null 
+      });
+    }
+    else{
+      set({ isLoading: false, error: result.error.message });
+    }
+    return result;
+  },
+  getCompanyProfile: async (): Promise<Result<CompanyProfileResponse, Error>> => {
+    if (get().companyProfile != null) {
+        return success(get().companyProfile!);
+    }
+    const response = await appointmentUsecase.apptCompanyProfile();
+    if (isSuccess(response)) {
+        set({ companyProfile: response.value });
+    }
+    return response;
   },
   setSelectedCustomer: (value:CustomerEntity)=>{
     set({selectedCustomer: value})
@@ -116,6 +169,7 @@ const createAppointmentCreator = (set: any, get:any) => ({
     set({ isLoading: false });
     return result; 
   },
+  
   getCustomerLookup: async (pageNumber: number = 1, pageSize: number = 10000, phoneNumber: string = '') => {
     set({ isLoading: true });
     if(get().customerList?.length > 0){
@@ -252,6 +306,11 @@ const createAppointmentCreator = (set: any, get:any) => ({
 export const useCreateAppointmentStore = create<CreateAppointmentState>(createAppointmentCreator);
 
 export const createAppointmentSelectors = {
+  selectListApptResource: (state: CreateAppointmentState) => state.listApptResource,
+  selectGetListApptResource: (state: CreateAppointmentState) => state.getApptResource,
+  selectGetCompanyProfile: (state: CreateAppointmentState) => state.getCompanyProfile,
+
+  selectListEmployeeOnWork: (state: CreateAppointmentState) => state.listEmployeeOnWork,
   selectSelectedCustomer: (state: CreateAppointmentState) => state.selectedCustomer,
   selectCustomerList: (state: CreateAppointmentState) => state.customerList,
   selectListApptType: (state: CreateAppointmentState)=>state.listApptType,
@@ -372,4 +431,91 @@ function getWorkHourByDay(workHours: any, date: Date): TimeRange | null {
 }
 
 
+// Import existing types
 
+// Helper Functions
+const timeToMinutes = (time: Hour): number => {
+  return time.hours * 60 + time.minutes;
+};
+
+const getWeekday = (date: Date): number => {
+  return date.getDay();
+};
+
+// Check if employee is available for a specific day
+const isEmployeeAvailableForDay = (employee: EmployeeEntity, bookingDate: Date): boolean => {
+  // If no workHour, assume available
+  if (!employee.workHours) {
+    return true;
+  }
+
+  const weekday = getWeekday(bookingDate);
+  const workHour: WorkHours = employee.workHours;
+
+  // Check if employee works on this weekday
+  let isWorkingDay = false;
+  let fromHour: Hour;
+  let toHour: Hour;
+
+  switch (weekday) {
+    case 0: // Sunday
+      isWorkingDay = workHour.isSun;
+      fromHour = workHour.sunFromHour;
+      toHour = workHour.sunToHour;
+      break;
+    case 1: // Monday
+      isWorkingDay = workHour.isMon;
+      fromHour = workHour.monFromHour;
+      toHour = workHour.monToHour;
+      break;
+    case 2: // Tuesday
+      isWorkingDay = workHour.isTue;
+      fromHour = workHour.tueFromHour;
+      toHour = workHour.tueToHour;
+      break;
+    case 3: // Wednesday
+      isWorkingDay = workHour.isWed;
+      fromHour = workHour.wedFromHour;
+      toHour = workHour.wedToHour;
+      break;
+    case 4: // Thursday
+      isWorkingDay = workHour.isThu;
+      fromHour = workHour.thuFromHour;
+      toHour = workHour.thuToHour;
+      break;
+    case 5: // Friday
+      isWorkingDay = workHour.isFri;
+      fromHour = workHour.friFromHour;
+      toHour = workHour.friToHour;
+      break;
+    case 6: // Saturday
+      isWorkingDay = workHour.isSat;
+      fromHour = workHour.satFromHour;
+      toHour = workHour.satToHour;
+      break;
+    default:
+      return false;
+  }
+
+  // If not working day, return false
+  if (!isWorkingDay) {
+    return false;
+  }
+
+  // Convert to minutes for comparison
+  const fromMinutes = timeToMinutes(fromHour);
+  const toMinutes = timeToMinutes(toHour);
+
+  // Get booking time in minutes
+  const bookingMinutes = bookingDate.getHours() * 60 + bookingDate.getMinutes();
+
+  // Check if booking time is within working hours
+  return bookingMinutes >= fromMinutes && bookingMinutes <= toMinutes;
+};
+
+// Main function
+const getAvailableEmployees = (employees: EmployeeEntity[], bookingDate: Date): EmployeeEntity[] => {
+  return employees.filter(employee => 
+    isEmployeeAvailableForDay(employee, bookingDate)
+  );
+};
