@@ -129,6 +129,7 @@ export default function CreateAppointmentScreen() {
     const {employees} = useEmployeeStore(useShallow((state)=>({
         employees: employeeSelectors.selectEmployees(state)
     })))
+    const [employeeForAvailable, setEmployeeForAvailable] = useState<EmployeeEntity[]>([]);
     const {sendMessage} = useSignalR();
     const {
         getApptResource, selectedCustomer,selectedApptType,listApptType, 
@@ -367,7 +368,7 @@ export default function CreateAppointmentScreen() {
                 onClose={() => {
                     setIsShowTechnician(false);
                 }}
-                data={employees}
+                data={employeeForAvailable}
                 onSelect={(item) => {
                     if(comboIndex == -1){
                         handleSelectEmployee(item);
@@ -435,6 +436,11 @@ export default function CreateAppointmentScreen() {
                                             async () => {
                                                 setServiceIndex(serviceIndex)
                                                 setComboIndex(comboIndex)
+                                                const setEmployee = new Set(item.service?.allowedEmployees);
+                                                const listEmployee = employees.filter((employee)=>{
+                                                    return setEmployee.has(employee.id)
+                                                });
+                                                setEmployeeForAvailable(listEmployee);
                                                 setIsShowTechnician(true);
                                         }}>
                                         <XInput value={ item.technician ? getDisplayName(item.technician) : ""} 
@@ -487,8 +493,13 @@ export default function CreateAppointmentScreen() {
                         e.service && e.service?.menuItemType !== "ServicePackage" && <TouchableOpacity onPress={
                             async () => {
                             setServiceIndex(index)
+                            setComboIndex(-1);
+                            const setEmployee = new Set(e.service?.allowedEmployees);
+                            const listEmployee = employees.filter((item)=>{
+                                return setEmployee.has(item.id)
+                            });
+                            setEmployeeForAvailable(listEmployee);
                             setIsShowTechnician(true);
-                            
                         }}>
                             <XInput value={ e.technician ? getDisplayName(e.technician) : ""} 
                                 editable={false} placeholder="Choose Technician" pointerEvents="none"/>
@@ -511,32 +522,27 @@ export default function CreateAppointmentScreen() {
             // }}
             footer={<XButton title="Save" onPress={
                 async () => {
-                    sendMessage([
-                        1,
-                        {
-                            data: {}
-                        }
-                    ]);
-                    // const result = await saveAppointment();
-                    // if(isSuccess(result)){  
-                    //     sendMessage([
-                    //         {
-                    //             type: "SendMessage",
-                    //             data: createApptMessage(result.value)
-                    //         }
-                    //     ]);
+                    
+                    const result = await saveAppointment();
+                    if(isSuccess(result)){  
+                        sendMessage([
+                            {
+                                type: "SendMessage",
+                                data: createApptMessage(result.value)
+                            }
+                        ]);
                         
-                    //     showAlert({
-                    //         title: "Appointment created successfully",
-                    //         message: "Appointment created successfully",
-                    //         type: "success",
-                    //         onClose: async () => {
-                    //             goBack();
-                    //             const json = await appConfig.getUser()
-                    //             getAppointmentList(json)
-                    //         }
-                    //     });
-                    // }
+                        showAlert({
+                            title: "Successfully",
+                            message: "Appointment created successfully",
+                            type: "success",
+                            onClose: async () => {
+                                goBack();
+                                const json = await appConfig.getUser()
+                                getAppointmentList(json)
+                            }
+                        });
+                    }
                 }
             } />}
             >    
