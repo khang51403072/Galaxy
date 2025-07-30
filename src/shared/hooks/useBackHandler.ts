@@ -1,9 +1,7 @@
 import { useEffect } from 'react';
 import { BackHandler } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-
-export const useBackHandler = (onBack: () => void) => {
-  const navigation = useNavigation();
+export const useBackHandler = (navigation: any, onBack: () => void) => {
+  
 
   useEffect(() => {
     const backHandler = () => {

@@ -169,9 +169,9 @@ export default function CreateAppointmentScreen() {
             getAppointmentList: appointmentSelectors.selectGetAppointmentList(state)
         })
     ));
-
+    const navigation = useNavigation();
     // Sử dụng custom hook để handle back events
-    useBackHandler(() => {
+    useBackHandler(navigation, () => {
         reset();
         console.log('back handler');
     });
