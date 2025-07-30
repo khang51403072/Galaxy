@@ -83,6 +83,7 @@ interface XScreenProps {
   style?: any;
   rightIcon?: ReactNode;
   haveBottomTabBar?: boolean;
+  onBackPress?: () => void;
 }
 
 
@@ -108,6 +109,7 @@ export default function XScreen({
   style,
   rightIcon,
   haveBottomTabBar = false,
+  onBackPress,
 }: XScreenProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -240,6 +242,7 @@ export default function XScreen({
          
           rightIcon={rightIcon}
           safeArea={safeArea}
+          onBackPress={onBackPress}
       />
       {content}
       {footer && <View style={styles.footer}>{footer}</View>}

@@ -7,7 +7,7 @@ import XSwitch from "@/shared/components/XSwitch";
 import XText from "@/shared/components/XText";
 import { useTheme } from "@/shared/theme/ThemeProvider";
 import { useEffect, useRef, useState } from "react";
-import { FlatList, ScrollView, TouchableOpacity, View } from "react-native";
+import { BackHandler, FlatList, ScrollView, TouchableOpacity, View } from "react-native";
 import { createAppointmentSelectors, BookingServiceEntity, useCreateAppointmentStore } from "../stores/createAppointmentStore";
 import { useShallow } from "zustand/react/shallow";
 import { ROUTES } from "@/app/routes";
@@ -29,7 +29,8 @@ import useSignalR from "@/shared/hooks/useSignalR";
 import { DataAppt } from "../types/ApptSaveResponse";
 import { useFocusEffect } from "@react-navigation/native";
 import React from "react";
-
+import { useNavigation } from "@react-navigation/native";
+import { useBackHandler } from "@/shared/hooks/useBackHandler";
 interface ApptMessage {
     message: string
     date: string
@@ -169,6 +170,11 @@ export default function CreateAppointmentScreen() {
         })
     ));
 
+    // Sử dụng custom hook để handle back events
+    useBackHandler(() => {
+        reset();
+        console.log('back handler');
+    });
 
     useEffect(()=>{
         loadCompanyProfile();
@@ -499,6 +505,10 @@ export default function CreateAppointmentScreen() {
             loading = {isLoading} 
             error={error}
             scrollable={true}
+            // onBackPress={() => {
+            //     reset();
+            //     goBack();
+            // }}
             footer={<XButton title="Save" onPress={
                 async () => {
                     sendMessage([
@@ -524,9 +534,9 @@ export default function CreateAppointmentScreen() {
                     //             goBack();
                     //             const json = await appConfig.getUser()
                     //             getAppointmentList(json)
-                    //             }
-                    //         });
-                    //     }
+                    //         }
+                    //     });
+                    // }
                 }
             } />}
             >    
