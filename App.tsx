@@ -5,6 +5,9 @@
  * @format
  */
 
+// Import polyfill for React Native URL compatibility - must be imported first
+import 'react-native-url-polyfill/auto';
+
 import React, { useEffect, useState } from 'react';
 import AppNavigator from './src/app/AppNavigator';
 import { StatusBar, StyleSheet, useColorScheme, View, Alert, Platform } from 'react-native';
@@ -18,16 +21,26 @@ import { initFirebaseNotificationService, removeFirebaseNotificationListener } f
 import { navigate } from '@/app/NavigationService';
 import { ROUTES } from '@/app/routes';
 import { XAlertProvider } from '@/shared/components/XAlertContext';
+import { SignalRService } from '@/core/network';
+import useSignalRStore from '@/shared/stores/signalRStore';
 
 
 function App() {
   const [notify, setNotify] = useState<{title: string, message: string}|null>(null);
+  const { initialize: initializeSignalR } = useSignalRStore();
+  
   useEffect(() => {
     initFirebaseNotificationService(setNotify);
+    
+    // Initialize SignalR connection
+    initializeSignalR().catch(error => {
+      console.error('Failed to initialize SignalR:', error);
+    });
+    
     return () => {
       removeFirebaseNotificationListener();
     };
-  }, []);
+  }, [initializeSignalR]);
 
   const isDarkMode = useColorScheme() === 'dark';
 

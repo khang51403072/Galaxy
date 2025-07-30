@@ -237,97 +237,17 @@ const createAppointmentCreator = (set: any, get:any) => ({
     }
     const result = await appointmentUsecase.saveAppointment(payloadSave);
     if(isSuccess(result)){  
-      set({ isLoading: false });
+      set({ isLoading: false, error: null });
+      return success(result.value.data);
     }
     else{
       set({ isLoading: false, error: result.error.message });
     }
-    
     return result;
   },
   setIsAllowBookAnyway: (value: boolean) => set({ isAllowBookAnyway: value })
 });
 
-function getListComboItems(createAppointmentStore: CreateAppointmentState): ApptPackageItem[] {
-  let startTime = createAppointmentStore.selectedDate;
-  const apptServicePackages: ApptPackageItem[] = [];
-  for (const item of createAppointmentStore.listBookingServices) {
-    if (item.service?.menuItemType === "ServicePackage") {
-      const listComboItems = createAppointmentStore.listBookingServices.filter(
-        (e: BookingServiceEntity)=> item.service?.servicePackageMaps.findIndex((value, index)=>{
-          if(value.mapMenuItemId === e.service?.id)
-            return index
-          return -1
-        }) !== -1
-      );
-
-      const apptServiceItems = listComboItems.map((e: BookingServiceEntity)=>{
-        const apptServiceItem = {
-          id: e.service?.id || "",
-          name: e.service?.name || "",
-          duration: e.service?.duration || 0,
-          startTime: {
-            hours: startTime.getHours(),
-            minutes: startTime.getMinutes(),
-            seconds: 0,
-            nanos: 0
-          },
-          position: 0,
-
-          price: e.service?.regularPrice || 0,
-        } as ApptServiceItem
-        if(!createAppointmentStore.isGroupAppointment){
-          startTime = new Date(startTime.getTime() + (e.service?.duration || 0) * 60000);
-        }
-        return apptServiceItem;
-      });
-      apptServicePackages.push(
-        {
-          id: item.service?.id || "",
-          name: item.service?.name || "",
-          apptServiceItems: apptServiceItems,
-          position: item.service?.position || 0,
-          price: item.service?.regularPrice || 0,
-          duration: item.service?.duration || 0,
-          apptServicePackageFilter: "",
-        } as ApptPackageItem
-      );
-    }
-
-  }
-  
-  return apptServicePackages;
-}
-
-function getListApptServiceItems(createAppointmentStore: CreateAppointmentState): ApptServiceItem[] {
-  let startTime = createAppointmentStore.selectedDate;
-  const apptServiceItems: ApptServiceItem[] = [];
-  for (const item of createAppointmentStore.listBookingServices) {
-    if (item.service?.menuItemType === "ServicePackage") {
-      continue; 
-    }
-    apptServiceItems.push(
-      {
-        id: "",
-        name: item.service?.name || "",
-        duration: item.service?.duration || 0,
-        startTime: {
-          hours: startTime.getHours(),
-          minutes: startTime.getMinutes(),
-          seconds: 0,
-          nanos: 0
-        },
-        price: item.service?.regularPrice || 0,
-        employeeId: item.technician?.id || "",
-      } as ApptServiceItem
-    );
-    if(createAppointmentStore.isGroupAppointment){
-      startTime = new Date(startTime.getTime() + (item.service?.duration || 0) * 60000);
-    }
-  }
-  return apptServiceItems;
-
-}
 
 export const useCreateAppointmentStore = create<CreateAppointmentState>(createAppointmentCreator);
 
@@ -361,24 +281,35 @@ function validBookings(
   useCreateAppointmentStore: CreateAppointmentState,
   setAlertMessage: (msg: string) => void
 ): boolean {
-  if (useCreateAppointmentStore.listBookingServices.length<2) {
-    setAlertMessage("Please add at least one service");
-    return false;
-  }
-
   if (!useCreateAppointmentStore.selectedCustomer) {
     setAlertMessage("Please select a customer");
     return false;
   }
-
-  // booking.startTime = toTimeEntity(booking.bookingTime); // Nếu cần set lại, xử lý ngoài hàm này
-
-  for (const item of useCreateAppointmentStore.listBookingServices) {
-    if (item.service?.menuItemType !== "ServicePackage" && item.service && item.technician === null) {
+  const listBooking = useCreateAppointmentStore.listBookingServices.filter(item => item.service !== null);
+  if (listBooking.length<1) {
+    setAlertMessage("Please add at least one service");
+    return false;
+  }
+  for (const item of listBooking) {
+    if (item.service?.menuItemType !== "ServicePackage" 
+        && item.service && item.technician === null) {
       setAlertMessage(
         `Please select a technician for service: ${item.service?.name}`
       );
       return false;
+    }
+    if(item.service?.menuItemType === "ServicePackage" 
+        && item.comboItems!=null 
+        && item.comboItems?.length > 0)
+    {
+      for(const comboItem of item.comboItems){
+        if(comboItem.technician === null){
+          setAlertMessage(
+            `Please select a technician for service: ${comboItem.service?.name}`
+          );
+          return false;
+        }
+      }
     }
   }
 

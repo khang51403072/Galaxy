@@ -1,79 +1,3 @@
-export interface ApptPayload {
-  id: string;
-  apptDate: string;
-  retentionType: string;
-  isOnlineConfirm: boolean;
-  isGroupAppt: boolean;
-  apptStatus: string;
-  apptConfirmStatus: string;
-  apptServiceItems: ApptServiceItem[];
-  apptServicePackages: ApptPackageItem[];
-  customer: CustomerAppt;
-  customerNote: string;
-  allowBookAnyway: boolean;
-}
-
-export interface ApptServiceItem {
-  id: string;
-  name: string;
-  duration: number;
-  startTime: StartTime;
-  price: number;
-  employeeId: string;
-  note: string;
-  userInfo?: UserInfo;
-  apptServicePackageId: string;
-  apptServicePackageName: string;
-  apptServicePackageFilter: string;
-  position: number;
-}
-
-export interface StartTime {
-  hours: number;
-  minutes: number;
-  seconds: number;
-  nanos: number;
-}
-
-export interface CustomerAppt {
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  id: string;
-  email: string;
-  cellPhone: string;
-}
-
-export interface ApptPackageItem {
-  id: string;
-  apptServicePackageFilter: string;
-  name: string;
-  price: number;
-  duration: number;
-  apptServiceItems: ApptServiceItem[];
-}
-///////////////////////////RESPONSE
-export interface ApptSaveResponse {
-  result: boolean;
-  errorMsg: string;
-  data: DataAppt;
-  validateApptResponse?: ValidateApptResponse;
-}
-
-export interface ValidateApptResponse {
-  errorMsg: string;
-  isNoConflict: boolean;
-  allowBookAnyway: boolean;
-  conflictItems: ConflictItem[];
-  errorMsgs: string[];
-}
-
-export interface ConflictItem {
-  apptID: string;
-  isBlock: boolean;
-  // ... define as needed
-}
-
 export interface DataAppt {
   // Basic appointment properties
   isAllowUnAsignAppt: boolean;
@@ -163,7 +87,7 @@ export interface ApptServiceItem {
   foreColor: string;
   backColor: string;
   position: number;
-  userInfo?: UserInfo;
+  userInfo: UserInfo;
   apptServicePackageFilter: string;
 }
 
@@ -187,4 +111,68 @@ export interface Deposit {
   paymentCvcCode: string;
   isReturn: boolean;
 }
+
+
+// Helper functions for DataAppt
+export const createDataAppt = (data: Partial<DataAppt>): DataAppt => {
+  return {
+    isAllowUnAsignAppt: false,
+    captchaToken: '',
+    apptType: 'Regular',
+    isBlock: false,
+    blockStart: { hours: 0, minutes: 0, nanos: 0, seconds: 0 },
+    blockEnd: { hours: 0, minutes: 0, nanos: 0, seconds: 0 },
+    blockEmployeeId: '',
+    apptDate: '',
+    startTime: '',
+    customer: {
+      id: '',
+      fullName: '',
+      firstName: '',
+      lastName: '',
+      email: '',
+      cellPhone: '',
+    },
+    customerNote: '',
+    retentionType: 'Request',
+    isPreBooking: false,
+    isOnlineConfirm: false,
+    isOnlineBooking: false,
+    isGroupAppt: false,
+    groupApptColor: '',
+    refererOption: 'None',
+    apptServiceItems: [],
+    apptServicePackages: [],
+    apppointmentCategories: [],
+    apptStatus: 'New',
+    apptConfirmStatus: 'None',
+    customerResponseStatus: 'None',
+    ticketNumber: 0,
+    ticketId: '',
+    createdTechnician: { id: '', name: '' },
+    updatedTechnician: { id: '', name: '' },
+    deletedTechnician: { id: '', name: '' },
+    type: 'Appointment',
+    deposit: {
+      preDepositAmount: 0,
+      depositTransId: '',
+      paymentCardNumber: '',
+      expirationDate: '',
+      paymentCvcCode: '',
+      isReturn: false,
+    },
+    runLogId: '',
+    isImport: false,
+    waitingId: '',
+    createdBy: '',
+    updatedBy: '',
+    id: '',
+    isDeleted: false,
+    channels: '',
+    uid: [],
+    createdAt: '',
+    updatedAt: '',
+    ...data,
+  };
+};
 
