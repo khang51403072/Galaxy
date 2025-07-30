@@ -83,7 +83,6 @@ interface XScreenProps {
   style?: any;
   rightIcon?: ReactNode;
   haveBottomTabBar?: boolean;
-  
 }
 
 
@@ -238,6 +237,7 @@ export default function XScreen({
       <XAppBar
           title={title ?? ""}
           showBack={true}
+         
           rightIcon={rightIcon}
           safeArea={safeArea}
       />

@@ -25,8 +25,28 @@ import { EmployeeEntity, getDisplayName, isEmployee } from "@/features/ticket/ty
 import XButton from "@/shared/components/XButton";
 import { useXAlert } from "@/shared/components/XAlertContext";
 import { appConfig } from "@/shared/utils/appConfig";
+import useSignalR from "@/shared/hooks/useSignalR";
+import { DataAppt } from "../types/ApptSaveResponse";
+import { useFocusEffect } from "@react-navigation/native";
+import React from "react";
 
+interface ApptMessage {
+    message: string
+    date: string
+    actionType: string
+    apptId: string
+    customerId: string
+}
 
+function createApptMessage(data: DataAppt): ApptMessage {
+    return {
+        message: "appointment-booking",
+        date: data.apptDate,
+        actionType: "save-apt",
+        apptId: data.id,
+        customerId: data.customer.id
+    }
+}
 // Định nghĩa type cho params
 
 type UpdateBookingParams = {
@@ -108,6 +128,7 @@ export default function CreateAppointmentScreen() {
     const {employees} = useEmployeeStore(useShallow((state)=>({
         employees: employeeSelectors.selectEmployees(state)
     })))
+    const {sendMessage} = useSignalR();
     const {
         getApptResource, selectedCustomer,selectedApptType,listApptType, 
         getListCategories, getListItemMenu, listCategories,
@@ -147,15 +168,14 @@ export default function CreateAppointmentScreen() {
             getAppointmentList: appointmentSelectors.selectGetAppointmentList(state)
         })
     ));
+
+
     useEffect(()=>{
-        reset();
         loadCompanyProfile();
-        
     },[])
 
     const loadCompanyProfile = async () => {
         await getCustomerLookup();
-        
         if(selectedCustomer == null){
             navigate(ROUTES.SELECT_CUSTOMER as never);
         }
@@ -174,8 +194,6 @@ export default function CreateAppointmentScreen() {
             useCreateAppointmentStore.setState({
                 listApptType: tmplist,
                 selectedApptType: apptType}) 
-            // AppointmentSetting.workHour = config.businessHours
-            // AppointmentSetting.allowAddEditInPast   = config.appointments.isAllowAppointmentPriorToCurrentDate
         }
         getListItemMenu();
         getListCategories(); 
@@ -483,20 +501,32 @@ export default function CreateAppointmentScreen() {
             scrollable={true}
             footer={<XButton title="Save" onPress={
                 async () => {
-                    const result = await saveAppointment();
-                    if(isSuccess(result)){  
+                    sendMessage([
+                        1,
+                        {
+                            data: {}
+                        }
+                    ]);
+                    // const result = await saveAppointment();
+                    // if(isSuccess(result)){  
+                    //     sendMessage([
+                    //         {
+                    //             type: "SendMessage",
+                    //             data: createApptMessage(result.value)
+                    //         }
+                    //     ]);
                         
-                        showAlert({
-                            title: "Appointment created successfully",
-                            message: "Appointment created successfully",
-                            type: "success",
-                            onClose: async () => {
-                                goBack();
-                                const json = await appConfig.getUser()
-                                getAppointmentList(json)
-                            }
-                        });
-                    }
+                    //     showAlert({
+                    //         title: "Appointment created successfully",
+                    //         message: "Appointment created successfully",
+                    //         type: "success",
+                    //         onClose: async () => {
+                    //             goBack();
+                    //             const json = await appConfig.getUser()
+                    //             getAppointmentList(json)
+                    //             }
+                    //         });
+                    //     }
                 }
             } />}
             >    

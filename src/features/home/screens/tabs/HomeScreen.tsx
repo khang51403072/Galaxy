@@ -41,11 +41,11 @@ export default function HomeScreen() {
     const shown = await appConfig.getUseBiometric();
     if (!shown) {
       Alert.alert(
-        'Thông báo',
-        'Bạn chưa bật tính năng đăng nhập bằng sinh trắc học, bạn có muốn bật tính năng đó ở phần profile không?',
+        'Warning',
+        'You have not enabled biometric login, do you want to enable it in the profile section?',
         [
-          { text: 'Để sau', style: 'cancel' },
-          { text: 'Đồng ý', onPress: () => {
+          { text: 'Later', style: 'cancel' },
+          { text: 'Enable', onPress: () => {
               // AsyncStorage.setItem('biometricGuideShown', '0');
               navigate(ROUTES.PROFILE, { showBiometricTooltip: true });
             }

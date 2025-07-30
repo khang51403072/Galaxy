@@ -134,7 +134,7 @@ export default function AppointmentScreen() {
           contentContainerStyle={{padding: theme.spacing.sm }}
           data={appointmentList}
           renderItem={renderAppointmentItem}
-          keyExtractor={(item) => item.blockStart + "-" + item.apptId + "-" + item.serviceId + "-" + item.employeeID}
+          keyExtractor={(item) => appointmentList.indexOf(item) + "-" + item.blockStart + "-" + item.apptId + "-" + item.serviceId + "-" + item.employeeID}
           ListEmptyComponent={<XNoDataView />}
         />
       );
@@ -154,7 +154,7 @@ export default function AppointmentScreen() {
             return value.apptStatus.toLowerCase() == "new"
           })}
           renderItem={renderAppointmentItem}
-          keyExtractor={(item) => item.blockStart + "-" + item.apptId + "-" + item.serviceId + "-" + item.employeeID}
+          keyExtractor={(item) => appointmentList.indexOf(item) + "-" + item.blockStart + "-" + item.apptId + "-" + item.serviceId + "-" + item.employeeID}
           ListEmptyComponent={<XNoDataView />}
         />
       );
@@ -174,7 +174,7 @@ export default function AppointmentScreen() {
             return value.apptStatus.toLowerCase() == "checkin"
           })}
           renderItem={renderAppointmentItem}
-          keyExtractor={(item) => item.apptId + "-" + item.serviceId + "-" + item.employeeID}
+          keyExtractor={(item) => appointmentList.indexOf(item) + "-" + item.blockStart + "-" + item.apptId + "-" + item.serviceId + "-" + item.employeeID}
           ListEmptyComponent={<XNoDataView />}
         />
       );
@@ -194,7 +194,7 @@ export default function AppointmentScreen() {
             return value.apptStatus.toLowerCase() == "checkout"
           })}
           renderItem={renderAppointmentItem}
-          keyExtractor={(item) => item.apptId + "-" + item.serviceId + "-" + item.employeeID}
+          keyExtractor={(item) =>appointmentList.indexOf(item) + "-" + item.blockStart + "-" + item.apptId + "-" + item.serviceId + "-" + item.employeeID}
           ListEmptyComponent={<XNoDataView />}
         />
       );
