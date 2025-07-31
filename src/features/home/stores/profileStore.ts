@@ -18,6 +18,7 @@ export type UserState = {
   updateProfile: (request: UpdateProfileRequest) => Promise<Result<ProfileEntity, UserError>>;
   changePassword: (request: ChangePasswordRequest) => Promise<Result<void, UserError>>;
   logout: () => Promise<void>;
+  uploadAvatar: (file: File) => Promise<Result<string, UserError>>;
 };
 
 export const userSelectors = {
@@ -31,6 +32,7 @@ export const userSelectors = {
   selectError: (state: UserState) => state.error,
   selectLogout: (state: UserState) => state.logout,
   selectSetIsUseFaceId: (state: UserState) => state.setIsUseFaceId,
+  selectUploadAvatar: (state: UserState) => state.uploadAvatar,
 };
 
 // Refactor: nhận profileUseCase từ ngoài vào
@@ -95,6 +97,12 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
       await appConfig.clearAutoLogin();
     }
     set({ profile: null, isLoading: false });
+  },
+  uploadAvatar: async (file: File): Promise<Result<string, UserError>> => {
+    set({ isLoading: true });
+    const uploadResult = await profileUseCase.uploadAvatar(file);
+    set({ isLoading: false });
+    return uploadResult;
   },
 });
 

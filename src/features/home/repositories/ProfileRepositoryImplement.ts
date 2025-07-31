@@ -45,5 +45,12 @@ export class ProfileRepositoryImplement implements ProfileRepository {
     }
   }
 
-  
+  async uploadAvatar(file: File): Promise<Result<string, UserError>> {
+    try {
+      const response = await this.profileApi.uploadAvatar(file);
+      return success(response.data?.avatarUrl || '');
+    } catch (error: any) {
+      return failure(new UserError(error.message || 'Error uploading avatar', 'AVATAR_UPLOAD_ERROR', error));
+    }
+  }
 } 
