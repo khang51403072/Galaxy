@@ -22,6 +22,8 @@ type XInputProps = TextInputProps & {
   autoCorrect?: boolean;
   display?: 'none' | 'flex';
   editable?: boolean;
+  keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'number-pad';
+
 };
 
 const XInput = forwardRef<TextInput, XInputProps>(
@@ -44,6 +46,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
       autoCorrect = false,
       display = 'flex',
       editable = true,
+      keyboardType = 'default',
       ...rest
     },
     ref
@@ -74,7 +77,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
     return (
       <View style={[{ width: '100%',}, style]}>
         {label && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center',  }}>
             <XText variant='inputLabel'>{label}</XText>
             {isRequired && <Text style={{ color: 'red', marginLeft: 2 }}>*</Text>}
           </View>
@@ -110,7 +113,13 @@ const XInput = forwardRef<TextInput, XInputProps>(
               },
             ]}
             value={value}
-            onChangeText={onChangeText}
+            onChangeText={(text)=>{
+              if(keyboardType === 'phone-pad'){
+                onChangeText?.(text.replace(/[^0-9]/g, '').formatPhoneNumber());
+              }else{
+                onChangeText?.(text);
+              }
+            }}
             secureTextEntry={secureTextEntry}
             onSubmitEditing={onSubmitEditing}
             blurOnSubmit={blurOnSubmit}
@@ -118,6 +127,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
             onBlur={() => setIsFocused(false)}
             autoComplete={autoCompleteType}
             autoCorrect={autoCorrect}
+            keyboardType={keyboardType}
             {...rest}
           />
           {iconRight && (

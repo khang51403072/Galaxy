@@ -6,11 +6,11 @@ import XScreen from "@/shared/components/XScreen";
 import XSwitch from "@/shared/components/XSwitch";
 import XText from "@/shared/components/XText";
 import { useTheme } from "@/shared/theme/ThemeProvider";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { BackHandler, FlatList, ScrollView, TouchableOpacity, View } from "react-native";
 import { createAppointmentSelectors, BookingServiceEntity, useCreateAppointmentStore } from "../stores/createAppointmentStore";
 import { useShallow } from "zustand/react/shallow";
-import { ROUTES } from "@/app/routes";
+import { RootStackParamList, ROUTES } from "@/app/routes";
 import { goBack, navigate } from "@/app/NavigationService";
 import { ApptType, createApptType } from "../types/AppointmentType";
 import { appointmentSelectors, createAppointmentStore, useAppointmentStore } from "../stores/appointmentStore";
@@ -27,7 +27,7 @@ import { useXAlert } from "@/shared/components/XAlertContext";
 import { appConfig } from "@/shared/utils/appConfig";
 import useSignalR from "@/shared/hooks/useSignalR";
 import { DataAppt } from "../types/ApptSaveResponse";
-import { useFocusEffect } from "@react-navigation/native";
+import { RouteProp, useFocusEffect, useRoute } from "@react-navigation/native";
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import { useBackHandler } from "@/shared/hooks/useBackHandler";
@@ -123,45 +123,98 @@ const updateBookingServices = ({
 
 
 export default function CreateAppointmentScreen() {
+    const route = useRoute<RouteProp<RootStackParamList, 'CreateAppointment'>>();
+  
+    // Lấy tham số
+    const { apptId } = route.params || {};
+    
+  
     const theme = useTheme();
     const {showAlert} = useXAlert();
-    const [showServiceSheet, setShowServiceSheet] = useState(false);
-   
-    const [employeeForAvailable, setEmployeeForAvailable] = useState<EmployeeEntity[]>([]);
+    
     const {sendMessage} = useSignalR();
-    const {
-        getApptResource, selectedCustomer,selectedApptType,listApptType, 
-        getListCategories, getListItemMenu, listCategories,
-        listItemMenu,isLoading, listServices,selectedDate,setSelectedDate,
-        isConfirmOnline,setIsConfirmOnline,
-        isGroupAppt,setIsGroupAppt, 
+    
+    // Tách actions ra riêng
+    const { 
+        setSelectedApptType, 
+        setShowServiceSheet, 
+        setIsShowTechnician, 
+        setServiceIndex, 
+        setComboIndex,
+        setSelectedDate,
+        setIsConfirmOnline,
+        setIsGroupAppt,
+        setEmployeeForAvailable,
+        reset,
+        getApptDetails,
         getCustomerLookup,
+        getApptResource,
+        getListItemMenu,
+        getListCategories,
         saveAppointment,
+    } = useCreateAppointmentStore(
+        useShallow((state) => ({
+            setSelectedApptType: createAppointmentSelectors.selectSetSelectedApptType(state),
+            setShowServiceSheet: createAppointmentSelectors.selectSetShowServiceSheet(state),
+            setIsShowTechnician: createAppointmentSelectors.selectSetIsShowTechnician(state),
+            setServiceIndex: createAppointmentSelectors.selectSetServiceIndex(state),
+            setComboIndex: createAppointmentSelectors.selectSetComboIndex(state),
+            setSelectedDate: createAppointmentSelectors.selectSetSelectedDate(state),
+            setIsConfirmOnline: createAppointmentSelectors.selectSetIsConfirmOnline(state),
+            setIsGroupAppt: createAppointmentSelectors.selectSetIsGroupAppt(state),
+            setEmployeeForAvailable: createAppointmentSelectors.selectSetEmployeeForAvailable(state),
+            reset: createAppointmentSelectors.selectReset(state),
+            getApptDetails: createAppointmentSelectors.selectGetApptDetails(state),
+            getCustomerLookup: createAppointmentSelectors.selectGetCustomerLookup(state),
+            getApptResource: createAppointmentSelectors.selectGetApptResource(state),
+            getListItemMenu: createAppointmentSelectors.selectGetListItemMenu(state),
+            getListCategories: createAppointmentSelectors.selectGetListCategories(state),
+            saveAppointment: createAppointmentSelectors.selectSaveAppointment(state),
+        }))
+    );
+    const {
+        
+    } = useCreateAppointmentStore(useShallow((state) => ({
+        
+    })));
+
+    const {
+         selectedCustomer,selectedApptType,listApptType, 
+          listCategories,
+        listItemMenu,isLoading, listServices,selectedDate,
+        isConfirmOnline,
+        isGroupAppt, 
+        
+     
         error,
         listEmployeeOnWork,
-        reset
+      
+        
+        apptDetails,
+        showServiceSheet,
+        employeeForAvailable,
+        serviceIndex,
+        comboIndex,
+        isShowTechnician
     } = useCreateAppointmentStore(useShallow((state) => ({
         listEmployeeOnWork: createAppointmentSelectors.selectListEmployeeOnWork(state),
-        getApptResource: createAppointmentSelectors.selectGetApptResource(state),
         selectedCustomer: createAppointmentSelectors.selectSelectedCustomer(state),
         selectedApptType: createAppointmentSelectors.selectSelectedApptType(state),
         listApptType: createAppointmentSelectors.selectListApptType(state),
-        getListCategories: createAppointmentSelectors.selectGetListCategories(state),
-        getListItemMenu: createAppointmentSelectors.selectGetListItemMenu(state),
         listCategories: createAppointmentSelectors.selectListCategories(state),
         listItemMenu: createAppointmentSelectors.selectListItemMenu(state),
         isLoading: createAppointmentSelectors.selectIsLoading(state),
         listServices: createAppointmentSelectors.selectListService(state),
         selectedDate: createAppointmentSelectors.selectSelectedDate(state),
-        setSelectedDate: createAppointmentSelectors.selectSetSelectedDate(state),
         isConfirmOnline: createAppointmentSelectors.selectIsConfirmOnline(state),
-        setIsConfirmOnline: createAppointmentSelectors.selectSetIsConfirmOnline(state),
         isGroupAppt: createAppointmentSelectors.selectIsGroupAppt(state),
-        setIsGroupAppt: createAppointmentSelectors.selectSetIsGroupAppt(state),
-        getCustomerLookup: createAppointmentSelectors.selectGetCustomerLookup(state),
-        saveAppointment: createAppointmentSelectors.selectSaveAppointment(state),
         error: createAppointmentSelectors.selectError(state),
-        reset: createAppointmentSelectors.selectReset(state)
+        apptDetails: createAppointmentSelectors.selectApptDetails(state),
+        showServiceSheet: createAppointmentSelectors.selectShowServiceSheet(state),
+        employeeForAvailable: createAppointmentSelectors.selectEmployeeForAvailable(state),
+        serviceIndex: createAppointmentSelectors.selectServiceIndex(state),
+        comboIndex: createAppointmentSelectors.selectComboIndex(state),
+        isShowTechnician: createAppointmentSelectors.selectIsShowTechnician(state)
     })));
 
     const {getCompanyProfile, getAppointmentList} = useAppointmentStore(useShallow(
@@ -176,14 +229,20 @@ export default function CreateAppointmentScreen() {
         reset();
         console.log('back handler');
     });
-
+    const dropdownOptions = useMemo(() => 
+        listApptType.map((e) => ({label: e.name, value: e})), 
+        [listApptType]
+    );
     useEffect(()=>{
         loadCompanyProfile();
     },[])
 
     const loadCompanyProfile = async () => {
+        if(apptId){
+            await getApptDetails(apptId);
+        }
         await getCustomerLookup();
-        if(selectedCustomer == null){
+        if(selectedCustomer == null && !apptId){
             navigate(ROUTES.SELECT_CUSTOMER as never);
         }
         const profile = await getCompanyProfile();
@@ -195,17 +254,19 @@ export default function CreateAppointmentScreen() {
             tmplist[3].bgColor = profile.value.data.posTheme.nonRequestBackColor
             tmplist[4].bgColor = profile.value.data.posTheme.walkinBackColor
             tmplist[5].bgColor = profile.value.data.posTheme.onlineBackColor
+            
             const apptType = listApptType.find((value,index)=>{
-                return value.id.trim().toLowerCase() === profile.value.data.appointments.defaultRetentionType.trim().toLowerCase()
+                const apptType = apptDetails?.apptType;
+                return value.id.trim().toLowerCase() === (apptType ??profile.value.data.appointments.defaultRetentionType.trim().toLowerCase())
             });
             useCreateAppointmentStore.setState({
                 listApptType: tmplist,
-                selectedApptType: apptType}) 
+                selectedApptType: {label: apptType?.name??"", value: apptType}}) 
         }
-        getApptResource();
-        getListItemMenu();
-        getListCategories(); 
         
+        await getListItemMenu();
+        await getListCategories(); 
+        await getApptResource();
     }
     const customerPicker = ()=>{
         return (
@@ -219,11 +280,15 @@ export default function CreateAppointmentScreen() {
             </TouchableOpacity>
         )
     }
-    const dropdownPicker = async () =>{
-        const selectedOption:DropdownOption = {label: selectedApptType?.name??"", value: selectedApptType}
+    const handleApptTypeSelect = useCallback((value: DropdownOption ) => {
+        setSelectedApptType(value)
+    }, [setSelectedApptType]);
+
+
+    const MemoizedDropdown = useMemo(() =>{
         return (
             <XDropdown 
-            value={selectedOption}
+            value={selectedApptType}
             renderItem={
                 (item, isSelected) =>{
                     return <View 
@@ -246,13 +311,11 @@ export default function CreateAppointmentScreen() {
                 }
             }
             
-            placeholder="Choose Service" options={listApptType.map((e)=>({label: e.name, value: e}))} onSelect={(value)=>{
-                useCreateAppointmentStore.setState({selectedApptType: value.value})
-
-            }} />
+            placeholder="Choose Service" options={dropdownOptions} 
+            onSelect={handleApptTypeSelect} />
         )
             
-    }
+    }, [selectedApptType, dropdownOptions, handleApptTypeSelect, theme]);
     const confirmOnlineToggle = ()=>{
         return (
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -301,6 +364,7 @@ export default function CreateAppointmentScreen() {
                 </View>
                 <XDatePicker mode="time" style={{ width: '40%' }} value={selectedDate} onChange={
                     (date)=>{
+                        date.setMonth(selectedDate.getMonth());
                         date.setDate(selectedDate.getDate());
                         setSelectedDate(date);
                     }
@@ -321,8 +385,6 @@ export default function CreateAppointmentScreen() {
             </View>
         )
     }
-    const [serviceIndex, setServiceIndex] = useState(0);
-    const [comboIndex, setComboIndex] = useState(0);
   
     const handleSelectItemMenu = (e: MenuItemEntity) => {
         setShowServiceSheet(false);
@@ -361,7 +423,6 @@ export default function CreateAppointmentScreen() {
         setComboIndex(-1);
         useCreateAppointmentStore.setState({listBookingServices: newList})
     }
-    const [isShowTechnician, setIsShowTechnician] = useState(false);
     const technicianPicker = ()=>{
         return (
             <XBottomSheetSearch
@@ -549,7 +610,7 @@ export default function CreateAppointmentScreen() {
             >    
             <View style={{ gap: theme.spacing.md, paddingTop: theme.spacing.md, flex: 1 }}>
                 {customerPicker()}
-                {dropdownPicker()}
+                {MemoizedDropdown}
                 {confirmOnlineToggle()}
                 {groupApptToggle()}
                 {divider}

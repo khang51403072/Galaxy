@@ -39,6 +39,7 @@ import AddCircle from '../assets/icons/AddCircle.svg';
 import CaretDown from '../assets/icons/CaretDown.svg';
 import CaretUp from '../assets/icons/CaretUp.svg';
 import ExclamationMark from '../assets/icons/ExclamationMark.svg';
+import UserPlus from '../assets/icons/UserPlus.svg';
 
 export const iconMap = {
   user: User,
@@ -80,6 +81,7 @@ export const iconMap = {
   caretDown: CaretDown,
   caretUp: CaretUp,
   exclamationMark: ExclamationMark,
+  userPlus: UserPlus,
 };
 
  type XIconProps = {

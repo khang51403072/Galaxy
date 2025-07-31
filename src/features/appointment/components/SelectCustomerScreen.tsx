@@ -7,8 +7,9 @@ import { View, FlatList, TouchableOpacity } from 'react-native';
 import { useCreateAppointmentStore, createAppointmentSelectors, CreateAppointmentState } from '../stores/createAppointmentStore';
 import { useShallow } from 'zustand/react/shallow';
 import { CustomerEntity } from '../types/CustomerResponse';
-import { goBack } from '@/app/NavigationService';
+import { goBack, navigate } from '@/app/NavigationService';
 import { appointmentSelectors, createAppointmentStore } from '../stores/appointmentStore';
+import { ROUTES } from '@/app/routes';
 export default function SelectCustomerScreen() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -41,23 +42,30 @@ export default function SelectCustomerScreen() {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (onlyNumber.length === 0) {
       setPage(1);
-      getCustomerLookup(page, 10, '');
+      // getCustomerLookup(page, 10, '');
       return;
     }
     if (onlyNumber.length >= 3) {
       debounceRef.current = setTimeout(() => {
         setPage(1);
-        getCustomerLookup(page, 10, onlyNumber);
+        // getCustomerLookup(page, 10, onlyNumber);
       }, 500);
     }
   };
 
   useEffect(() => {
-    getCustomerLookup(page, 10, '');
+    // getCustomerLookup(page, 10, '');
   }, []);
 
   return (
-    <XScreen title="Select Customer" dismissKeyboard={true} >
+    <XScreen loading={isLoading} title="Select Customer" dismissKeyboard={true} 
+    rightIcon={
+      <TouchableOpacity onPress={()=>{
+        navigate(ROUTES.CREATE_CUSTOMER as never);
+      }}>
+      <XIcon name="userPlus" width={24} height={24} />
+      </TouchableOpacity>
+    }>
       <View style={{ paddingTop: 8 }}>
         <XInput
           placeholder="Search..."

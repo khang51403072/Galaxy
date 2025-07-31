@@ -6,7 +6,7 @@ import { MenuItemEntity, MenuItemResponse } from "../types/MenuItemResponse";
 import { ApptResResponse } from "../types/ApptResResponse";
 import { CustomerResponse, CustomerPayload, CustomerSavePayload, CustomerSaveResponse } from "../types/CustomerResponse";
 import { ApptPayload, ApptSaveResponse } from "../types/ApptSaveResponse";
-import { ApptDetailsResponse } from "../types/ApptDetailsResponse";
+import { ApptDetail, ApptDetailsResponse } from "../types/ApptDetailsResponse";
 import { CompanyProfileResponse } from "../types/CompanyProfileResponse";
 
 export interface AppointmentRepository {
@@ -18,6 +18,6 @@ export interface AppointmentRepository {
     customers(payload: CustomerPayload): Promise<Result<CustomerResponse, Error>>;
     customerSave(payload: CustomerSavePayload): Promise<Result<CustomerSaveResponse, Error>>;
     saveAppointment(payload: ApptPayload): Promise<Result<ApptSaveResponse, Error>>;
-    apptDetails(id: string): Promise<Result<ApptDetailsResponse, Error>>;
+    apptDetails(id: string): Promise<Result<ApptDetail, Error>>;
     apptCompanyProfile(): Promise<Result<CompanyProfileResponse, Error>>;
 } 

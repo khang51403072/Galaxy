@@ -71,7 +71,9 @@ export default function AppointmentScreen() {
     )
   }
   const renderAppointmentItem = ({ item }: { item: AppointmentEntity }) => (
-    <View style={{
+    <TouchableOpacity onPress={()=>{
+      navigate(ROUTES.CREATE_APPOINTMENT as never, { apptId: item.apptId });
+    }} style={{
       backgroundColor: '#fff',
       borderRadius: 12,
       padding: 16,
@@ -110,7 +112,7 @@ export default function AppointmentScreen() {
       
 
       
-    </View>
+    </TouchableOpacity>
   );
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -345,7 +347,3 @@ export default function AppointmentScreen() {
     </XScreen>
   );
 } 
-
-function fetchEmployees() {
-  throw new Error("Function not implemented.");
-}

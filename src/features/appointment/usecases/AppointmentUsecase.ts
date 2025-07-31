@@ -7,7 +7,7 @@ import { MenuItemEntity, MenuItemResponse } from "../types/MenuItemResponse";
 import { ApptResResponse } from "../types/ApptResResponse";
 import { CustomerResponse, CustomerPayload, CustomerSavePayload, CustomerSaveResponse } from "../types/CustomerResponse";
 import { ApptPayload, ApptSaveResponse } from "../types/ApptSaveResponse";
-import { ApptDetailsResponse } from "../types/ApptDetailsResponse";
+import { ApptDetail, ApptDetailsResponse } from "../types/ApptDetailsResponse";
 import { CompanyProfileResponse } from "../types/CompanyProfileResponse";
 
 export class AppointmentUsecase {
@@ -45,7 +45,7 @@ export class AppointmentUsecase {
         return await this.repository.saveAppointment(payload);
     }
 
-    async apptDetails(id: string): Promise<Result<ApptDetailsResponse, Error>> {
+    async apptDetails(id: string): Promise<Result<ApptDetail, Error>> {
         return await this.repository.apptDetails(id);
     }
 
