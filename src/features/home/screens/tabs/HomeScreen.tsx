@@ -191,7 +191,7 @@ const saleCard =
       Sale:
     </XText>
     <XText variant='saleAndTip500' style={{ color: theme.colors.gray800 }}>
-      $ {homeData?.totalSale || 0}
+      $ {homeData?.totalSale.toFixed(2) || 0}
     </XText>
   </View>
 const tipCard = 
@@ -208,7 +208,7 @@ const tipCard =
       Tips:
     </XText>
     <XText variant='saleAndTip500' style={{ color: theme.colors.gray800 }}>
-      $ {homeData?.nonCashTip || 0}
+      $ {homeData?.nonCashTip.toFixed(2) || 0}
     </XText>
   </View>
 

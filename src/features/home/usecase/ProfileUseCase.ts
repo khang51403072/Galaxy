@@ -29,5 +29,9 @@ export class ProfileUseCase {
     
     return await this.userRepository.changePassword(request);
   }
+
+  async uploadAvatar(file: File): Promise<Result<string, UserError>> {
+    return await this.userRepository.uploadAvatar(file);
+  }
 }
 

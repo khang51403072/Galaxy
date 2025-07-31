@@ -7,5 +7,5 @@ export interface ProfileRepository {
   getProfile(): Promise<Result<ProfileEntity, UserError>>;
   updateProfile(request: UpdateProfileRequest): Promise<Result<ProfileEntity, UserError>>;
   changePassword(request: ChangePasswordRequest): Promise<Result<void, UserError>>;
-
+  uploadAvatar(file: File): Promise<Result<string, UserError>>;
 } 

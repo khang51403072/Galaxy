@@ -4,6 +4,7 @@ import { useAuthStore } from '../../auth/stores/authStore';
 import { ProfileEntity } from '../types/ProfileResponse';
 import { ChangePasswordRequest, UpdateProfileRequest } from '../types/ProfileRequest';
 import xlog from '../../../core/utils/xlog';
+import { appConfig } from '@/shared/utils/appConfig';
 
 // ===== TYPES =====
 
@@ -43,7 +44,22 @@ export const ProfileApi = {
       throw new Error(error.message || 'Không thể cập nhật profile');
     }
   },
-
+  uploadAvatar: async (file: File): Promise<AvatarUploadResponse> => {
+    try {
+      const json = await appConfig.getUser();
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('employeeId', json?.employeeId);
+      const res = await httpClient.post<AvatarUploadResponse>('/galaxy-me/upload-avatar/'+json?.employeeId, formData,{
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return res.data;
+    } catch (error: any) {
+      throw new Error(error.message || 'Không thể tải thông tin profile');
+    }
+  },
 
 
   // Change password

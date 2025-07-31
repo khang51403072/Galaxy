@@ -15,7 +15,7 @@ import XScreen from '../../../../shared/components/XScreen';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { ROUTES } from '../../../../app/routes';
 import { ProfileSkeleton } from '../../components/ProfileSkeleton';
-import { isFailure } from '../../../../shared/types/Result';
+import { isFailure, isSuccess } from '../../../../shared/types/Result';
 import { useTheme } from '../../../../shared/theme/ThemeProvider';
 import { navigate, reset } from '@/app/NavigationService';
 import { appConfig } from '@/shared/utils/appConfig';
@@ -23,6 +23,7 @@ import Tooltip from 'react-native-walkthrough-tooltip';
 import { Text } from 'react-native';
 import { checkBiometricAvailable, simpleBiometricAuth } from '@/shared/services/BiometricService';
 import DeviceInfo from 'react-native-device-info';
+import { Asset } from 'react-native-image-picker';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
@@ -32,7 +33,7 @@ export default function ProfileScreen() {
 
   
   // User store for profile data with selectors
-  const { profile, isLoading: profileLoading, getProfile, changePassword, logout, setIsUseFaceId, isUseFaceId } = useUserStore(
+  const { profile, isLoading: profileLoading, getProfile, changePassword, logout, setIsUseFaceId, isUseFaceId, uploadAvatar } = useUserStore(
     useShallow((state) => ({
       profile: userSelectors.selectProfile(state),
       isLoading: userSelectors.selectIsLoading(state),
@@ -41,6 +42,7 @@ export default function ProfileScreen() {
       logout: userSelectors.selectLogout(state),
       setIsUseFaceId: userSelectors.selectSetIsUseFaceId(state),
       isUseFaceId: userSelectors.selectIsUseFaceId(state),
+      uploadAvatar: userSelectors.selectUploadAvatar(state),
     }))
   );
 
@@ -94,7 +96,26 @@ export default function ProfileScreen() {
   //   }, [route.params, navigation])
   // );
 
-  
+  // Helper function để convert Asset thành File
+const assetToFile = async (asset: Asset): Promise<File> => {
+  try {
+    // Fetch image data từ URI
+    const response = await fetch(asset.uri || '');
+    const blob = await response.blob();
+    
+    // Tạo filename từ asset
+    const filename = asset.fileName || `avatar_${Date.now()}.jpg`;
+    
+    // Tạo File object
+    const file = new File([blob], filename, {
+      type: asset.type || 'image/jpeg',
+    });
+    
+    return file;
+  } catch (error) {
+    throw new Error('Không thể chuyển đổi ảnh thành file');
+  }
+};
   const handlePickImage = async (type: 'camera' | 'library') => {
     try {
       const granted = await checkPermission(type);
@@ -109,6 +130,11 @@ export default function ProfileScreen() {
       
       if (asset?.uri) {
         await updateAvatar(asset.uri);
+        const file = await assetToFile(asset);
+        const uploadResult = await uploadAvatar(file);
+        if(isSuccess(uploadResult)) {
+          useAvatarStore.setState({ avatarUri: uploadResult.value });
+        }
         console.log('Avatar updated:', asset.uri);
       }
     } catch (error) {
