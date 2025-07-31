@@ -39,10 +39,14 @@ export const lightColors = {
   textButton: '#FFFFFF',
   textInputPlaceholder:  '#00000040',
   // Status Colors
-  success: '#34C759',
-  error: '#FF3B30',
-  warning: '#FF9500',
-  info: '#007AFF',
+  successMain: '#18B186',
+  successLight: '#F3FBF9',
+  errorMain: '#F04526',
+  errorLight: '#FFEFEF',
+  warningMain: '#FF9500',
+  warningLight: '#FFF5E6',
+  infoMain: '#007AFF',
+  infoLight: '#F0F4FF',
 
   // Border & Divider
   border: '#E5E5E5',
@@ -96,10 +100,14 @@ export const darkColors = {
   textButton: '#FFFFFF',
   textInputPlaceholder:  '#00000040',
   // Status Colors
-  success: '#34C759',
-  error: '#FF3B30',
-  warning: '#FF9500',
-  info: '#007AFF',
+  successMain: '#18B186',
+  successLight: '#F3FBF9',
+  errorMain: '#F04526',
+  errorLight: '#FFEFEF',
+  warningMain: '#FF9500',
+  warningLight: '#FFF5E6',
+  infoMain: '#007AFF',
+  infoLight: '#F0F4FF',
 
   // Border & Divider
   border: '#E5E5E5',
