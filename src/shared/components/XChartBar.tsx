@@ -32,9 +32,10 @@ const XChart: React.FC<XChartProps> = ({
 }) => {
   const window = useWindowDimensions();
   const theme = useTheme();
-  // Responsive width/height
-  const chartWidth = width || window.width - 100;
-  const chartHeight = height || Math.round(chartWidth * 2 / 3);
+  
+  // Responsive width/height với fallback values để tránh height = 0
+  const chartWidth = width || Math.max(320, window.width - 100) || 320;
+  const chartHeight = height || Math.round(chartWidth * 2 / 3) || 200;
 
   // Responsive font size
   const fontSizeYTick = Math.max(10, Math.round(chartHeight * 0.05));
@@ -50,7 +51,28 @@ const XChart: React.FC<XChartProps> = ({
     groupIndex: number;
   } | null>(null);
 
-  if (!data || data.length === 0) return null;
+  // Kiểm tra data và dimensions để quyết định có render chart không
+  const shouldRenderChart = !isLoading && data && data.length > 0 && chartWidth > 0 && chartHeight > 0;
+
+  // Nếu không có data hoặc đang loading, hiển thị skeleton
+  if (isLoading || !data || data.length === 0) {
+    return (
+      <View style={{ width: chartWidth, height: chartHeight, 
+      alignSelf: 'center', flexDirection: 'row', paddingHorizontal: chartWidth * 0.03,
+      paddingTop: fontSizeYTick * 1,
+      paddingBottom: fontSizeLabel * 2.2,
+      }}>
+       
+        <View style={{ width: Math.ceil('999'.length * fontSizeYTick * 0.6) + 8, height: chartHeight, justifyContent: 'space-between', paddingTop: fontSizeYTick * 1, paddingBottom: fontSizeLabel * 2.2 }}>
+          {Array.from({ length: yTicks + 1 }, (_, i) => (
+            <XSkeleton key={i} width={Math.ceil('999'.length * fontSizeYTick * 0.6)} height={fontSizeYTick} borderRadius={2} style={{ marginBottom: 2 }} />
+          ))}
+        </View>
+      
+        <XSkeleton width={chartWidth - (Math.ceil('999'.length * fontSizeYTick * 0.6) + 8) - 2*(chartWidth * 0.03)} height={chartHeight} borderRadius={8} />
+      </View>
+    );
+  }
 
   const groupCount = data[0].value.length;
   // Giá trị lớn nhất cho trục Y là max(abs(max), abs(min)) + 20%
@@ -74,25 +96,6 @@ const XChart: React.FC<XChartProps> = ({
   const innerChartHeight = chartHeight - fontSizeLabel * 2.2 - fontSizeYTick * 0.5;
   const paddingTop = fontSizeYTick * 1;
   const paddingBottom = fontSizeLabel * 2.2;
-
-  if (isLoading) {
-    return (
-      <View style={{ width: chartWidth, height: chartHeight, 
-      alignSelf: 'center', flexDirection: 'row', paddingHorizontal: paddingHorizontal,
-      paddingTop: paddingTop,
-      paddingBottom: paddingBottom,
-      }}>
-       
-        <View style={{ width: yLabelWidth, height: chartHeight, justifyContent: 'space-between', paddingTop, paddingBottom }}>
-          {yTickValues.map((v, i) => (
-            <XSkeleton key={i} width={yLabelWidth - 8} height={fontSizeYTick} borderRadius={2} style={{ marginBottom: 2 }} />
-          ))}
-        </View>
-      
-        <XSkeleton width={chartWidth - yLabelWidth - 2*paddingHorizontal} height={chartHeight} borderRadius={8} />
-      </View>
-    );
-  }
 
   return (
     <View style={[{ width: chartWidth, height: chartHeight, alignSelf: 'center' }, style]}>

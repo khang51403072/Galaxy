@@ -64,7 +64,7 @@ export default function HomeScreen() {
     if(json==null) return
     getChartData().then((result) => {
       if(isSuccess(result)) {
-        loadData2Chart(result.value);        
+        // Data đã được convert tự động trong store, không cần loadData2Chart nữa
       }
     });
   }, [toggleSwitch]);
@@ -74,31 +74,12 @@ export default function HomeScreen() {
     await getHomeData();
     getChartData().then((result) => {
       if(isSuccess(result)) {
-        loadData2Chart(result.value);        
+        // Data đã được convert tự động trong store, không cần loadData2Chart nữa
       }
     });
   };
 
-  // Refactor: set chartDisplayData vào store
-  const loadData2Chart = (data: ChartEntity[]) => {
-    let displayData;
-    if(toggleSwitch == 'week') {
-      displayData = data.map(item => {
-        return {
-          label: item.dayOfWeek.substring(0, 3),
-          value: [item.saleAmount, item.nonCashTipAmount]
-        }
-      });
-    } else {
-      displayData = data.map(item => {
-        return {
-          label: item.weekStartDate?.dateOfMonth() +"-"+ item.weekEndDate?.dateOfMonth(),
-          value: [item.saleAmount, item.nonCashTipAmount]   
-        }
-      });
-    }
-    setChartDisplayData(displayData);
-  }
+  // Loại bỏ function loadData2Chart vì đã được xử lý trong store
 
 
   const buildColorNote = (text: string, color: string)=>{
@@ -257,7 +238,7 @@ const totalRevenue =
       data={chartDisplayData}
       width={CHART_WIDTH}
       height={200}
-      isLoading={isLoadingChart}
+      isLoading={isLoadingChart || chartDisplayData.length === 0}
       barColors={[theme.colors.primary, theme.colors.cyan]}
       labelColor="#333"
       style={{ paddingTop: theme.spacing.md }}

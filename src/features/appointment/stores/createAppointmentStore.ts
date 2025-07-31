@@ -12,9 +12,10 @@ import { EmployeeEntity } from '@/features/ticket/types/TicketResponse';
 import { ApptPackageItem, ApptPayload, ApptServiceItem, DataAppt, StartTime } from '../types/ApptSaveResponse';
 import { useAppointmentStore } from './appointmentStore';
 import { CompanyProfileResponse, dateFromTimeEntity, TimeEntity, TimeRange } from '../types/CompanyProfileResponse';
-import { ApptServicePackage } from '../types/ApptDetailsResponse';
+import { ApptDetail, ApptDetailsResponse, ApptServicePackage } from '../types/ApptDetailsResponse';
 import { appConfig } from '@/shared/utils/appConfig';
 import { useEmployeeStore } from '@/shared/stores/employeeStore';
+import { DropdownOption } from '@/shared/components/XDropdown';
 
 export type BookingServiceEntity = {
   service?: MenuItemEntity|null
@@ -28,7 +29,7 @@ export type CreateAppointmentState = {
   selectedCustomer: CustomerEntity | null;  
   isConfirmOnline: boolean;
   isGroupAppointment: boolean;
-  selectedApptType: ApptType| null;
+  selectedApptType: DropdownOption| null;
   listApptType: ApptType[];
   listCategories: CategoryEntity[];
   listItemMenu: MenuItemEntity[];
@@ -38,6 +39,15 @@ export type CreateAppointmentState = {
   listEmployeeOnWork: EmployeeEntity[];
   companyProfile: CompanyProfileResponse | null;
   listApptResource: ApptRes[];
+  apptDetails: ApptDetail | null;
+  
+  // UI State
+  showServiceSheet: boolean;
+  employeeForAvailable: EmployeeEntity[];
+  serviceIndex: number;
+  comboIndex: number;
+  isShowTechnician: boolean;
+  
   reset: () => void;
   ///GET
   getListCategories: ()=> Promise<Result<CategoryEntity[], Error>>;
@@ -45,16 +55,25 @@ export type CreateAppointmentState = {
   getApptResource: () => Promise<Result<ApptResResponse, Error>>;
   getCustomerLookup: (pageNumber?: number, pageSize?: number, phoneNumber?: string) => Promise<Result<CustomerResponse, Error>>;
   getCompanyProfile: () => Promise<Result<CompanyProfileResponse, Error>>;
+  getApptDetails: (id: string) => Promise<Result<ApptDetail, Error>>;
   ///SET
   setIsConfirmOnline: (value: boolean) => void;
   setIsGroupAppt: (value: boolean) => void;
   setSelectedCustomer: (value: CustomerEntity)=> void,
   setSelectedDate: (value: Date)=> void,
+  setSelectedApptType: (value: DropdownOption)=> void,
+  
+  // UI Actions
+  setShowServiceSheet: (value: boolean) => void;
+  setEmployeeForAvailable: (employees: EmployeeEntity[]) => void;
+  setServiceIndex: (index: number) => void;
+  setComboIndex: (index: number) => void;
+  setIsShowTechnician: (value: boolean) => void;
+  
   //
   saveAppointment: ()=> Promise<Result<DataAppt, Error>>;
   setIsAllowBookAnyway: (value: boolean)=> void;
   //
-
 };
 
 
@@ -62,7 +81,7 @@ export type CreateAppointmentState = {
 export const initialCreateAppointmentState = {
   isLoading: false,
   error: null,
-  
+  apptDetails: null,
   isConfirmOnline: false,
   isGroupAppointment: false,
   selectedCustomer: null,
@@ -70,6 +89,12 @@ export const initialCreateAppointmentState = {
   selectedDate: new Date(),
   isAllowBookAnyway: false,
   
+  // UI State
+  showServiceSheet: false,
+  employeeForAvailable: [],
+  serviceIndex: 0,
+  comboIndex: -1,
+  isShowTechnician: false,
   
   listApptType: [
     createApptType("Misc", "Misc",),
@@ -97,7 +122,21 @@ const createAppointmentCreator = (set: any, get:any) => ({
   setSelectedDate: (value: Date) => set({ selectedDate: value }),
   setIsConfirmOnline: (value: boolean) => set({ isConfirmOnline: value }),
   setIsGroupAppt: (value: boolean) => set({ isGroupAppointment: value }),
-  reset: () => set({ ...initialCreateAppointmentState }),
+  reset: () => set( { ...initialCreateAppointmentState }),
+  getApptDetails: async (id: string) => {
+    set({ isLoading: true });
+    const result = await appointmentUsecase.apptDetails(id);
+    if(isSuccess(result)){
+      //default các gia trị của appointment
+      const apptDetails = result.value;
+      set({ apptDetails: apptDetails, selectedCustomer: apptDetails.customer, selectedDate: new Date(apptDetails.apptDate), isConfirmOnline: apptDetails.isOnlineConfirm, isGroupAppointment: apptDetails.isGroupAppt, isLoading: false, error: null });
+    }
+    else{
+      set({ isLoading: false, error: result.error.message });
+    }
+    return result;
+  },
+  setSelectedApptType: (value: DropdownOption)=> set({selectedApptType: value}),
   getApptResource: async () => {
     set({ isLoading: true });
     const result = await appointmentUsecase.getApptResource();
@@ -160,32 +199,87 @@ const createAppointmentCreator = (set: any, get:any) => ({
   },
   getListItemMenu: async () =>{
     if(get().listItemMenu.length > 0)
+    {
+      const listBookingServices: BookingServiceEntity[] = [];
+      get().apptDetails?.apptServiceItems.forEach((apptServiceItem:ApptServiceItem)=>{
+        const service = get().listItemMenu.find((menu:MenuItemEntity)=>menu.id === apptServiceItem.id);
+        listBookingServices.push({
+          service: service,
+          technician: get().listEmployeeOnWork.find((e:EmployeeEntity)=>e.id === apptServiceItem.employeeId),
+          comboItems: []
+        })
+      })
+
+      get().apptDetails?.apptServicePackages.forEach((apptServicePackage:ApptServicePackage)=>{
+        const service = get().listItemMenu.find((menu:MenuItemEntity)=>menu.id === apptServicePackage.id);
+        listBookingServices.push({
+          service: service,
+          technician: null,
+          comboItems: apptServicePackage.apptServiceItems.map((apptServiceItem)=>{
+            const service = get().listItemMenu.find((menu:MenuItemEntity)=>menu.id === apptServiceItem.id);
+            return {
+              service: service,
+              technician: get().listEmployeeOnWork.find(
+                (e:EmployeeEntity)=>e.id === apptServiceItem.employeeID),
+              comboItems: []
+            } as BookingServiceEntity
+          })
+        })
+      })
+      set({ listBookingServices: [...listBookingServices, ...get().listBookingServices], isLoading: false, error: null });
       return success(get().listItemMenu)
+    }
     set({ isLoading: true });
     const result = await appointmentUsecase.getMenuItems();
     if(isSuccess(result)) {
-      set({ listItemMenu: result.value});
+      const listBookingServices: BookingServiceEntity[] = [];
+      get().apptDetails?.apptServiceItems.forEach((apptServiceItem:ApptServiceItem)=>{
+        const service = result.value.find((menu:MenuItemEntity)=>menu.id === apptServiceItem.id);
+        listBookingServices.push({
+          service: service,
+          technician: get().listEmployeeOnWork.find((e:EmployeeEntity)=>e.id === apptServiceItem.employeeId),
+          comboItems: []
+        })
+      })
+      get().apptDetails?.apptServicePackages.forEach((apptServicePackage:ApptServicePackage)=>{
+        const service = result.value.find((menu:MenuItemEntity)=>menu.id === apptServicePackage.id);
+        listBookingServices.push({
+          service: service,
+          technician: null,
+          comboItems: apptServicePackage.apptServiceItems.map((apptServiceItem)=>{
+            const service = result.value.find((menu:MenuItemEntity)=>menu.id === apptServiceItem.id);
+            return {
+              service: service,
+              technician: get().listEmployeeOnWork.find(
+                (e:EmployeeEntity)=>e.id === apptServiceItem.employeeID),
+              comboItems: []
+            } as BookingServiceEntity
+          })
+        })
+      })
+      set({ listBookingServices: [...listBookingServices, ...get().listBookingServices], listItemMenu: result.value, isLoading: false, error: null });
     }
-    set({ isLoading: false });
+    else{
+      set({ isLoading: false, error: result.error.message });
+    }
     return result; 
   },
   
-  getCustomerLookup: async (pageNumber: number = 1, pageSize: number = 10000, phoneNumber: string = '') => {
+  getCustomerLookup: async (pageNumber: number = 1, pageSize: number = 10000, phoneNumber: string = '', {isReset}: {isReset: boolean} = {isReset: false}) => {
     set({ isLoading: true });
-    if(get().customerList?.length > 0){
-      set({ isLoading: false });
-      return success(get().customerList)
-    }
-      const payload: CustomerPayload = {
+    
+    const payload: CustomerPayload = {
       pageNumber,
       pageSize,
       phoneNumber: phoneNumber,
     };
     const result = await appointmentUsecase.customers(payload);
     if(isSuccess(result)) {
-      set({ customerList: result.value.dataSource });
+      set({ customerList: result.value.dataSource, selectedCustomer: get().apptDetails?.customer, isLoading: false });
     }
-    set({ isLoading: false });
+    else{
+      set({ isLoading: false, error: result.error.message });
+    }
     return result; 
   },
   saveAppointment: async () => {
@@ -218,7 +312,7 @@ const createAppointmentCreator = (set: any, get:any) => ({
         const apptServiceItemsTmp= []
         for(const comboItem of listComboItems){
           const apptServiceItem = {
-            id: "",
+            id: comboItem.service?.id || "",
             name: comboItem.service?.name || "",
             duration: comboItem.service?.duration || 0,
             startTime: {
@@ -246,7 +340,7 @@ const createAppointmentCreator = (set: any, get:any) => ({
         apptServicePackages.push(apptServicePackage);
       } else {
         const apptServiceItem = {
-          id: "",
+          id: item.service?.id || "",
           name: item.service?.name || "",
           duration: item.service?.duration || 0,
           startTime: {
@@ -299,7 +393,14 @@ const createAppointmentCreator = (set: any, get:any) => ({
     }
     return result;
   },
-  setIsAllowBookAnyway: (value: boolean) => set({ isAllowBookAnyway: value })
+  setIsAllowBookAnyway: (value: boolean) => set({ isAllowBookAnyway: value }),
+  
+  // UI Actions
+  setShowServiceSheet: (value: boolean) => set({ showServiceSheet: value }),
+  setEmployeeForAvailable: (employees: EmployeeEntity[]) => set({ employeeForAvailable: employees }),
+  setServiceIndex: (index: number) => set({ serviceIndex: index }),
+  setComboIndex: (index: number) => set({ comboIndex: index }),
+  setIsShowTechnician: (value: boolean) => set({ isShowTechnician: value }),
 });
 
 
@@ -334,6 +435,21 @@ export const createAppointmentSelectors = {
   selectSaveAppointment: (state: CreateAppointmentState) => state.saveAppointment,
   selectError: (state: CreateAppointmentState) => state.error,
   selectReset: (state: CreateAppointmentState) => state.reset,
+  selectGetApptDetails: (state: CreateAppointmentState) => state.getApptDetails,
+  selectApptDetails: (state: CreateAppointmentState) => state.apptDetails,
+  selectSetSelectedApptType: (state: CreateAppointmentState) => state.setSelectedApptType,
+  
+  // UI State Selectors
+  selectShowServiceSheet: (state: CreateAppointmentState) => state.showServiceSheet,
+  selectEmployeeForAvailable: (state: CreateAppointmentState) => state.employeeForAvailable,
+  selectSetShowServiceSheet: (state: CreateAppointmentState) => state.setShowServiceSheet,
+  selectSetEmployeeForAvailable: (state: CreateAppointmentState) => state.setEmployeeForAvailable,
+  selectServiceIndex: (state: CreateAppointmentState) => state.serviceIndex,
+  selectComboIndex: (state: CreateAppointmentState) => state.comboIndex,
+  selectSetServiceIndex: (state: CreateAppointmentState) => state.setServiceIndex,
+  selectSetComboIndex: (state: CreateAppointmentState) => state.setComboIndex,
+  selectIsShowTechnician: (state: CreateAppointmentState) => state.isShowTechnician,
+  selectSetIsShowTechnician: (state: CreateAppointmentState) => state.setIsShowTechnician,
 }; 
 
 function validBookings(

@@ -48,7 +48,7 @@ export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeStat
     toggleSwitch: 'week',
     error: null,
     json: null,
-    chartDisplayData: [],
+    chartDisplayData: [], // Khởi tạo rỗng, sẽ được set khi có data thực sự
     getHomeData: async () => {
         const js = await appConfig.getUser();
         set({ isLoading: true, error: null, json: js });
@@ -71,8 +71,23 @@ export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeStat
         } else {
             result = await homeUsecase.getChartData({employeeId: json?.employeeId || '', chartType: chartType});
         }
-        if(isSuccess(result)) set({ chartData: result.value, isLoadingChart: false, error: null });
-        else set({ error: result.error.message, isLoadingChart: false });
+        if(isSuccess(result)) {
+            set({ chartData: result.value, isLoadingChart: false, error: null });
+            // Tự động convert data để hiển thị chart
+            if (result.value && result.value.length > 0) {
+                const displayData = result.value.map(item => {
+                    return {
+                        label: get().toggleSwitch === 'week' 
+                            ? item.dayOfWeek.substring(0, 3)
+                            : item.weekStartDate?.dateOfMonth() + "-" + item.weekEndDate?.dateOfMonth(),
+                        value: [item.saleAmount, item.nonCashTipAmount]
+                    }
+                });
+                set({ chartDisplayData: displayData });
+            }
+        } else {
+            set({ error: result.error.message, isLoadingChart: false });
+        }
         return result;
     },
     updateJson: async (json: KeychainObject) => {

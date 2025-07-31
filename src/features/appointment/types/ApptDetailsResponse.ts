@@ -1,3 +1,5 @@
+import { CustomerEntity } from "./CustomerResponse";
+
 export interface ApptDetailsResponse {
   result: boolean;
   errorMsg: string;
@@ -15,7 +17,7 @@ export interface ApptDetail {
   blockEmployeeID: string;
   apptDate: string;
   startTime: string;
-  customer: any;
+  customer: CustomerEntity;
   customerNote: string;
   retentionType: string;
   isPreBooking: boolean;
@@ -55,7 +57,13 @@ export interface BlockEnd {
 }
 
 export interface ApptServiceItem {
-  // ... define as needed
+  id: string;
+  name: string;
+  employeeID: string;
+  duration: number;
+  note: string;
+  position: number;
+  startTime: BlockEnd;
 }
 
 export interface ApptServicePackage {

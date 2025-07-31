@@ -6,10 +6,10 @@ export interface CustomerPayload {
 
 export interface CustomerSavePayload {
   firstName: string;
-  lastName: string;
+  lastName?: string;
   fullName: string;
   id: string;
-  email: string;
+  email?: string;
   cellPhone: string;
   gender?: string;
   dobMonth?: number;

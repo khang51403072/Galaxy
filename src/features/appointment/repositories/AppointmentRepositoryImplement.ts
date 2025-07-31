@@ -8,7 +8,7 @@ import { MenuItemEntity, MenuItemResponse } from "../types/MenuItemResponse";
 import { ApptResResponse } from "../types/ApptResResponse";
 import { CustomerResponse, CustomerPayload, CustomerSavePayload, CustomerSaveResponse } from "../types/CustomerResponse";
 import { ApptPayload, ApptSaveResponse } from "../types/ApptSaveResponse";
-import { ApptDetailsResponse } from "../types/ApptDetailsResponse";
+import { ApptDetail, ApptDetailsResponse } from "../types/ApptDetailsResponse";
 import { CompanyProfileResponse } from "../types/CompanyProfileResponse";
 
 export class AppointmentRepositoryImplement implements AppointmentRepository {
@@ -84,10 +84,10 @@ export class AppointmentRepositoryImplement implements AppointmentRepository {
         }
     }
 
-    async apptDetails(id: string): Promise<Result<ApptDetailsResponse, Error>> {
+    async apptDetails(id: string): Promise<Result<ApptDetail, Error>> {
         try {
             const response = await AppointmentApi.apptDetails(id);
-            return success(response);
+            return success(response.data);
         } catch (error) {
             return failure(error as Error);
         }
