@@ -20,14 +20,14 @@ export interface LoginResult {
 
 export class AuthUseCase {
   constructor(private authRepository: AuthRepository) {}
-
+  getUserName = (email: string) => email.split('@')[0];
   async loginUser(email: string, password: string): Promise<Result<LoginResult, AuthError>> {
     try {
       const loginResult = await this.authRepository.login(email, password);
       if (isSuccess(loginResult)) {
         const loginData = loginResult.value;
         const result: LoginResult = {
-          userName: loginData.userName || "",
+          userName: this.getUserName(loginData.userName) || "",
           token: loginData.token || "",
           password: password || "",
           userId: loginData.userId || "",

@@ -119,8 +119,8 @@ export default function AppointmentScreen() {
   const [routes] = useState([
     { key: 'all', title: 'All' },
     { key: 'new', title: 'New' },
-    { key: 'checkin', title: 'Checkin' },
-    { key: 'checkout', title: 'Checkout' },
+    { key: 'checkin', title: 'CheckIn' },
+    { key: 'checkout', title: 'CheckOut' },
   ]);
   
   const renderScene = SceneMap({

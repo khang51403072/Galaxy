@@ -30,7 +30,7 @@ export const getClockOut = (entity: TimeSheetEntity): string =>
 function formatTime(dateTime: string): string {
   try {
     const date = new Date(dateTime);
-    return date.toHHMMDDMMYYYY();
+    return date.toHHMMDDMMYYYY('/');
   } catch (error) {
     return "Invalid time";
   }

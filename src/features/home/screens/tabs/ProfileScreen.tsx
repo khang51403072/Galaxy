@@ -148,7 +148,7 @@ const assetToFile = async (asset: Asset): Promise<File> => {
     if (profile) {
       return `${profile.firstName} ${profile.lastName}`;
     }
-    return 'Loading...';
+    return '';
   };
 
   // Get formatted income
@@ -159,7 +159,7 @@ const assetToFile = async (asset: Asset): Promise<File> => {
         currency: 'USD'
       }).format(profile.income);
     }
-    return 'Loading...';
+    return '';
   };
 
   // Get full address
@@ -207,8 +207,8 @@ const assetToFile = async (asset: Asset): Promise<File> => {
           }
         } type="edit"/>
         <RowInfo titleLeft="Name" titleRight={getDisplayName()} />
-        <RowInfo titleLeft="Phone" titleRight={profile?.phone || 'Loading...'} />
-        <RowInfo titleLeft="Email" titleRight={profile?.email || 'Loading...'} />
+        <RowInfo titleLeft="Phone" titleRight={profile?.phone || ''} />
+        <RowInfo titleLeft="Email" titleRight={profile?.email || ''} />
         <RowInfo titleLeft="Address" titleRight={getFullAddress()} />
         <XDivider />
         <TitleGroup 
@@ -222,9 +222,9 @@ const assetToFile = async (asset: Asset): Promise<File> => {
         <XDivider />
 
         <TitleGroup title="Work Details" onPress={() => {}} />
-        <RowInfo titleLeft="Start Date" titleRight={ (profile?.startDate?.toDDMMYYYY("/") || 'Loading...')} />
-        <RowInfo titleLeft="Income" titleRight={getFormattedIncome() || 'Loading...'} />
-        <RowInfo titleLeft="Store" titleRight={profile?.storeName || 'Loading...'} />
+        <RowInfo titleLeft="Start Date" titleRight={ (profile?.startDate?.toDDMMYYYY("/") || '')} />
+        <RowInfo titleLeft="Income" titleRight={getFormattedIncome() || ''} />
+        <RowInfo titleLeft="Store" titleRight={profile?.storeName || ''} />
         <XDivider />
         <TitleGroup isShowTooltip={showTooltip} onCloseTooltip={
           () => setShowTooltip(false)} title="Sign In With Face ID" 

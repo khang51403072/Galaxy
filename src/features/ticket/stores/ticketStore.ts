@@ -153,7 +153,7 @@ const parseHtmlToJson = (htmlString: string) => {
         }
         if (name === 'div' && attribs.class === 'time') {
           parser.ontext = (text) => {
-            jsonResult.time += text.trim();
+            jsonResult.time += ' '+text.trim();
           };
         }
         if (name === 'table' && attribs.class === 'table-work-order') {

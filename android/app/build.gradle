@@ -83,8 +83,8 @@ android {
         applicationId "com.galaxyaccess.me"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 15
+        versionName "1.1.5"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -95,6 +95,12 @@ android {
         jvmTarget = "17" // Make this match targetCompatibility
     }
     signingConfigs {
+        release {
+            keyAlias = "key0"
+            keyPassword = "#GalaxyMe2025#"
+            storeFile = file("../keystore/galaxyme")
+            storePassword = "#GalaxyMe2025#"
+        }
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
@@ -109,7 +115,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
