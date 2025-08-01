@@ -52,10 +52,11 @@ export type CreateAppointmentState = {
   ///GET
   getListCategories: ()=> Promise<Result<CategoryEntity[], Error>>;
   getListItemMenu: ()=> Promise<Result<MenuItemEntity[], Error>>
-  getApptResource: () => Promise<Result<ApptResResponse, Error>>;
+  getApptResource: () => Promise<Result<ApptRes, Error>>;
   getCustomerLookup: (pageNumber?: number, pageSize?: number, phoneNumber?: string) => Promise<Result<CustomerResponse, Error>>;
   getCompanyProfile: () => Promise<Result<CompanyProfileResponse, Error>>;
   getApptDetails: (id: string) => Promise<Result<ApptDetail, Error>>;
+  initData: (id?: string)=> Promise<void>;
   ///SET
   setIsConfirmOnline: (value: boolean) => void;
   setIsGroupAppt: (value: boolean) => void;
@@ -126,49 +127,15 @@ const createAppointmentCreator = (set: any, get:any) => ({
   getApptDetails: async (id: string) => {
     set({ isLoading: true });
     const result = await appointmentUsecase.apptDetails(id);
-    if(isSuccess(result)){
-      //default các gia trị của appointment
-      const apptDetails = result.value;
-      set({ apptDetails: apptDetails, selectedCustomer: apptDetails.customer, selectedDate: new Date(apptDetails.apptDate), isConfirmOnline: apptDetails.isOnlineConfirm, isGroupAppointment: apptDetails.isGroupAppt, isLoading: false, error: null });
-    }
-    else{
-      set({ isLoading: false, error: result.error.message });
-    }
     return result;
   },
   setSelectedApptType: (value: DropdownOption)=> set({selectedApptType: value}),
   getApptResource: async () => {
-    set({ isLoading: true });
+    if(get().listApptResource.length > 0)
+      return success(get().listApptResource)
     const result = await appointmentUsecase.getApptResource();
     if(isSuccess(result)){
-      
-      const listEmployee: EmployeeEntity[]= useEmployeeStore.getState().employees;
-      
-      const mapApptResource = new Map<string, WorkHours>();
-      
-      result.value.data.forEach((item)=>{
-        mapApptResource.set(item.id, item.workHours);
-      })
-      const listEmployeeOnWork: EmployeeEntity[] = listEmployee.map((item)=>{
-        return {
-          ...item,
-          workHours: mapApptResource.get(item.id)
-        }
-      })
-      
-      
-
-      set({ 
-        listApptResource: result.value.data,
-        listEmployeeOnWork: listEmployeeOnWork.filter((item)=>{
-          return isEmployeeAvailableForDay(item, get().selectedDate)
-        }), 
-        isLoading: false, 
-        error: null 
-      });
-    }
-    else{
-      set({ isLoading: false, error: result.error.message });
+      return success(result.value.data);
     }
     return result;
   },
@@ -177,9 +144,6 @@ const createAppointmentCreator = (set: any, get:any) => ({
         return success(get().companyProfile!);
     }
     const response = await appointmentUsecase.apptCompanyProfile();
-    if (isSuccess(response)) {
-        set({ companyProfile: response.value });
-    }
     return response;
   },
   setSelectedCustomer: (value:CustomerEntity)=>{
@@ -188,98 +152,25 @@ const createAppointmentCreator = (set: any, get:any) => ({
   getListCategories: async () =>{
     if(get().listCategories.length > 0)
       return success(get().listCategories)
-    set({ isLoading: true });
     const result = await appointmentUsecase.getCategories();
-    if(isSuccess(result)) {
-      set({ listCategories: result.value.filter(
-        (e: CategoryEntity)=>e.categoryType === "Service" || e.isHide === false)});
-    }
-    set({ isLoading: false });
     return result; 
   },
   getListItemMenu: async () =>{
     if(get().listItemMenu.length > 0)
     {
-      const listBookingServices: BookingServiceEntity[] = [];
-      get().apptDetails?.apptServiceItems.forEach((apptServiceItem:ApptServiceItem)=>{
-        const service = get().listItemMenu.find((menu:MenuItemEntity)=>menu.id === apptServiceItem.id);
-        listBookingServices.push({
-          service: service,
-          technician: get().listEmployeeOnWork.find((e:EmployeeEntity)=>e.id === apptServiceItem.employeeId),
-          comboItems: []
-        })
-      })
-
-      get().apptDetails?.apptServicePackages.forEach((apptServicePackage:ApptServicePackage)=>{
-        const service = get().listItemMenu.find((menu:MenuItemEntity)=>menu.id === apptServicePackage.id);
-        listBookingServices.push({
-          service: service,
-          technician: null,
-          comboItems: apptServicePackage.apptServiceItems.map((apptServiceItem)=>{
-            const service = get().listItemMenu.find((menu:MenuItemEntity)=>menu.id === apptServiceItem.id);
-            return {
-              service: service,
-              technician: get().listEmployeeOnWork.find(
-                (e:EmployeeEntity)=>e.id === apptServiceItem.employeeID),
-              comboItems: []
-            } as BookingServiceEntity
-          })
-        })
-      })
-      set({ listBookingServices: [...listBookingServices, ...get().listBookingServices], isLoading: false, error: null });
       return success(get().listItemMenu)
     }
-    set({ isLoading: true });
     const result = await appointmentUsecase.getMenuItems();
-    if(isSuccess(result)) {
-      const listBookingServices: BookingServiceEntity[] = [];
-      get().apptDetails?.apptServiceItems.forEach((apptServiceItem:ApptServiceItem)=>{
-        const service = result.value.find((menu:MenuItemEntity)=>menu.id === apptServiceItem.id);
-        listBookingServices.push({
-          service: service,
-          technician: get().listEmployeeOnWork.find((e:EmployeeEntity)=>e.id === apptServiceItem.employeeId),
-          comboItems: []
-        })
-      })
-      get().apptDetails?.apptServicePackages.forEach((apptServicePackage:ApptServicePackage)=>{
-        const service = result.value.find((menu:MenuItemEntity)=>menu.id === apptServicePackage.id);
-        listBookingServices.push({
-          service: service,
-          technician: null,
-          comboItems: apptServicePackage.apptServiceItems.map((apptServiceItem)=>{
-            const service = result.value.find((menu:MenuItemEntity)=>menu.id === apptServiceItem.id);
-            return {
-              service: service,
-              technician: get().listEmployeeOnWork.find(
-                (e:EmployeeEntity)=>e.id === apptServiceItem.employeeID),
-              comboItems: []
-            } as BookingServiceEntity
-          })
-        })
-      })
-      set({ listBookingServices: [...listBookingServices, ...get().listBookingServices], listItemMenu: result.value, isLoading: false, error: null });
-    }
-    else{
-      set({ isLoading: false, error: result.error.message });
-    }
     return result; 
   },
   
   getCustomerLookup: async (pageNumber: number = 1, pageSize: number = 10000, phoneNumber: string = '', {isReset}: {isReset: boolean} = {isReset: false}) => {
-    set({ isLoading: true });
-    
     const payload: CustomerPayload = {
       pageNumber,
       pageSize,
       phoneNumber: phoneNumber,
     };
     const result = await appointmentUsecase.customers(payload);
-    if(isSuccess(result)) {
-      set({ customerList: result.value.dataSource, selectedCustomer: get().apptDetails?.customer, isLoading: false });
-    }
-    else{
-      set({ isLoading: false, error: result.error.message });
-    }
     return result; 
   },
   saveAppointment: async () => {
@@ -365,7 +256,7 @@ const createAppointmentCreator = (set: any, get:any) => ({
     const payloadSave: ApptPayload = {
       id: "",
       apptDate: get().selectedDate.toYYYYMMDD("-"),
-      retentionType: get().selectedApptType?.id || "",
+      retentionType: get().selectedApptType?.value?.id || "",
       isOnlineConfirm: get().isConfirmOnline,
       isGroupAppt: get().isGroupAppointment,
       apptStatus: "New",
@@ -401,6 +292,131 @@ const createAppointmentCreator = (set: any, get:any) => ({
   setServiceIndex: (index: number) => set({ serviceIndex: index }),
   setComboIndex: (index: number) => set({ comboIndex: index }),
   setIsShowTechnician: (value: boolean) => set({ isShowTechnician: value }),
+  initData: async (id?: string) => {
+    try{
+      set({ isLoading: true });
+    const [categoriesResponse, menuItemsResponse, apptResource, companyProfileResponse, customerListResponse] = await Promise.all([
+      await get().getListCategories(),
+      await get().getListItemMenu(),
+      await get().getApptResource(),
+      await get().getCompanyProfile(),
+      await get().getCustomerLookup(),
+    ])
+    if (isSuccess(categoriesResponse)
+      && isSuccess(menuItemsResponse)
+      && isSuccess(apptResource)
+      && isSuccess(companyProfileResponse)
+      && isSuccess(customerListResponse)
+      && isSuccess(apptResource)) {
+      ///appt resource
+      const listEmployee: EmployeeEntity[] = useEmployeeStore.getState().employees;
+      const listApptResource = apptResource.value as ApptRes[];
+      const mapApptResource = new Map<string, WorkHours>();
+      listApptResource.forEach((item) => {
+        mapApptResource.set(item.id, item.workHours);
+      })
+      const listEmployeeOnWork: EmployeeEntity[] = listEmployee.map((item) => {
+        return {
+          ...item,
+          workHours: mapApptResource.get(item.id)
+        }
+      })
+      ///appt resource end
+      //category
+      const listCategories = (categoriesResponse.value as CategoryEntity[]).filter((e: CategoryEntity) => e.categoryType === "Service" || e.isHide === false);
+      //menu item
+      const listItemMenu = (menuItemsResponse.value as MenuItemEntity[]);
+      //company profile
+      const companyProfile = (companyProfileResponse.value as CompanyProfileResponse);
+      const listApptType = get().listApptType;
+      if(companyProfile){
+        listApptType[0].bgColor = companyProfile.data.posTheme.miscBackColor
+        listApptType[1].bgColor = companyProfile.data.posTheme.newCustomerBackColor
+        listApptType[2].bgColor = companyProfile.data.posTheme.heldOnBackColor
+        listApptType[3].bgColor = companyProfile.data.posTheme.nonRequestBackColor
+        listApptType[4].bgColor = companyProfile.data.posTheme.walkinBackColor
+        listApptType[5].bgColor = companyProfile.data.posTheme.onlineBackColor
+      }
+      
+      //customer list
+      const customerList = (customerListResponse.value as CustomerResponse).dataSource;
+      ///appt detail
+      let apptDetailResponse;
+      let apptDetails : ApptDetail | null = null;
+      const listBookingServices: BookingServiceEntity[] = [];
+      const selectedDate: Date = new Date();
+      const isConfirmOnline: boolean = false;
+      const isGroupAppointment: boolean = false;
+      
+      if(id){
+        apptDetailResponse = await get().getApptDetails(id);
+        apptDetails = apptDetailResponse.value;
+        apptDetails?.apptServiceItems.forEach((apptServiceItem : any)=>{
+          const service = listItemMenu.find((menu:MenuItemEntity)=>menu.id === apptServiceItem.id);
+          listBookingServices.push({
+            service: service,
+            technician: listEmployeeOnWork.find((e:EmployeeEntity)=>e.id === apptServiceItem.employeeId),
+            comboItems: []
+          })
+        })
+  
+        apptDetails?.apptServicePackages.forEach((apptServicePackage:ApptServicePackage)=>{
+          const service = get().listItemMenu.find((menu:MenuItemEntity)=>menu.id === apptServicePackage.id);
+          listBookingServices.push({
+            service: service,
+            technician: null,
+            comboItems: apptServicePackage.apptServiceItems.map((apptServiceItem)=>{
+              const service = listItemMenu.find((menu:MenuItemEntity)=>menu.id === apptServiceItem.id);
+              return {
+                service: service,
+                technician: listEmployeeOnWork.find(
+                  (e:EmployeeEntity)=>e.id === apptServiceItem.employeeId),
+                comboItems: []
+              } as BookingServiceEntity
+            })
+          })
+        })
+      }
+      let apptTypeDetail = apptDetails?.retentionType??companyProfile.data.appointments.defaultRetentionType;
+      const apptType = listApptType.find((value:ApptType) => {
+        
+        return value.id.trim().toLowerCase() === (apptTypeDetail.toLowerCase())
+      });
+      const selectedCustomer = apptDetails?.customer;
+      
+      
+      set({
+        listApptResource: listApptResource,
+        listEmployeeOnWork: listEmployeeOnWork.filter((item) => isEmployeeAvailableForDay(item, get().selectedDate)),
+        listCategories: listCategories,
+        listItemMenu: listItemMenu,
+        companyProfile: companyProfile,
+        customerList: customerList,
+        listApptType: listApptType,
+        listBookingServices: [...listBookingServices,...get().listBookingServices],
+        selectedDate: selectedDate,
+        isConfirmOnline: isConfirmOnline,
+        isGroupAppointment: isGroupAppointment,
+        selectedCustomer: selectedCustomer,
+        apptDetails: apptDetails,
+        selectedApptType: { label: apptType?.name ?? "", value: apptType },
+        error: null,
+        isLoading: false,
+      });
+    }
+
+
+    
+    
+    
+
+    
+    set({ isLoading: false });      
+    }
+    catch(e){
+      console.log(e);
+    }
+  }
 });
 
 
@@ -438,7 +454,7 @@ export const createAppointmentSelectors = {
   selectGetApptDetails: (state: CreateAppointmentState) => state.getApptDetails,
   selectApptDetails: (state: CreateAppointmentState) => state.apptDetails,
   selectSetSelectedApptType: (state: CreateAppointmentState) => state.setSelectedApptType,
-  
+  selectInitData: (state: CreateAppointmentState) => state.initData,
   // UI State Selectors
   selectShowServiceSheet: (state: CreateAppointmentState) => state.showServiceSheet,
   selectEmployeeForAvailable: (state: CreateAppointmentState) => state.employeeForAvailable,

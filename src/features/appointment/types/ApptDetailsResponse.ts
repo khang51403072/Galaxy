@@ -59,7 +59,7 @@ export interface BlockEnd {
 export interface ApptServiceItem {
   id: string;
   name: string;
-  employeeID: string;
+  employeeId: string;
   duration: number;
   note: string;
   position: number;

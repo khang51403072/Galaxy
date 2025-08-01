@@ -13,7 +13,7 @@ import {
     openSettings,
   } from 'react-native-permissions';
   import { Platform, Alert } from 'react-native';
-  
+  import ImageResizer from 'react-native-image-resizer';
   export const checkPermission = async (type: 'camera' | 'library') => {
     const permission =
       Platform.OS === 'ios'
@@ -66,12 +66,45 @@ import {
         mediaType: 'photo',
         quality: 0.8,
         saveToPhotos: true,
+        
       };
   
-      launchCamera(options, (res) => {
+      launchCamera(options, async (res) => {
         if (res.didCancel || res.errorCode) return resolve(null);
-        resolve(res.assets?.[0] || null);
+        const asset = res.assets?.[0];
+        if (asset) {
+          const fixedAsset = await fixImageOrientation(asset);
+          resolve(fixedAsset);
+        } else {
+          resolve(null);
+        }
       });
     });
   };
-  
+
+
+
+  const fixImageOrientation = async (asset: Asset) => {
+    try {
+      const result = await ImageResizer.createResizedImage(
+        asset.uri??'',
+        1024, // max width
+        1024, // max height
+        'JPEG',
+        90, // quality
+        0, // rotation (0 = auto-detect)
+        undefined, // output path
+        false, // keep metadata
+        { mode: 'contain', onlyScaleDown: true }
+      );
+      
+      return {
+        ...asset,
+        uri: result.uri,
+        fileSize: result.size,
+      };
+    } catch (error) {
+      console.error('Failed to fix orientation:', error);
+      return asset;
+    }
+  };

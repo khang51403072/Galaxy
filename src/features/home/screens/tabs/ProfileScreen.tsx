@@ -24,6 +24,7 @@ import { Text } from 'react-native';
 import { checkBiometricAvailable, simpleBiometricAuth } from '@/shared/services/BiometricService';
 import DeviceInfo from 'react-native-device-info';
 import { Asset } from 'react-native-image-picker';
+import { useHomeStore } from '../../stores/homeStore';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
@@ -129,11 +130,11 @@ const assetToFile = async (asset: Asset): Promise<File> => {
       }
       
       if (asset?.uri) {
-        await updateAvatar(asset.uri);
-        const file = await assetToFile(asset);
-        const uploadResult = await uploadAvatar(file);
+        // await updateAvatar(asset.uri);
+        const uploadResult = await uploadAvatar(asset);
         if(isSuccess(uploadResult)) {
-          useAvatarStore.setState({ avatarUri: uploadResult.value });
+          useAvatarStore.setState({ avatarUri: asset.uri??'' });
+          useHomeStore.getState().getHomeData();
         }
         console.log('Avatar updated:', asset.uri);
       }

@@ -41,6 +41,8 @@ export const createAuthStore = (authUseCase: AuthUseCase) => (set: any, get: any
       employeeId: loginResult.employeeId,
       isOwner: loginResult.isOwner,
       userName: loginResult.userName,
+      listRole: loginResult.listRole,
+      isShowPhone: loginResult.isShowPhone,
     }
     set(user);
     await appConfig.saveUser( user);

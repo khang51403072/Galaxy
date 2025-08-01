@@ -1761,6 +1761,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - react-native-image-resizer (1.4.5):
+    - React-Core
   - react-native-pager-view (6.8.1):
     - boost
     - DoubleConversion
@@ -2835,6 +2837,7 @@ DEPENDENCIES:
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - react-native-image-resizer (from `../node_modules/react-native-image-resizer`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-render-html (from `../node_modules/react-native-render-html`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -2990,6 +2993,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-biometrics"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-image-resizer:
+    :path: "../node_modules/react-native-image-resizer"
   react-native-pager-view:
     :path: "../node_modules/react-native-pager-view"
   react-native-render-html:
@@ -3141,6 +3146,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: 23df6374a3ac422d8c2927839bcaeed61fee3dad
   react-native-biometrics: 43ed5b828646a7862dbc7945556446be00798e7d
   react-native-image-picker: e9d833df19e87e25e38ddc0be3bad92f57307765
+  react-native-image-resizer: 17b2d73c030975b6543395c7e7368bc8774c5efa
   react-native-pager-view: 6e60acfd433ace1a7a1af75bd80b619a41478640
   react-native-render-html: 5afc4751f1a98621b3009432ef84c47019dcb2bd
   react-native-safe-area-context: 3bae4f8474c13ab141c40ed6c5c33f6177778d71

@@ -8,7 +8,7 @@ import { useCreateAppointmentStore, createAppointmentSelectors, CreateAppointmen
 import { useShallow } from 'zustand/react/shallow';
 import { CustomerEntity } from '../types/CustomerResponse';
 import { goBack, navigate } from '@/app/NavigationService';
-import { appointmentSelectors, createAppointmentStore } from '../stores/appointmentStore';
+import { appointmentSelectors, createAppointmentStore, useAppointmentStore } from '../stores/appointmentStore';
 import { ROUTES } from '@/app/routes';
 export default function SelectCustomerScreen() {
   const [search, setSearch] = useState('');
@@ -21,10 +21,11 @@ export default function SelectCustomerScreen() {
   })));
   const {setSelectedCustomer} =  useCreateAppointmentStore(
     useShallow((state: CreateAppointmentState)=>({
-      setSelectedCustomer: createAppointmentSelectors.selectSetSelectedCustomer(state)
+      setSelectedCustomer: createAppointmentSelectors.selectSetSelectedCustomer(state),
+     
     }))
   ) 
-  // Sử dụng đúng property của CustomerEntity, ví dụ: firstName, cellPhone
+  const json = useAppointmentStore.getState().json// Sử dụng đúng property của CustomerEntity, ví dụ: firstName, cellPhone
   const filteredCustomers = useMemo(() => {
     if (!search) return customerList || [];
     return customerList?.filter(
@@ -91,7 +92,7 @@ export default function SelectCustomerScreen() {
               style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#eee' }}
             >
               <XText style={{ fontSize: 16 }}>{item.firstName} {item.lastName}</XText>
-              <XText style={{ color: '#888', fontSize: 14 }}>{item.cellPhone}</XText>
+              {json?.isShowPhone && <XText style={{ color: '#888', fontSize: 14 }}>{item.cellPhone}</XText>}
             </TouchableOpacity>
           )}
         />

@@ -14,6 +14,8 @@ export interface LoginResult {
   lastName: string;
   employeeId: string;
   isOwner: boolean;
+  listRole: string[];
+  isShowPhone: boolean;
 }
 
 export class AuthUseCase {
@@ -32,7 +34,9 @@ export class AuthUseCase {
           firstName: loginData.firstName || "",
           lastName: loginData.lastName || "",
           employeeId: loginData.employeeId || "",
-          isOwner: loginData.isOwner || false
+          isOwner: loginData.isOwner || false,
+          listRole: loginData.listRole || [],
+          isShowPhone: loginData.isShowPhone || false
         };
         return success(result);
       } else {
