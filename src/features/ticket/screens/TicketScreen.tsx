@@ -65,8 +65,6 @@ export default function  TicketScreen() {
   // Hàm renderItem nhận đầu vào là html
   const renderItem =  ({ item }: { item: WorkOrderEntity }) =>
     {
-      
-
       const view = <View 
       style={{backgroundColor: theme.colors.white, 
       padding: theme.spacing.md, borderRadius: theme.spacing.md, ...theme.shadows.sm}}>

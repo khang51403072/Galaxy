@@ -6,7 +6,7 @@ import XScreen from "@/shared/components/XScreen";
 import XSwitch from "@/shared/components/XSwitch";
 import XText from "@/shared/components/XText";
 import { useTheme } from "@/shared/theme/ThemeProvider";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BackHandler, FlatList, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { createAppointmentSelectors, BookingServiceEntity, useCreateAppointmentStore } from "../stores/createAppointmentStore";
 import { useShallow } from "zustand/react/shallow";
@@ -149,6 +149,7 @@ export default function CreateAppointmentScreen() {
         reset,
         saveAppointment,
         initData,
+        getIsAllowEdit,
     } = useCreateAppointmentStore(
         useShallow((state) => ({
             setSelectedApptType: createAppointmentSelectors.selectSetSelectedApptType(state),
@@ -168,6 +169,7 @@ export default function CreateAppointmentScreen() {
             getListCategories: createAppointmentSelectors.selectGetListCategories(state),
             saveAppointment: createAppointmentSelectors.selectSaveAppointment(state),
             initData: createAppointmentSelectors.selectInitData(state),
+            getIsAllowEdit: createAppointmentSelectors.selectGetIsAllowEdit(state),
         }))
     );
     const {
@@ -232,13 +234,15 @@ export default function CreateAppointmentScreen() {
         listApptType.map((e) => ({label: e.name, value: e})), 
         [listApptType]
     );
+    const [isAllowEdit, setIsAllowEdit] = useState(false);
     useEffect(()=>{
         loadCompanyProfile();
+        
     },[])
 
     const loadCompanyProfile = async () => {
         await initData(apptId);
-     
+        setIsAllowEdit(getIsAllowEdit());
         if(selectedCustomer == null && !apptId){
             navigate(ROUTES.SELECT_CUSTOMER as never);
         }
@@ -556,11 +560,7 @@ export default function CreateAppointmentScreen() {
             loading = {isLoading} 
             error={error}
             scrollable={true}
-            // onBackPress={() => {
-            //     reset();
-            //     goBack();
-            // }}
-            footer={<XButton title="Save" onPress={
+            footer={ isAllowEdit && <XButton title="Save" onPress={
                 async () => {
                     
                     const result = await saveAppointment();
@@ -586,9 +586,7 @@ export default function CreateAppointmentScreen() {
                 }
             } />}
             >   
-            <DisableMaskAdvanced 
-            children={
-                <View style={{ gap: theme.spacing.md, paddingTop: theme.spacing.md, flex: 1 }}>
+            <View style={{ gap: theme.spacing.md, paddingTop: theme.spacing.md, flex: 1 }}>
                 {customerPicker()}
                 {MemoizedDropdown}
                 {confirmOnlineToggle()}
@@ -600,10 +598,6 @@ export default function CreateAppointmentScreen() {
                 {menuText()}
                 {listServiceComponent()}
             </View> 
-             }
-            enabled={json?.listRole.includes(Permissions.MOVE_APPOINTMENT)}>
-                
-            </DisableMaskAdvanced>
             
             
             {/** BottomSheet */}
@@ -616,41 +610,32 @@ export default function CreateAppointmentScreen() {
             />
             {technicianPicker()}
             {/** BottomSheet */}
+            {!isAllowEdit && (
+            <View 
+                style={styles.mask}
+                pointerEvents="box-only"
+                // pointerEvents="none" // Cho phép touch events pass through
+            />
+            )}
         </XScreen>
         </>
     )
 }   
 
-interface DisableMaskProps {
-    enabled?: boolean;
-    children: React.ReactNode;
-  }
-const DisableMaskAdvanced: React.FC<DisableMaskProps> = ({ enabled = true, children }) => {
-    return (
-      <View style={styles.container}>
-        {children}
-        {!enabled && (
-          <View 
-            style={styles.mask}
-            pointerEvents="none" // Cho phép touch events pass through
-          />
-        )}
-      </View>
-    );
-  };
-  
-  const styles = StyleSheet.create({
-    container: {
-      position: 'relative',
-    },
-    mask: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: '#FFFFFF1A',
-      zIndex: 1000,
-      pointerEvents: 'none', // Quan trọng!
-    },
-  });
+
+
+const styles = StyleSheet.create({
+container: {
+    position: 'relative',
+},
+mask: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#FFFFFF80',
+    zIndex: 1000,
+    pointerEvents: 'none', // Quan trọng!
+},
+});

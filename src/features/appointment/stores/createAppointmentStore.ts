@@ -16,6 +16,7 @@ import { ApptDetail, ApptDetailsResponse, ApptServicePackage } from '../types/Ap
 import { appConfig } from '@/shared/utils/appConfig';
 import { useEmployeeStore } from '@/shared/stores/employeeStore';
 import { DropdownOption } from '@/shared/components/XDropdown';
+import { Permissions } from '@/features/auth/types/AuthTypes';
 
 export type BookingServiceEntity = {
   service?: MenuItemEntity|null
@@ -70,7 +71,7 @@ export type CreateAppointmentState = {
   setServiceIndex: (index: number) => void;
   setComboIndex: (index: number) => void;
   setIsShowTechnician: (value: boolean) => void;
-  
+  getIsAllowEdit: ()=> boolean;
   //
   saveAppointment: ()=> Promise<Result<DataAppt, Error>>;
   setIsAllowBookAnyway: (value: boolean)=> void;
@@ -404,18 +405,24 @@ const createAppointmentCreator = (set: any, get:any) => ({
         isLoading: false,
       });
     }
-
-
-    
-    
-    
-
-    
     set({ isLoading: false });      
     }
     catch(e){
       console.log(e);
     }
+  },
+  getIsAllowEdit: ()=> {
+    if(get().apptDetails === null){
+      return true;
+    }
+    if(useAppointmentStore.getState().json?.listRole.includes(Permissions.MOVE_APPOINTMENT)){
+      return true;
+    }
+    if(get().apptDetails?.apptStatus.toLowerCase() === "checkout" || get().apptDetails?.apptStatus.toLowerCase() === "cancel"){
+      return false;
+    }
+    
+    return false;
   }
 });
 
@@ -466,6 +473,7 @@ export const createAppointmentSelectors = {
   selectSetComboIndex: (state: CreateAppointmentState) => state.setComboIndex,
   selectIsShowTechnician: (state: CreateAppointmentState) => state.isShowTechnician,
   selectSetIsShowTechnician: (state: CreateAppointmentState) => state.setIsShowTechnician,
+  selectGetIsAllowEdit: (state: CreateAppointmentState) => state.getIsAllowEdit,
 }; 
 
 function validBookings(
