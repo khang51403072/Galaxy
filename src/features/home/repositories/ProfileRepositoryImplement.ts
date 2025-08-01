@@ -4,6 +4,7 @@ import { Result, success, failure } from '../../../shared/types/Result';
 import { ProfileEntity } from '../types/ProfileResponse';
 import { ChangePasswordRequest, UpdateProfileRequest } from '../types/ProfileRequest';
 import { UserError } from '../types/UserError';
+import { Asset } from 'react-native-image-picker';
 
 export class ProfileRepositoryImplement implements ProfileRepository {
   constructor(private profileApi: typeof ProfileApi) {}
@@ -45,9 +46,9 @@ export class ProfileRepositoryImplement implements ProfileRepository {
     }
   }
 
-  async uploadAvatar(file: File): Promise<Result<string, UserError>> {
+  async uploadAvatar(imageData: Asset): Promise<Result<string, UserError>> {
     try {
-      const response = await this.profileApi.uploadAvatar(file);
+      const response = await this.profileApi.uploadAvatar(imageData);
       return success(response.data?.avatarUrl || '');
     } catch (error: any) {
       return failure(new UserError(error.message || 'Error uploading avatar', 'AVATAR_UPLOAD_ERROR', error));

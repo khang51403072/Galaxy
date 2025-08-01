@@ -18,7 +18,7 @@ export type UserState = {
   updateProfile: (request: UpdateProfileRequest) => Promise<Result<ProfileEntity, UserError>>;
   changePassword: (request: ChangePasswordRequest) => Promise<Result<void, UserError>>;
   logout: () => Promise<void>;
-  uploadAvatar: (file: File) => Promise<Result<string, UserError>>;
+  uploadAvatar: (imageData: Asset) => Promise<Result<string, UserError>>;
 };
 
 export const userSelectors = {
@@ -98,9 +98,9 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
     }
     set({ profile: null, isLoading: false });
   },
-  uploadAvatar: async (file: File): Promise<Result<string, UserError>> => {
+  uploadAvatar: async (imageData: Asset): Promise<Result<string, UserError>> => {
     set({ isLoading: true });
-    const uploadResult = await profileUseCase.uploadAvatar(file);
+    const uploadResult = await profileUseCase.uploadAvatar(imageData);
     set({ isLoading: false });
     return uploadResult;
   },
@@ -117,5 +117,6 @@ import { AuthUseCase } from '@/features/auth/usecase/AuthUsecase';
 import { AuthApi } from '@/features/auth/services/AuthApi';
 import { LogoutMRequest } from '@/features/auth/types/AuthTypes';
 import { appConfig } from '@/shared/utils/appConfig';
+import { Asset } from 'react-native-image-picker';
 
 const realAuthUseCase = new AuthUseCase(new ApiAuthRepository(AuthApi));

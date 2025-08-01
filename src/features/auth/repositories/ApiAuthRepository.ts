@@ -39,6 +39,8 @@ export class ApiAuthRepository implements AuthRepository {
         fullName: response.data.fullName || '',
         employeeId: response.employeeId || '',
         isOwner: response.isOwner || false,
+        listRole: response.listRole || [],
+        isShowPhone: response.isShowPhone || false
       };
       return success(loginData);
     } catch (error: any) {

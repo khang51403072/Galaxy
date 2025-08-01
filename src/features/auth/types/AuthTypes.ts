@@ -1,5 +1,12 @@
 import { Platform } from "react-native";
-
+export enum Permissions {
+  VIEW_PROFILE = 'VIEW_PROFILE',
+  EDIT_PROFILE = 'EDIT_PROFILE',
+  CHANGE_PASSWORD = 'CHANGE_PASSWORD',
+  VIEW_HOME = 'VIEW_HOME',
+  MAKE_APPOINTMENTS = "MAKE_APPOINTMENTS",
+  MOVE_APPOINTMENT = "MOVE_APPOINTMENT",
+}
 export type LoginInput = {
     email: string;
     password: string;
@@ -40,6 +47,8 @@ export type LoginInput = {
     merchantInfo: MerchantInfo;
     privileges: any[];
     fullName: string;
+    listRole: string[];
+    isShowPhone: boolean;
   }
 
 

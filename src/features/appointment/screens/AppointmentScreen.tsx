@@ -21,6 +21,7 @@ import XInput from "@/shared/components/XInput";
 import XBottomSheetSearch from "@/shared/components/XBottomSheetSearch";
 import { employeeSelectors, useEmployeeStore } from "@/shared/stores/employeeStore";
 import { navigate } from "@/app/NavigationService";
+import { Permissions } from "@/features/auth/types/AuthTypes";
 
 export default function AppointmentScreen() {
   const theme = useTheme();
@@ -307,6 +308,7 @@ export default function AppointmentScreen() {
       </View>
       
       {/* Floating Button */}
+      {json?.listRole.includes(Permissions.MAKE_APPOINTMENTS) &&
       <TouchableOpacity
         style={{
           position: 'absolute',
@@ -331,6 +333,7 @@ export default function AppointmentScreen() {
       >
         <XIcon name="addAppointment" width={24} height={24} color="#fff" />
       </TouchableOpacity>
+      }
       <XBottomSheetSearch
         visible={visible}
         onClose={() => {

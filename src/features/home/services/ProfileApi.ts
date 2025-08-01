@@ -5,6 +5,7 @@ import { ProfileEntity } from '../types/ProfileResponse';
 import { ChangePasswordRequest, UpdateProfileRequest } from '../types/ProfileRequest';
 import xlog from '../../../core/utils/xlog';
 import { appConfig } from '@/shared/utils/appConfig';
+import { Asset } from 'react-native-image-picker';
 
 // ===== TYPES =====
 
@@ -44,15 +45,20 @@ export const ProfileApi = {
       throw new Error(error.message || 'Không thể cập nhật profile');
     }
   },
-  uploadAvatar: async (file: File): Promise<AvatarUploadResponse> => {
+  uploadAvatar: async (imageData: Asset): Promise<AvatarUploadResponse> => {
     try {
+      const boundary = `Boundary-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const filename = `avatar_${Date.now()}.jpg`;
       const json = await appConfig.getUser();
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('employeeId', json?.employeeId);
+      formData.append('file', {
+        uri: imageData.uri,
+        type: 'image/jpeg',
+        name: filename,
+      } as any);
       const res = await httpClient.post<AvatarUploadResponse>('/galaxy-me/upload-avatar/'+json?.employeeId, formData,{
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': `multipart/form-data; boundary=${boundary}`,
         },
       });
       return res.data;

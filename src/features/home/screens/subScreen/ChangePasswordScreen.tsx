@@ -11,17 +11,24 @@ import { ChangePasswordRequest } from '../../types/ProfileRequest';
 import { goBack, reset } from '@/app/NavigationService';
 import { ROUTES } from '@/app/routes';
 import { appConfig } from '@/shared/utils/appConfig';
+import { useBackHandler } from "@/shared/hooks/useBackHandler";
+import { useXAlert } from '@/shared/components/XAlertContext';
 
 
 export default function ChangePasswordScreen() {
-  const [{
-    oldPassword,
-    newPassword
-  }, setShowPass] = React.useState({
-    oldPassword: true,
-    newPassword: true
-  });
+ // Sử dụng functional update
+const [showPass, setShowPass] = React.useState({
+  oldPassword: true,
+  newPassword: true,
+  confirmPassword: true,
+});
 
+const toggleField = React.useCallback((field: keyof typeof showPass) => {
+  setShowPass(prev => ({
+    ...prev,
+    [field]: !prev[field],
+  }));
+}, []);
   const logout = useUserStore(useShallow((state)=>userSelectors.selectLogout(state)));
   const fields: XFormField[] = [
     {
@@ -36,9 +43,9 @@ export default function ChangePasswordScreen() {
         required: 'Old password is required',
        
       },
-      secureTextEntry: oldPassword,
-      iconRight: oldPassword ? "showPassword" : "hidePassword",
-      onIconRightPress: () => setShowPass({oldPassword: !oldPassword, newPassword: newPassword}),
+      secureTextEntry: showPass.oldPassword,
+      iconRight: showPass.oldPassword ? "showPassword" : "hidePassword",
+      onIconRightPress: () => toggleField('oldPassword'),
     },
     {
       name: 'newPassword',
@@ -51,18 +58,46 @@ export default function ChangePasswordScreen() {
       rules: {
         required: 'New password is required',
       },
-      secureTextEntry: newPassword,
-      iconRight: newPassword ? "showPassword" : "hidePassword",
-      onIconRightPress: () => setShowPass({oldPassword: oldPassword, newPassword: !newPassword}),
+      secureTextEntry: showPass.newPassword,
+      iconRight: showPass.newPassword ? "showPassword" : "hidePassword",
+      onIconRightPress: () => toggleField('newPassword'),
+    },
+    {
+      name: 'confirmPassword',
+      label: 'Confirm Password',
+      placeholder: 'Enter your confirm password',
+      // iconLeft: 'user',
+      keyboardType: 'default',
+      type: 'password',
+      autoCapitalize: 'none',
+      rules: {
+        required: 'New password is required',
+      },
+      secureTextEntry: showPass.confirmPassword,
+      iconRight: showPass.confirmPassword ? "showPassword" : "hidePassword",
+      onIconRightPress: () => toggleField('confirmPassword'),
     },
    
   ];
   const navigation = useNavigation();
+
+  useBackHandler(navigation, () => {
+    
+    console.log('back handler');
+});
   const [visible, setVisible] = React.useState(false);
   const [defaultValues, setDefaultValues] = useState({
     newPassword: '',
-    oldPassword: ''
+    oldPassword: '',
+    confirmPassword: ''
   });
+
+  const setValueField = React.useCallback((field: keyof typeof defaultValues, value: string) => {
+    setDefaultValues(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  }, []);
   
   const [pendingData, setPendingData] = React.useState<ChangePasswordRequest | undefined>(undefined);
   const { isLoading, changePassword, error } = useUserStore(
@@ -82,26 +117,37 @@ export default function ChangePasswordScreen() {
     const changePasswordRequest: ChangePasswordRequest = {
       employeeId: employeeId || '',
       newPassword: data.newPassword,
-      oldPassword: data.oldPassword
+      oldPassword: data.oldPassword,
+      confirmPassword: data.confirmPassword
     };
     setDefaultValues({
       newPassword: data.newPassword,
-      oldPassword: data.oldPassword
+      oldPassword: data.oldPassword,
+      confirmPassword: data.confirmPassword
     });
     setPendingData(changePasswordRequest);
     setVisible(true);
   };
 
-  
+  const showAlert = useXAlert();
   const handleConfirm = async () => {
     setVisible(false);
     const result = await changePassword(pendingData as ChangePasswordRequest);
     if (isSuccess(result)) {
-
-      await logout();
-      await appConfig.clearAutoLogin();
-      await appConfig.clearUseBiometric();
-      reset([{ name: ROUTES.LOGIN }], 0);
+      showAlert.showAlert({
+        title: 'Success',
+        message: 'Password changed successfully',
+        type: 'success',
+        onClose: async () => {
+          useUserStore.setState({ error: null});
+          await logout();
+          await appConfig.clearAutoLogin();
+          await appConfig.clearUseBiometric();
+          reset([{ name: ROUTES.LOGIN }], 0);
+        }
+      });
+      
+     
     } else {
       useUserStore.setState({ error: result.error?.message});
     }
@@ -117,7 +163,6 @@ export default function ChangePasswordScreen() {
         content= "Are you sure you want to change your password?"
         onCancel={() => setVisible(false)}
         onConfirm={handleConfirm}
-        
       />
     </XScreen>
   );

@@ -3,6 +3,8 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { getToken } from './AuthInterceptor';
 import xlog from '../utils/xlog';
 import { appConfig } from '@/shared/utils/appConfig';
+import { reset } from '@/app/NavigationService';
+import { ROUTES } from '@/app/routes';
 
 class HttpClient {
   private static instance: AxiosInstance;
@@ -53,6 +55,7 @@ class HttpClient {
             xlog.warn('Token expired', { tag: 'HTTP' });
            
             // redirect về login nếu cần
+            reset([{ name: ROUTES.LOGIN }], 0);
           }
           return Promise.reject(error);
         }

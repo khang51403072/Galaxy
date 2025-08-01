@@ -53,7 +53,9 @@ export function XDatePicker({
   };
 
   const openPopover = useCallback(() => {
+    
     registerPopover(() => setShow(false));
+    unregisterPopover();
     setShow(true);
   }, []);
 
@@ -84,9 +86,11 @@ export function XDatePicker({
         from={touchableRef}
         onRequestClose={() => setShow(false)}
         popoverStyle={styles.popover}
+        
         // arrowStyle={styles.arrow}
         backgroundStyle={{ backgroundColor: 'rgba(0,0,0,0.1)' }}
         onCloseComplete={unregisterPopover}
+      
       >
         <View style={{ maxWidth: SW - 16, minWidth: 280, maxHeight: POPUP_H }}>
           {(mode==='date' || mode==='datetime') && (

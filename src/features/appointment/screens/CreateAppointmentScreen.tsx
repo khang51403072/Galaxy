@@ -7,7 +7,7 @@ import XSwitch from "@/shared/components/XSwitch";
 import XText from "@/shared/components/XText";
 import { useTheme } from "@/shared/theme/ThemeProvider";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { BackHandler, FlatList, ScrollView, TouchableOpacity, View } from "react-native";
+import { BackHandler, FlatList, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { createAppointmentSelectors, BookingServiceEntity, useCreateAppointmentStore } from "../stores/createAppointmentStore";
 import { useShallow } from "zustand/react/shallow";
 import { RootStackParamList, ROUTES } from "@/app/routes";
@@ -31,6 +31,7 @@ import { RouteProp, useFocusEffect, useRoute } from "@react-navigation/native";
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import { useBackHandler } from "@/shared/hooks/useBackHandler";
+import { Permissions } from "@/features/auth/types/AuthTypes";
 interface ApptMessage {
     message: string
     date: string
@@ -146,12 +147,8 @@ export default function CreateAppointmentScreen() {
         setIsGroupAppt,
         setEmployeeForAvailable,
         reset,
-        getApptDetails,
-        getCustomerLookup,
-        getApptResource,
-        getListItemMenu,
-        getListCategories,
         saveAppointment,
+        initData,
     } = useCreateAppointmentStore(
         useShallow((state) => ({
             setSelectedApptType: createAppointmentSelectors.selectSetSelectedApptType(state),
@@ -170,6 +167,7 @@ export default function CreateAppointmentScreen() {
             getListItemMenu: createAppointmentSelectors.selectGetListItemMenu(state),
             getListCategories: createAppointmentSelectors.selectGetListCategories(state),
             saveAppointment: createAppointmentSelectors.selectSaveAppointment(state),
+            initData: createAppointmentSelectors.selectInitData(state),
         }))
     );
     const {
@@ -217,10 +215,11 @@ export default function CreateAppointmentScreen() {
         isShowTechnician: createAppointmentSelectors.selectIsShowTechnician(state)
     })));
 
-    const {getCompanyProfile, getAppointmentList} = useAppointmentStore(useShallow(
+    const {getCompanyProfile, getAppointmentList, json} = useAppointmentStore(useShallow(
         (state)=>({
             getCompanyProfile: appointmentSelectors.selectGetCompanyProfile(state),
-            getAppointmentList: appointmentSelectors.selectGetAppointmentList(state)
+            getAppointmentList: appointmentSelectors.selectGetAppointmentList(state),
+            json: appointmentSelectors.selectJson(state)
         })
     ));
     const navigation = useNavigation();
@@ -238,35 +237,12 @@ export default function CreateAppointmentScreen() {
     },[])
 
     const loadCompanyProfile = async () => {
-        if(apptId){
-            await getApptDetails(apptId);
-        }
-        await getCustomerLookup();
+        await initData(apptId);
+     
         if(selectedCustomer == null && !apptId){
             navigate(ROUTES.SELECT_CUSTOMER as never);
         }
-        const profile = await getCompanyProfile();
-        if(isSuccess(profile)) {
-            let tmplist = listApptType
-            tmplist[0].bgColor = profile.value.data.posTheme.miscBackColor
-            tmplist[1].bgColor = profile.value.data.posTheme.newCustomerBackColor
-            tmplist[2].bgColor = profile.value.data.posTheme.heldOnBackColor
-            tmplist[3].bgColor = profile.value.data.posTheme.nonRequestBackColor
-            tmplist[4].bgColor = profile.value.data.posTheme.walkinBackColor
-            tmplist[5].bgColor = profile.value.data.posTheme.onlineBackColor
-            
-            const apptType = listApptType.find((value,index)=>{
-                const apptType = apptDetails?.apptType;
-                return value.id.trim().toLowerCase() === (apptType ??profile.value.data.appointments.defaultRetentionType.trim().toLowerCase())
-            });
-            useCreateAppointmentStore.setState({
-                listApptType: tmplist,
-                selectedApptType: {label: apptType?.name??"", value: apptType}}) 
-        }
-        
-        await getListItemMenu();
-        await getListCategories(); 
-        await getApptResource();
+       
     }
     const customerPicker = ()=>{
         return (
@@ -573,6 +549,8 @@ export default function CreateAppointmentScreen() {
     
     
     return (
+        <>
+        
         <XScreen 
             title="Booking Appointment" 
             loading = {isLoading} 
@@ -607,8 +585,10 @@ export default function CreateAppointmentScreen() {
                     }
                 }
             } />}
-            >    
-            <View style={{ gap: theme.spacing.md, paddingTop: theme.spacing.md, flex: 1 }}>
+            >   
+            <DisableMaskAdvanced 
+            children={
+                <View style={{ gap: theme.spacing.md, paddingTop: theme.spacing.md, flex: 1 }}>
                 {customerPicker()}
                 {MemoizedDropdown}
                 {confirmOnlineToggle()}
@@ -619,7 +599,12 @@ export default function CreateAppointmentScreen() {
                 {divider}
                 {menuText()}
                 {listServiceComponent()}
-            </View>
+            </View> 
+             }
+            enabled={json?.listRole.includes(Permissions.MOVE_APPOINTMENT)}>
+                
+            </DisableMaskAdvanced>
+            
             
             {/** BottomSheet */}
             <SelectServiceScreen
@@ -632,6 +617,40 @@ export default function CreateAppointmentScreen() {
             {technicianPicker()}
             {/** BottomSheet */}
         </XScreen>
+        </>
     )
 }   
 
+interface DisableMaskProps {
+    enabled?: boolean;
+    children: React.ReactNode;
+  }
+const DisableMaskAdvanced: React.FC<DisableMaskProps> = ({ enabled = true, children }) => {
+    return (
+      <View style={styles.container}>
+        {children}
+        {!enabled && (
+          <View 
+            style={styles.mask}
+            pointerEvents="none" // Cho phép touch events pass through
+          />
+        )}
+      </View>
+    );
+  };
+  
+  const styles = StyleSheet.create({
+    container: {
+      position: 'relative',
+    },
+    mask: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: '#FFFFFF1A',
+      zIndex: 1000,
+      pointerEvents: 'none', // Quan trọng!
+    },
+  });
