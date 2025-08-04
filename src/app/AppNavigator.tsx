@@ -17,14 +17,16 @@ import { navigationRef } from './NavigationService';
 import NotificationListScreen from '@/features/home/screens/subScreen/NotificationListScreen';
 import SelectServiceScreen from '@/features/appointment/components/SelectServiceScreen';
 import AddCustomerScreen from '@/features/appointment/components/AddCustomerScreen';
+import HomeScreen from '@/features/home/screens/tabs/HomeScreen';
+import ProfileScreen from '@/features/home/screens/tabs/ProfileScreen';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
   return (
-    <NavigationContainer ref={navigationRef}>      
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <NavigationContainer  ref={navigationRef}>      
+      <Stack.Navigator  screenOptions={{  headerShown: false }}>
         <Stack.Screen name={ROUTES.SPLASH} component={SplashScreen} />
         <Stack.Screen name={ROUTES.LOGIN} component={LoginScreen} />
         <Stack.Screen name={ROUTES.HOME} component={MainTabsScreen} />
@@ -39,6 +41,8 @@ export default function AppNavigator() {
         <Stack.Screen name={ROUTES.NOTIFICATIONS} component={NotificationListScreen} />
         <Stack.Screen name={ROUTES.SELECT_SERVICE} component={SelectServiceScreen} />
         <Stack.Screen name={ROUTES.CREATE_CUSTOMER} component={AddCustomerScreen} />
+        <Stack.Screen name={ROUTES.DASHBOARD} component={HomeScreen} />
+        <Stack.Screen name={ROUTES.PROFILE} component={ProfileScreen} />   
       </Stack.Navigator>
     </NavigationContainer>
   );

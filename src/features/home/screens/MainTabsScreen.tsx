@@ -1,111 +1,162 @@
 
 
-// src/navigation/MainTabs.tsx
-import React, { useState, useRef } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Animated, Dimensions } from 'react-native';
+// src/features/home/screens/MainTabsScreen.tsx
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { View, Dimensions, TouchableOpacity } from 'react-native';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withSpring,
+  withTiming,
+  interpolate,
+  Extrapolate
+} from 'react-native-reanimated';
+import PagerView from 'react-native-pager-view';
+import { useTheme } from '@/shared/theme';
 import XIcon from '../../../shared/components/XIcon';
-import XBottomTabBar from '../../../shared/components/XBottomTabBar';
 import HomeScreen from './tabs/HomeScreen';
 import ProfileScreen from './tabs/ProfileScreen';
-import { useTheme } from '@/shared/theme';
 
-const Tab = createBottomTabNavigator();
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export default function MainTabsScreen() {
   const theme = useTheme();
   const [activeIndex, setActiveIndex] = useState(0);
-  const translateX = useRef(new Animated.Value(0)).current;
-
- 
-
-  const handleTabChange = (index: number) => {
-    if (index === activeIndex) return;
-    
-    const direction = index > activeIndex ? -1 : 1;
-    const targetValue = direction * SCREEN_WIDTH;
-    
-    // Animate to target position
-    Animated.timing(translateX, {
-      toValue: targetValue,
-      duration: 500,
-      useNativeDriver: true,
-    }).start(() => {
-      // Update active index
-      setActiveIndex(index);
-      // Reset position
-      translateX.setValue(0);
-    });
-  };
+  const pagerRef = useRef<PagerView>(null);
   
-  const route = [
+  // Animation values for tab bar
+  const slideAnim = useSharedValue(0);
+  const indicatorAnim = useSharedValue(0);
+
+  const routes = [
     {
-      name: 'DashBoard',
+      name: 'Dashboard',
       component: HomeScreen,
+      icon: 'home',
+      label: 'Dashboard',
     },
     {
       name: 'Profile',
       component: ProfileScreen,
+      icon: 'profile',
+      label: 'Profile',
     },
-  ]
-  const screenOptions = {
-    headerShown: false,
-    tabBarActiveTintColor: theme.colors.primary,
-    tabBarInactiveTintColor: theme.colors.textInputPlaceholder,
-    tabBarLabelStyle: { fontSize: 12 },
-    tabBarIcon: ({ color, size, route }: any) => {
-      let iconName = 'home';
-      switch (route.name) {
-        case 'DashBoard':
-          iconName = 'home';
-          break;
-        case 'Profile':
-          iconName = 'profile';
-          break;
-      }
-      return <XIcon name={iconName as any} width={size} height={size} color={color} />;
-    },
-  };
+  ];
+
+  // Initialize entrance animation
+  useEffect(() => {
+    slideAnim.value = withSpring(1, { damping: 8, stiffness: 120 });
+  }, []);
+
+  // Handle tab change
+  const handleTabChange = useCallback((index: number) => {
+    if (index === activeIndex) return;
+    
+    setActiveIndex(index);
+    indicatorAnim.value = withSpring(index, { damping: 8, stiffness: 150 });
+    
+    // Animate pager view
+    pagerRef.current?.setPage(index);
+  }, [activeIndex]);
+
+  // Handle page change from swipe
+  const handlePageChange = useCallback((event: any) => {
+    const newIndex = event.nativeEvent.position;
+    if (newIndex !== activeIndex) {
+      setActiveIndex(newIndex);
+      indicatorAnim.value = withSpring(newIndex, { damping: 8, stiffness: 150 });
+    }
+  }, [activeIndex]);
+
+  // Custom Tab Bar Component
+  const CustomTabBar = () => (
+    <Animated.View
+      style={[
+        {
+          flexDirection: 'row',
+          backgroundColor: theme.colors.background,
+          borderTopWidth: 1,
+          borderTopColor: theme.colors.border,
+          paddingBottom: 20,
+          paddingTop: 10,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          ...theme.shadows.md,
+        },
+        useAnimatedStyle(() => ({
+          transform: [
+            {
+              translateY: interpolate(
+                slideAnim.value,
+                [0, 1],
+                [50, 0],
+                Extrapolate.CLAMP
+              ),
+            },
+          ],
+          opacity: slideAnim.value,
+        }))
+      ]}
+    >
+      {routes.map((route, index) => (
+        <TouchableOpacity
+          key={route.name}
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            paddingVertical: 8,
+          }}
+          onPress={() => handleTabChange(index)}
+        >
+          <XIcon
+            name={route.icon as any}
+            width={24}
+            height={24}
+            color={activeIndex === index ? theme.colors.primary : theme.colors.textInputPlaceholder}
+          />
+          <Animated.Text
+            style={{
+              fontSize: 12,
+              fontWeight: '600',
+              marginTop: 4,
+              color: activeIndex === index ? theme.colors.primary : theme.colors.textInputPlaceholder,
+            }}
+          >
+            {route.label}
+          </Animated.Text>
+        </TouchableOpacity>
+      ))}
+      
+      {/* Animated indicator */}
+      
+    </Animated.View>
+  );
 
   return (
     <View style={{ flex: 1 }}>
-      <Tab.Navigator
-        screenOptions={screenOptions}
-        tabBar={(props) => <XBottomTabBar {...props} />}
-        screenListeners={{
-          tabPress: (e) => {            
-            const routeName = e.target?.split('-')[0];
-            if (routeName) {
-              const index = route.findIndex(tab => tab.name === routeName);
-              if (index !== -1) {
-                handleTabChange(index);
-              }
-            }
-          },
-        }}
+      <PagerView
+        ref={pagerRef}
+        style={{ flex: 1, backgroundColor: theme.colors.background }}
+        initialPage={0}
+        onPageSelected={handlePageChange}
+        pageMargin={0}
+        overdrag={false}
+        overScrollMode="never"
+
       >
-        <Tab.Screen name="DashBoard">
-          {() => <Animated.View
-          style={{
-            flex: 1,
-            transform: [{ translateX }],
-          }}
-        >
-          <HomeScreen />
-      </Animated.View>}
-        </Tab.Screen>
-        <Tab.Screen name="Profile">
-          {() => <Animated.View
-          style={{
-            flex: 1,
-            transform: [{ translateX }],
-          }}
-        >
-          <ProfileScreen />
-      </Animated.View>}
-        </Tab.Screen>
-      </Tab.Navigator>
+        {routes.map((route, index) => (
+          <View key={route.name} style={{ flex: 1 }}>
+            <route.component />
+          </View>
+        ))}
+      </PagerView>
+      
+      {/* Custom Tab Bar */}
+      <CustomTabBar />
     </View>
   );
 }

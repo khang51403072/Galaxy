@@ -120,6 +120,7 @@ export default function XScreen({
   const styles = StyleSheet.create({
     container: {
       flex: 1,
+      backgroundColor: theme.colors.background,
     },
     content: {
       flex: 1,
@@ -192,7 +193,7 @@ export default function XScreen({
           styles.scrollContent,
           {
             backgroundColor: backgroundColor||theme.colors.background,
-            paddingBottom: safeArea ? insets.bottom + (haveBottomTabBar || footer ? 80 : 0) : 0,
+            paddingBottom: safeArea ? insets.bottom + (haveBottomTabBar || footer ? 110 : 0) : 0,
           }
         ]}
         showsVerticalScrollIndicator={false}

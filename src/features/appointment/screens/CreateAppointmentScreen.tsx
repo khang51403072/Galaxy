@@ -553,8 +553,6 @@ export default function CreateAppointmentScreen() {
     
     
     return (
-        <>
-        
         <XScreen 
             title="Booking Appointment" 
             loading = {isLoading} 
@@ -618,7 +616,6 @@ export default function CreateAppointmentScreen() {
             />
             )}
         </XScreen>
-        </>
     )
 }   
 
