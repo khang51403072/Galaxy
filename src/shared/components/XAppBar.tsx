@@ -75,7 +75,7 @@ export default function XAppBar({ title, showBack = true, onBackPress, rightIcon
       ) : (
         <View style={styles.backBtn} />
       )}
-      <XText variant="title" style={styles.title} numberOfLines={1}>{title}</XText>
+      <XText variant="headingRegular" style={styles.title} numberOfLines={1}>{title}</XText>
       {rightIcon ? (
         <View style={styles.rightIcon}>
           {rightIcon}

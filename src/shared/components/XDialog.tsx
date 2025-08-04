@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { useTheme } from '../theme';
 import XButton from './XButton';
+import XText from './XText';
 
 interface XDialogProps {
   visible: boolean;
@@ -27,7 +28,55 @@ export default function XDialog({
   onCancel = () => {},
 }: XDialogProps) {
   const theme = useTheme();
-
+  const styles = StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.3)',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 1,
+    },
+    centeredView: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 2,
+      marginHorizontal: 16,
+    },
+    dialog: {
+      minWidth: 280,
+      maxWidth: 340,
+      borderRadius: 16,
+      padding: 24,
+      alignItems: 'center',
+      elevation: 4,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+    },
+    title: {
+      marginBottom: 12,
+      textAlign: 'center',
+    },
+    content: {
+      marginBottom: 20,
+      alignItems: 'center',
+    },
+    actions: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '100%',
+      gap: 12,
+    },
+    button: {
+      flex: 1,
+      marginHorizontal: 4,
+    },
+  }); 
   return (
     <Modal
       visible={visible}
@@ -40,8 +89,8 @@ export default function XDialog({
       </TouchableWithoutFeedback>
       <View style={styles.centeredView} pointerEvents="box-none">
         <View style={[styles.dialog, { backgroundColor: theme.colors.white }]}> 
-          <Text style={[styles.title, ]}>{title}</Text>
-          <View style={styles.content}>{typeof content === 'string' ? <Text style={{ color: theme.colors.text }}>{content}</Text> : content}</View>
+          <XText variant= 'headingRegular' style={[styles.title, ]}>{title}</XText>
+          <View style={styles.content}>{typeof content === 'string' ? <XText variant= 'bodyLight' style={{ color: theme.colors.text }}>{content}</XText> : content}</View>
           <View style={styles.actions}>
             <XButton
               title={textCancel}
@@ -65,54 +114,3 @@ export default function XDialog({
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1,
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 2,
-    marginHorizontal: 16,
-  },
-  dialog: {
-    minWidth: 280,
-    maxWidth: 340,
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  content: {
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    gap: 12,
-  },
-  button: {
-    flex: 1,
-    marginHorizontal: 4,
-  },
-}); 

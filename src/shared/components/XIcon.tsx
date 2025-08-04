@@ -40,6 +40,7 @@ import CaretDown from '../assets/icons/CaretDown.svg';
 import CaretUp from '../assets/icons/CaretUp.svg';
 import ExclamationMark from '../assets/icons/ExclamationMark.svg';
 import UserPlus from '../assets/icons/UserPlus.svg';
+import SwitchStore from '../assets/icons/SwitchStore.svg';
 
 export const iconMap = {
   user: User,
@@ -82,6 +83,7 @@ export const iconMap = {
   caretUp: CaretUp,
   exclamationMark: ExclamationMark,
   userPlus: UserPlus,
+  switchStore: SwitchStore,
 };
 
  type XIconProps = {

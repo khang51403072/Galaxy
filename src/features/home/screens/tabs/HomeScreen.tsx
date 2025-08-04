@@ -20,7 +20,7 @@ import { appConfig } from '@/shared/utils/appConfig';
 import { employeeSelectors, useEmployeeStore } from '@/shared/stores/employeeStore';
 
 export default function HomeScreen() {
-  const { homeData, isLoading, error, getHomeData, getChartData,  isLoadingChart, toggleSwitch, json, chartDisplayData, setChartDisplayData } = useHomeStore(
+  const { homeData, isLoading, error, getHomeData, getChartData,  isLoadingChart, toggleSwitch, json, chartDisplayData, selectedStore } = useHomeStore(
     useShallow((state) => ({
       homeData: homeSelectors.selectHomeData(state),
       isLoading: homeSelectors.selectIsLoading(state),
@@ -32,7 +32,7 @@ export default function HomeScreen() {
       toggleSwitch: homeSelectors.selectToggleSwitch(state),
       json: homeSelectors.selectJson(state),
       chartDisplayData: homeSelectors.selectChartDisplayData(state),
-      setChartDisplayData: state.setChartDisplayData,
+      selectedStore: homeSelectors.selectSelectedStore(state),
     }))
   );
   const fetchEmployees = useEmployeeStore(employeeSelectors.selectFetchEmployees);
@@ -87,7 +87,7 @@ export default function HomeScreen() {
       <View style={{  flexDirection: 'row', alignItems: 'center', width: 100, backgroundColor: 'transparent', borderRadius: 50 }}>
         <View style={{ width: 10, height: 10, backgroundColor: color, borderRadius: 50 }}>
         </View>
-        <XText variant='content300' style={{ color: theme.colors.gray800, marginLeft: theme.spacing.xs }}>
+        <XText variant='captionLight' style={{ color: theme.colors.gray800, marginLeft: theme.spacing.xs }}>
           {text}
         </XText>
       </View>
@@ -122,7 +122,7 @@ export default function HomeScreen() {
           onPress={() => onChange('week')}
           activeOpacity={0.8}
         >
-          <Text style={{ color: value === 'week' ? '#222' : '#888', fontWeight: '500' }}>Week</Text>
+          <XText variant='captionRegular' style={{ color: value === 'week' ? '#222' : '#888', fontWeight: '500' }}>Week</XText>
         </TouchableOpacity>
         <TouchableOpacity
           style={{
@@ -137,7 +137,7 @@ export default function HomeScreen() {
           onPress={() => onChange('month')}
           activeOpacity={0.8}
         >
-          <Text style={{ color: value === 'month' ? '#222' : '#888', fontWeight: '500' }}>Month</Text>
+          <XText variant='captionRegular' style={{ color: value === 'month' ? '#222' : '#888', fontWeight: '500' }}>Month</XText>
         </TouchableOpacity>
       </View>
     );
@@ -159,10 +159,10 @@ export default function HomeScreen() {
     uri={homeData?.employeeInfo?.avatar|| undefined}
   />
   <View style={{ flex: 1, flexDirection: 'row',  justifyContent: 'flex-start', paddingLeft: 10}}>
-    <XText variant='helloText300' style={{ color: theme.colors.gray800 }}>
+    <XText variant='bodyLight' style={{ color: theme.colors.gray800 }}>
       Hi! 
     </XText>
-    <XText variant='helloText400' style={{ color: theme.colors.gray800}}>
+    <XText variant='bodyRegular' style={{ color: theme.colors.gray800}}>
       {homeData?.employeeInfo?.firstName+ " " + homeData?.employeeInfo?.lastName}
     </XText>  
   </View>
@@ -174,7 +174,7 @@ export default function HomeScreen() {
 </View>
 
 const meEarningsToday = 
-<XText variant='helloText400' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.md }}>
+<XText variant='bodyRegular' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.md }}>
   ME Earnings Today
 </XText>
 const saleCard =
@@ -187,10 +187,10 @@ const saleCard =
     borderRadius: theme.borderRadius.md,
     ...theme.shadows.sm
   }}>
-    <XText variant='saleAndTip300' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.xs }}>
+    <XText variant='bodyLight' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.xs }}>
       Sale:
     </XText>
-    <XText variant='saleAndTip500' style={{ color: theme.colors.gray800 }}>
+    <XText variant='bodyMedium' style={{ color: theme.colors.gray800 }}>
       $ {homeData?.totalSale.toFixed(2) || 0}
     </XText>
   </View>
@@ -204,10 +204,10 @@ const tipCard =
     borderRadius: theme.borderRadius.md,
     ...theme.shadows.sm
   }}>
-    <XText variant='saleAndTip300' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.xs }}>
+    <XText variant='bodyLight' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.xs }}>
       Tips:
     </XText>
-    <XText variant='saleAndTip500' style={{ color: theme.colors.gray800 }}>
+    <XText variant='bodyMedium' style={{ color: theme.colors.gray800 }}>
       $ {homeData?.nonCashTip.toFixed(2) || 0}
     </XText>
   </View>
@@ -227,7 +227,7 @@ const totalRevenue =
     maxWidth: 500,
     alignSelf: 'center',
   }}>
-    <XText variant='helloText400' style={{ color: theme.colors.gray800 }}>
+    <XText variant='bodyRegular' style={{ color: theme.colors.gray800 }}>
       Total revenue
     </XText>
     <View style={{ flexDirection: 'row', alignItems: 'center', width: 100, backgroundColor: 'transparent', borderRadius: 50, marginTop: theme.spacing.xs }}>
@@ -261,23 +261,42 @@ const totalRevenue =
       haveBottomTabBar={true}
     >
       {header}
-      <View style={{ width: '100%' }}>
+      <View style={{ width: '100%' , gap: theme.spacing.md}}>
         {meEarningsToday}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
           {saleCard}  
           {tipCard}          
         </View>
         {totalRevenue}
-        <XText variant='helloText400' style={{ color: theme.colors.gray800, marginVertical: theme.spacing.md }}>
+        <XText variant='bodyRegular' style={{ color: theme.colors.gray800 }}>
           Category
         </XText>
         <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
           <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.TICKET)}} title='Tickets' icon='ticket' color={theme.colors.skyBlue} textColor={theme.colors.white} />
           <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.APPOINTMENT)}} title='Appointment' icon='appointment' color={theme.colors.purple} textColor={theme.colors.white} />
         </View>
-        <View style={{ marginTop: theme.spacing.md, flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
+        <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
           <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.PAYROLL)}} title='Payroll' icon='payroll' color={theme.colors.indigoBlue} textColor={theme.colors.white} />
           <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.REPORT)}} title='Report' icon='report' color={theme.colors.blue} textColor={theme.colors.white} /> 
+        </View>
+
+        <View style={{ flexDirection: 'row', width: '100%', 
+          backgroundColor: theme.colors.white, borderRadius: theme.borderRadius.md, padding: theme.spacing.sm,
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          ...theme.shadows.sm,
+          }}>
+          <View style={{ flexDirection: 'column', width: '70%'}}>
+            <XText variant='bodyLight' style={{ color: theme.colors.gray700 }}>
+              Store:
+            </XText>
+            <XText variant='titleMedium' style={{ color: theme.colors.gray700 }}>
+              {selectedStore?.name ?? "No Select Store"}
+            </XText>
+          </View>
+          <TouchableOpacity onPress={()=>navigate(ROUTES.SWITCH_STORE)}>
+            <XIcon name='switchStore' color={theme.colors.gray700} width={40} height={40} />
+          </TouchableOpacity>
         </View>
       </View>
     </XScreen>

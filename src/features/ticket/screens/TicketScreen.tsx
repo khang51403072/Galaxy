@@ -68,29 +68,29 @@ export default function  TicketScreen() {
       const view = <View 
       style={{backgroundColor: theme.colors.white, 
       padding: theme.spacing.md, borderRadius: theme.spacing.md, ...theme.shadows.sm}}>
-        <XText variant="contentTitle">{(item.detail as any).title}</XText>
-        <XText variant="content400">{item.detail.time}</XText>
+        <XText variant="bodyMedium">{(item.detail as any).title}</XText>
+        <XText variant="bodyRegular">{item.detail.time}</XText>
         <Dashed />
         <View style={{flexDirection: 'column', justifyContent: 'space-between'}}>
           {item.detail.services.map((service: any) => (
             <View key={service.id} style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <XText numberOfLines={2} variant="content400" style={{width: '80%'}}>{service.name}</XText>
-              <XText numberOfLines={1} variant="content400">{service.columnRight}</XText>
+              <XText numberOfLines={2} variant="bodyMedium" style={{width: '80%'}}>{service.name}</XText>
+              <XText numberOfLines={1} variant="bodyMedium">{service.columnRight}</XText>
             </View>
           ))}
         </View>
         <Dashed />
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <XText variant="content300">Service Deductions</XText>
-          <XText variant="content300">{item.detail.ServiceDeductions}</XText>
+          <XText variant="captionRegular">Service Deductions</XText>
+          <XText variant="captionRegular">{item.detail.ServiceDeductions}</XText>
         </View>
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <XText variant="content300">Non Cash Tip</XText>
-          <XText variant="content300">{item.detail.NonCashTip}</XText>
+          <XText variant="captionRegular">Non Cash Tip</XText>
+          <XText variant="captionRegular">{item.detail.NonCashTip}</XText>
         </View>
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <XText variant="content300">Total</XText>
-          <XText variant="content300">{item.detail.Total}</XText>
+          <XText variant="captionRegular">Total</XText>
+          <XText variant="captionRegular">{item.detail.Total}</XText>
         </View>
       </View>
       return (view) 

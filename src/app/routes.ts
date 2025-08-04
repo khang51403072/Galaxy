@@ -18,6 +18,7 @@ export const ROUTES = {
     SELECT_SERVICE:'SelectService',
     CREATE_CUSTOMER: 'CreateCustomer',
     DASHBOARD: 'Dashboard',
+    SWITCH_STORE: 'SwitchStore',
     // Thêm các route khác ở đây
   } as const;
   
@@ -41,6 +42,7 @@ export const ROUTES = {
     [ROUTES.SELECT_SERVICE]: undefined;
     [ROUTES.CREATE_CUSTOMER]: undefined;
     [ROUTES.DASHBOARD]: undefined;
+    [ROUTES.SWITCH_STORE]: undefined;
     // Thêm params cho các route khác nếu cần
   };
   
