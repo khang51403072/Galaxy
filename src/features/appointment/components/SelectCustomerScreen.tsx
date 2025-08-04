@@ -74,7 +74,7 @@ export default function SelectCustomerScreen() {
           onChangeText={handleSearch}
           iconLeft="search"
           keyboardType="default"
-          iconRight={search ? "x" : undefined}
+          iconRight={search ? <XIcon name="x" width={12} height={12} /> : undefined}
           onIconRightPress={() => {
             setSearch('');
             // Không cần gọi lại API ở đây nữa vì handleSearch đã xử lý khi input rỗng
@@ -91,8 +91,8 @@ export default function SelectCustomerScreen() {
               }}
               style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#eee' }}
             >
-              <XText style={{ fontSize: 16 }}>{item.firstName} {item.lastName}</XText>
-              {json?.isShowPhone && <XText style={{ color: '#888', fontSize: 14 }}>{item.cellPhone}</XText>}
+              <XText variant='titleRegular'>{item.firstName} {item.lastName}</XText>
+              {json?.isShowPhone && <XText variant='bodyRegular'>{item.cellPhone}</XText>}
             </TouchableOpacity>
           )}
         />

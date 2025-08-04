@@ -21,7 +21,7 @@ const XNoDataView: React.FC<XNoDataViewProps> = ({
   return (
     <View style={[styles.container, { paddingTop: theme.spacing.xxxl }, style]}>
       <XIcon name={iconName} width={iconSize} height={iconSize} />
-      <XText variant="content400" style={styles.text}>{message}</XText>
+      <XText variant="headingRegular" style={styles.text}>{message}</XText>
     </View>
   );
 };

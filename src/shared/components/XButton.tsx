@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../theme';
+import XText from './XText';
 
 type Props = {
   title: string;
@@ -56,7 +57,7 @@ export default function XButton({
   const content = loading ? (
     <ActivityIndicator color={textColor} />
   ) : (
-    <Text style={[styles.text, { color: textColor }, textStyle]}>{title.toUpperCase()}</Text>
+    <XText variant='titleMedium' style={[styles.text, { color: textColor }, textStyle]}>{title.toUpperCase()}</XText>
   );
 
   return (

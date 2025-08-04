@@ -40,7 +40,7 @@ export default function TitleGroup({
 
   return (
     <View style={styles.container}>
-      <XText variant="contentTitle">{title}</XText>
+      <XText variant="titleMedium">{title}</XText>
 
       {type === 'edit' && titleIcon && (
         <ActionGroup title={titleIcon} icon={icon} onPress={onPress!} />
@@ -49,7 +49,7 @@ export default function TitleGroup({
       {type === 'switch' && (
         <Tooltip
           isVisible={isShowTooltip}
-          content={<XText variant="content300">Bấm vào đây để bật FaceID/TouchID cho lần đăng nhập sau!</XText>}
+          content={<XText variant="captionLight">Click here to enable FaceID/TouchID for next login!</XText>}
           placement="bottom"
           onClose={onCloseTooltip}
           showChildInTooltip={true}

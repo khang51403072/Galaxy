@@ -15,6 +15,7 @@ import Modal from 'react-native-modal';
 import XIcon from './XIcon';
 import { useTheme } from '../theme/ThemeProvider';
 import XText from './XText';
+import XInput from './XInput';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -88,22 +89,8 @@ const XDropdown: React.FC<XDropdownProps> = ({
       marginBottom: 16,
     },
     label: {
-      fontSize: 14,
       color: theme.colors.text,
       marginBottom: 4,
-      fontWeight: '500',
-    },
-    dropdownButton: {
-      borderWidth: 1,
-      borderColor: disabled ? theme.colors.primary : theme.colors.primary,
-      borderRadius: 8,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      backgroundColor: disabled ? theme.colors.surface : '#fff',
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      minWidth: DROPDOWN_MIN_WIDTH,
     },
     dropdownText: {
       color: value ? theme.colors.text : theme.colors.textPlaceholder,
@@ -159,19 +146,16 @@ const XDropdown: React.FC<XDropdownProps> = ({
         {label && <Text style={styles.label}>{label}</Text>}
         <TouchableOpacity
           ref={buttonRef}
-          style={styles.dropdownButton}
           onPress={handleOpen}
           activeOpacity={0.7}
           disabled={disabled}
         >
-          <XText variant='inputText' style={styles.dropdownText} numberOfLines={1}>
-            {value ? value.label : placeholder}
-          </XText>
-          <XIcon 
-            name="downArrow" 
-            width={16} 
-            height={16} 
-            color={theme.colors.textSecondary} 
+          <XInput
+            value={value ? value.label : placeholder}
+            onChangeText={() => {}}
+            placeholder={placeholder}
+            style={styles.dropdownText}
+            iconRight="downArrow"
           />
         </TouchableOpacity>
       </View>

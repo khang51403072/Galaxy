@@ -83,15 +83,15 @@ export default function  TicketScreen() {
               <View style = {{ borderRadius: theme.borderRadius.md, backgroundColor: theme.colors.white, flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md, ...theme.shadows.sm}}>
                 <XAvatar editable={false} uri={item.avatar} size={62} />
                 <View style = {{gap: theme.spacing.sm, flexDirection: 'column', alignItems: 'flex-start', paddingLeft: theme.spacing.md}}>
-                  <XText variant="content400">{getDisplayName(item)}</XText>
+                  <XText variant="bodyRegular">{getDisplayName(item)}</XText>
 
                   <View style = {{flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm}}>
                     <XIcon name = 'clockIn' width={16} height={16}  />
-                    <XText variant="content300">{getClockIn(item)}</XText>
+                    <XText variant="bodyLight">{getClockIn(item)}</XText>
                   </View>
                   <View style = {{flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm}}>
                     <XIcon name = 'clockOut' width={16} height={16} />
-                    <XText variant="content300">{getClockOut(item)}</XText>
+                    <XText variant="bodyLight">{getClockOut(item)}</XText>
                   </View>
                 </View>
               </View>
@@ -104,9 +104,9 @@ export default function  TicketScreen() {
         reportBatchHistory.length > 0 ? (
           <View style={{flex: 1, flexDirection: 'column', paddingTop: theme.spacing.sm}}>
             <View style={{backgroundColor: "#1D62D812", flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md, ...theme.shadows.sm}}>
-              <XText variant="content400" style={{flex: 3}}>Batch Date</XText>
-              <XText variant="content400" style={{flex: 1}}>Count</XText>
-              <XText variant="content400" style={{flex: 1}}>Return</XText>
+              <XText variant="bodyRegular" style={{flex: 3}}>Batch Date</XText>
+              <XText variant="bodyRegular" style={{flex: 1}}>Count</XText>
+              <XText variant="bodyRegular" style={{flex: 1}}>Return</XText>
             </View>
             <FlatList
               scrollEnabled={true}
@@ -115,9 +115,9 @@ export default function  TicketScreen() {
               renderItem={({ item }) => {
                 return (
                   <View style={{ flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md, ...theme.shadows.sm }}>
-                    <XText variant="content300" style={{flex: 3}}>{parseISODate(item.batchDate).toMMDDYYYYHHMM('/')}</XText>
-                    <XText variant="content300" style={{flex: 1}}>{item.batchNumber}</XText>
-                    <XText variant="content300" style={{flex: 1}}>{item.transactionReports.transactionsCount}</XText>
+                    <XText variant="bodyLight" style={{flex: 3}}>{parseISODate(item.batchDate).toMMDDYYYYHHMM('/')}</XText>
+                    <XText variant="bodyLight" style={{flex: 1}}>{item.batchNumber}</XText>
+                    <XText variant="bodyLight" style={{flex: 1}}>{item.transactionReports.transactionsCount}</XText>
                   </View>
                 )
               }}
@@ -178,7 +178,7 @@ export default function  TicketScreen() {
                   }}
                   activeOpacity={0.8}
                 >                    
-                  <XText variant="content400" style={{ color: theme.colors.gray800 }}>{route.title}</XText>
+                  <XText variant="bodyRegular" style={{ color: theme.colors.gray800 }}>{route.title}</XText>
                 </TouchableOpacity>
                 
               )}
