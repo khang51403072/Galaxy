@@ -6,8 +6,6 @@ import HidePassword from '../assets/icons/HidePassword.svg';
 import { StyleProp, ViewStyle } from 'react-native';
 import Logo from '../assets/icons/Logo.svg';
 import Pen from '../assets/icons/Pen.svg';
-import Home from '../assets/icons/Home.svg';
-import Profile from '../assets/icons/Profile.svg';
 import Camera from '../assets/icons/Camera.svg';
 import BackArrow from '../assets/icons/BackArrow.svg';
 import FaceID from '../assets/icons/FaceID.svg';
@@ -41,6 +39,10 @@ import CaretUp from '../assets/icons/CaretUp.svg';
 import ExclamationMark from '../assets/icons/ExclamationMark.svg';
 import UserPlus from '../assets/icons/UserPlus.svg';
 import SwitchStore from '../assets/icons/SwitchStore.svg';
+import ProfileFilled from '../assets/icons/ProfileFilled.svg';
+import ProfileOutline from '../assets/icons/ProfileOutline.svg';
+import HomeFilled from '../assets/icons/HomeFilled.svg';
+import HomeOutline from '../assets/icons/HomeOutline.svg';
 
 export const iconMap = {
   user: User,
@@ -49,8 +51,10 @@ export const iconMap = {
   hidePassword: HidePassword,
   logo: Logo,
   pen: Pen,
-  home: Home,
-  profile: Profile,
+  homeFilled: HomeFilled,
+  homeOutline: HomeOutline,
+  profileFilled: ProfileFilled,
+  profileOutline: ProfileOutline,
   camera: Camera,
   backArrow: BackArrow,
   faceID: FaceID,
