@@ -19,6 +19,7 @@ import SelectServiceScreen from '@/features/appointment/components/SelectService
 import AddCustomerScreen from '@/features/appointment/components/AddCustomerScreen';
 import HomeScreen from '@/features/home/screens/tabs/HomeScreen';
 import ProfileScreen from '@/features/home/screens/tabs/ProfileScreen';
+import SwitchStoreScreen from '@/features/home/screens/subScreen/SwitchStoreScreen';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -43,6 +44,7 @@ export default function AppNavigator() {
         <Stack.Screen name={ROUTES.CREATE_CUSTOMER} component={AddCustomerScreen} />
         <Stack.Screen name={ROUTES.DASHBOARD} component={HomeScreen} />
         <Stack.Screen name={ROUTES.PROFILE} component={ProfileScreen} />   
+        <Stack.Screen name={ROUTES.SWITCH_STORE} component={SwitchStoreScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

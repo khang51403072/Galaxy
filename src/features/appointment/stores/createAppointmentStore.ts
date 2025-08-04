@@ -255,7 +255,7 @@ const createAppointmentCreator = (set: any, get:any) => ({
     //
     //continue save
     const payloadSave: ApptPayload = {
-      id: "",
+      id: get().apptDetails?.id || "",
       apptDate: get().selectedDate.toYYYYMMDD("-"),
       retentionType: get().selectedApptType?.value?.id || "",
       isOnlineConfirm: get().isConfirmOnline,

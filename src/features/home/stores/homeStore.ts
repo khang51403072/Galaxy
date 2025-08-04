@@ -18,10 +18,12 @@ export type homeState = {
     chartDisplayData: ChartDisplayData[];
     toggleSwitch: 'week' | 'month';
     json: KeychainObject | null;
+    selectedStore: StoreEntity | null;
     updateJson: (json: KeychainObject) => Promise<void>;
     getHomeData: () => Promise<Result<HomeEntity, HomeError>>;
     getChartData: () => Promise<Result<ChartEntity[], HomeError>>;
     setChartDisplayData: (data: ChartDisplayData[]) => void;
+    setSelectedStore: (store: StoreEntity) => void;
 }
 
 // ===== Selector =====
@@ -36,6 +38,8 @@ export const homeSelectors = {
     selectToggleSwitch: (state: homeState) => state.toggleSwitch,
     selectJson: (state: homeState) => state.json,
     selectChartDisplayData: (state: homeState) => state.chartDisplayData,
+    selectSelectedStore: (state: homeState) => state.selectedStore,
+    selectSetSelectedStore: (state: homeState) => state.setSelectedStore,
 }
 
 // ===== HomeStore DI Creator =====
@@ -48,6 +52,7 @@ export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeStat
     toggleSwitch: 'week',
     error: null,
     json: null,
+    selectedStore: null,
     chartDisplayData: [], // Khởi tạo rỗng, sẽ được set khi có data thực sự
     getHomeData: async () => {
         const js = await appConfig.getUser();
@@ -95,11 +100,13 @@ export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeStat
         set({ json: json });
     },
     setChartDisplayData: (data) => set({ chartDisplayData: data }),
+    setSelectedStore: (store) => set({ selectedStore: store }),
 });
 
 // Khởi tạo real usecase ở production
 import { ApiHomeRepository } from '../repositories/ApiHomeRepository';
 import { HomeAPI } from '../services/HomeApi';
 import { appConfig } from "@/shared/utils/appConfig";
+import { StoreEntity } from "../screens/subScreen/SwitchStoreScreen";
 const realHomeUseCase = new HomeUseCase(new ApiHomeRepository(HomeAPI));
 export const useHomeStore = create<homeState>()(createHomeStore(realHomeUseCase));

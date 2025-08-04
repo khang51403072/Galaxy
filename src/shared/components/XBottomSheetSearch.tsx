@@ -41,15 +41,23 @@ export default function XBottomSheetSearch({
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      paddingHorizontal: 16,
-      paddingBottom: 8,
+      paddingHorizontal: theme.spacing.md,
+      paddingBottom: theme.spacing.sm,
       borderBottomWidth: 1,
       borderBottomColor: theme.colors.border,
     },
-    closeButton: { borderRadius: 100, padding: 8 ,backgroundColor: theme.colors.backroundIconClose},
-    input: { paddingHorizontal: 16, paddingVertical: 8 },
-    itemContainer: { paddingHorizontal: 16, 
-      paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.colors.border },
+    closeButton: { 
+      borderRadius: 100, 
+      padding: theme.spacing.sm, 
+      backgroundColor: theme.colors.backroundIconClose
+    },
+    input: { paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.sm },
+    itemContainer: { 
+      paddingHorizontal: theme.spacing.md, 
+      paddingVertical: theme.spacing.sm, 
+      borderBottomWidth: 1, 
+      borderBottomColor: theme.colors.border 
+    },
   });
   useEffect(() => {
     if (visible) {
@@ -114,6 +122,7 @@ export default function XBottomSheetSearch({
           </View>
           <XInput
               placeholder={placeholder}
+              
               value={searchText}
               onChangeText={setSearchText}
               iconLeft="search"

@@ -13,7 +13,7 @@ import XText from './XText';
 
 type XInputProps = TextInputProps & {
   iconLeft?: keyof typeof iconMap;
-  iconRight?: keyof typeof iconMap;
+  iconRight?: keyof typeof iconMap | React.ReactNode;
   onIconRightPress?: () => void;
   errorMessage?: string;
   isRequired?: boolean;
@@ -59,12 +59,14 @@ const XInput = forwardRef<TextInput, XInputProps>(
       container: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         borderColor: theme.colors.primary,
         borderWidth: 1,
         borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 0,
         backgroundColor: theme.colors.background,
+        marginBottom: 0
       },
       iconLeft: {
         marginRight: ICON_MARGIN_HORIZONTAL,
@@ -77,21 +79,22 @@ const XInput = forwardRef<TextInput, XInputProps>(
     return (
       <View style={[{ width: '100%',}, style]}>
         {label && (
-          <View style={{ flexDirection: 'row', alignItems: 'center',  }}>
-            <XText variant='inputLabel'>{label}</XText>
+          <View style={{ flexDirection: 'row', 
+          alignItems: 'center',  marginBottom: theme.spacing.xs}}>
+            <XText variant='bodyRegular'>{label}</XText>
             {isRequired && <Text style={{ color: 'red', marginLeft: 2 }}>*</Text>}
           </View>
         )}
         <View style={[
           styles.container,
-          { borderColor: borderColor },
+          { borderColor: borderColor},
         ]}> 
           {iconLeft && (
             <XIcon
               style={[styles.iconLeft]}
               name={iconLeft}
-              width={24}
-              height={24}
+              width={20}
+              height={20}
               color={iconColor}
             />
           )}
@@ -102,14 +105,16 @@ const XInput = forwardRef<TextInput, XInputProps>(
             editable={editable}
             pointerEvents={editable ? 'auto' : 'none'} 
             style={[
-              theme.typography.inputText,
+              theme.typography.titleRegular,
               {
+                paddingVertical: theme.spacing.sm,
+                paddingHorizontal: theme.spacing.sm,
                 flex: 1,
-                paddingLeft: 0,
-                paddingRight: 0,
-                paddingVertical: 0,
-                color: theme.colors.text,
-                height: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlignVertical: 'center',
+                includeFontPadding: true,
+
               },
             ]}
             value={value}
@@ -132,15 +137,15 @@ const XInput = forwardRef<TextInput, XInputProps>(
           />
           {iconRight && (
             <TouchableOpacity onPress={onIconRightPress} style={styles.iconRight}>
-              <XIcon name={iconRight} width={24} height={24} color={theme.colors.textInputPlaceholder} />
+              {typeof iconRight === 'string' ? (
+                <XIcon name={iconRight as any} width={20} height={20} color={theme.colors.textInputPlaceholder} />
+              ) : iconRight}
             </TouchableOpacity>
           )}
         </View>
-        <View style={{ justifyContent: 'flex-end', }}>
-          {errorMessage ? (
-            <Text style={{ color: 'red', fontSize: 12, marginBottom: 8, marginStart: 12 }}>{errorMessage}</Text>
+        {errorMessage ? (
+            <XText variant='captionLight' style={{ color: 'red', marginBottom: 8, marginStart: 12 }}>{errorMessage}</XText>
           ) : null}
-        </View>
       </View>
     );
   }

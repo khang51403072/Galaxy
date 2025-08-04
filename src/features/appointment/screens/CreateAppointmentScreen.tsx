@@ -286,7 +286,7 @@ export default function CreateAppointmentScreen() {
                             height:theme.spacing.md, width:theme.spacing.md, 
                             backgroundColor: (item.value as ApptType ).bgColor
                         }}></View>
-                        <XText variant="content400">{item.label}</XText>
+                        <XText variant="headingRegular">{item.label}</XText>
                     </View>
                 }
             }
@@ -299,7 +299,7 @@ export default function CreateAppointmentScreen() {
     const confirmOnlineToggle = ()=>{
         return (
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <XText variant="createAppointmentContent">Confirm Online</XText>
+                <XText variant="titleRegular">Confirm Online</XText>
                 <XSwitch value={isConfirmOnline} onValueChange={setIsConfirmOnline} />
             </View>
         )
@@ -308,7 +308,7 @@ export default function CreateAppointmentScreen() {
     const groupApptToggle = ()=>{
         return (
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                <XText variant="createAppointmentContent">Group Appointment</XText>
+                <XText variant="titleRegular">Group Appointment</XText>
                 <XSwitch value={isGroupAppt} onValueChange={setIsGroupAppt} />
             </View>
         )
@@ -320,7 +320,7 @@ export default function CreateAppointmentScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                     <XIcon name="date" width={16} height={16} />
-                    <XText variant="createAppointmentContent">Date</XText>
+                    <XText variant="titleRegular">Date</XText>
                 </View>
                 <XDatePicker
                     style={{ width: '40%' }}
@@ -340,7 +340,7 @@ export default function CreateAppointmentScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                     <XIcon name="time" width={16} height={16} />
-                    <XText variant="createAppointmentContent">Time</XText>
+                    <XText variant="titleRegular">Time</XText>
                 </View>
                 <XDatePicker mode="time" style={{ width: '40%' }} value={selectedDate} onChange={
                     (date)=>{
@@ -357,7 +357,7 @@ export default function CreateAppointmentScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                     <XIcon name="menu" width={16} height={16} />
-                    <XText variant="createAppointmentContent">Service</XText>
+                    <XText variant="titleRegular">Service</XText>
                 </View>
                 <View style={{ width: '40%' }}>
                     
@@ -467,7 +467,7 @@ export default function CreateAppointmentScreen() {
                                         paddingLeft: theme.spacing.lg,
                                         width: '100%',
                                         justifyContent: 'flex-start', gap: 10}}>
-                                        <XInput value={item?.service?.name} editable={false} 
+                                        <XInput  value={item?.service?.name} editable={false} 
                                             placeholder="Add Service" pointerEvents="none" 
                                         />
                                         <TouchableOpacity 

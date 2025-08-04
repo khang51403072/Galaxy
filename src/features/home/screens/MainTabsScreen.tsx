@@ -120,8 +120,7 @@ export default function MainTabsScreen() {
           />
           <Animated.Text
             style={{
-              fontSize: 12,
-              fontWeight: '600',
+              ...theme.typography.captionRegular,
               marginTop: 4,
               color: activeIndex === index ? theme.colors.primary : theme.colors.textInputPlaceholder,
             }}
