@@ -113,7 +113,7 @@ export default function MainTabsScreen() {
           onPress={() => handleTabChange(index)}
         >
           <XIcon
-            name={route.icon as any}
+            name={activeIndex === index ? route.icon+"Filled" as any : route.icon+"Outline" as any}
             width={24}
             height={24}
             color={activeIndex === index ? theme.colors.primary : theme.colors.textInputPlaceholder}
@@ -122,7 +122,7 @@ export default function MainTabsScreen() {
             style={{
               ...theme.typography.captionRegular,
               marginTop: 4,
-              color: activeIndex === index ? theme.colors.primary : theme.colors.textInputPlaceholder,
+              color: activeIndex === index ? theme.colors.primary : theme.colors.gray700 ,
             }}
           >
             {route.label}
