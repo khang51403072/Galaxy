@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Switch, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View } from 'react-native';
 import XButton from '../../../../shared/components/XButton';
 import XDivider from '../../../../shared/components/XDivider';
 import XText from '../../../../shared/components/XText';
@@ -12,29 +12,23 @@ import { useAvatarStore, avatarSelectors } from '../../stores/avatarStore';
 import { useUserStore, userSelectors } from '../../stores/profileStore';
 import { useShallow } from 'zustand/react/shallow';
 import XScreen from '../../../../shared/components/XScreen';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { ROUTES } from '../../../../app/routes';
 import { ProfileSkeleton } from '../../components/ProfileSkeleton';
 import { isFailure, isSuccess } from '../../../../shared/types/Result';
 import { useTheme } from '../../../../shared/theme/ThemeProvider';
 import { navigate, reset } from '@/app/NavigationService';
 import { appConfig } from '@/shared/utils/appConfig';
-import Tooltip from 'react-native-walkthrough-tooltip';
-import { Text } from 'react-native';
 import { checkBiometricAvailable, simpleBiometricAuth } from '@/shared/services/BiometricService';
 import DeviceInfo from 'react-native-device-info';
-import { Asset } from 'react-native-image-picker';
 import { useHomeStore } from '../../stores/homeStore';
 
 export default function ProfileScreen() {
-  const navigation = useNavigation();
   const route = useRoute<any>();
   const theme = useTheme();
   const [showTooltip, setShowTooltip] = useState((route.params as any)?.showBiometricTooltip);
-
-  
   // User store for profile data with selectors
-  const { profile, isLoading: profileLoading, getProfile, changePassword, logout, setIsUseFaceId, isUseFaceId, uploadAvatar } = useUserStore(
+  const { profile, isLoading: profileLoading, getProfile, logout, setIsUseFaceId, isUseFaceId, uploadAvatar } = useUserStore(
     useShallow((state) => ({
       profile: userSelectors.selectProfile(state),
       isLoading: userSelectors.selectIsLoading(state),
@@ -55,12 +49,6 @@ export default function ProfileScreen() {
     }))
   );
 
-  const { updateAvatar, restoreAvatar } = useAvatarStore(
-    useShallow((state) => ({
-      updateAvatar: state.updateAvatar,
-      restoreAvatar: state.restoreAvatar,
-    }))
-  );
   const loadProfile = async () => {
     const profile = await getProfile();
     if(isFailure(profile)) {
@@ -83,40 +71,7 @@ export default function ProfileScreen() {
     });
     loadProfile();
   }, []);
-  // Load profile data when screen comes into focus
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     // Kiểm tra xem có data mới từ UpdateProfileScreen không
-  //     const updatedProfile = (route.params as any)?.updatedProfile;
-  //     if (updatedProfile) {
-  //       useUserStore.setState({ profile: updatedProfile });
-  //     }
-  //     else{
-  //       loadProfile();
-  //     }
-  //   }, [route.params, navigation])
-  // );
-
-  // Helper function để convert Asset thành File
-const assetToFile = async (asset: Asset): Promise<File> => {
-  try {
-    // Fetch image data từ URI
-    const response = await fetch(asset.uri || '');
-    const blob = await response.blob();
-    
-    // Tạo filename từ asset
-    const filename = asset.fileName || `avatar_${Date.now()}.jpg`;
-    
-    // Tạo File object
-    const file = new File([blob], filename, {
-      type: asset.type || 'image/jpeg',
-    });
-    
-    return file;
-  } catch (error) {
-    throw new Error('Không thể chuyển đổi ảnh thành file');
-  }
-};
+ 
   const handlePickImage = async (type: 'camera' | 'library') => {
     try {
       const granted = await checkPermission(type);
@@ -260,9 +215,9 @@ const assetToFile = async (asset: Asset): Promise<File> => {
             }}
           useGradient={false}
           backgroundColor={theme.colors.primary}
-          style={{ borderRadius: 8, marginTop: 16 }}
+          style={{ borderRadius: theme.borderRadius.md, marginTop: theme.spacing.md }}
         />
-        <XText variant="content300" style={{ textAlign: 'center', marginTop: 16}}>
+        <XText variant="captionLight" style={{ textAlign: 'center', marginTop: 16}}>
           Version {DeviceInfo.getVersion()}
         </XText>
       </View>

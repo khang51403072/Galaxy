@@ -21,7 +21,7 @@ interface SelectServiceScreenProps {
 export default function SelectServiceScreen({ visible = true, onClose = () => {}, onSelect = (item: MenuItemEntity) => {} }: SelectServiceScreenProps) {
   const theme = useTheme();
   const sheetRef = useRef<BottomSheetType>(null);
-  const snapPoints = useMemo(() => ["90%"], []);
+  const snapPoints = useMemo(() => ["90%", "100%"], []);
   const [searchText, setSearchText] = useState("");
   const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({});
 
@@ -74,7 +74,7 @@ export default function SelectServiceScreen({ visible = true, onClose = () => {}
       <View style={{ flex: 1, backgroundColor: theme.colors.overlay }} />
       <BottomSheet
         ref={sheetRef}
-        index={visible ? 0 : -1}
+        index={0}
         snapPoints={snapPoints}
         onClose={onClose}
         enablePanDownToClose
@@ -82,7 +82,7 @@ export default function SelectServiceScreen({ visible = true, onClose = () => {}
       >
         {/* HEADER */}
         <View style={styles(theme).header}>
-          <XText variant="contentTitle" style={styles(theme).title}>Services</XText>
+          <XText variant="headingMedium" style={styles(theme).title}>Service</XText>
           <TouchableOpacity onPress={onClose} style={styles(theme).closeButton} accessibilityLabel="Close service selection">
             <XIcon name="x" width={20} height={20} color={theme.colors.textSecondary} />
           </TouchableOpacity>
@@ -114,15 +114,15 @@ export default function SelectServiceScreen({ visible = true, onClose = () => {}
                     flexDirection: "row",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    paddingVertical: 12,
+                    paddingVertical: 8,
                     paddingHorizontal: 16,
                     borderBottomWidth: 1,
                     borderBottomColor: theme.colors.border,
-                    backgroundColor: theme.colors.background,
+                    backgroundColor: theme.colors.white,
                   }}
                   accessibilityLabel={`Toggle category ${cat.name}`}
                 >
-                  <XText variant="contentTitle">{cat.name}</XText>
+                  <XText variant="bodyRegular">{cat.name}</XText>
                   <XIcon name={expanded[cat.id] ? "caretUp" : "caretDown"} width={22} height={22} color={theme.colors.text} />
                 </TouchableOpacity>
                 {expanded[cat.id] && cat.items.length > 0 && (
@@ -134,11 +134,11 @@ export default function SelectServiceScreen({ visible = true, onClose = () => {}
                         onPress={() => handleSelect(service)}
                         accessibilityLabel={`Select service ${service.name}`}
                       >
-                        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                          <XText variant="content400" style={{ }}>{service.name}</XText>
-                          <XText variant="content300" style={{ color: theme.colors.gray500,}}>{service.duration} mins</XText>
+                        <View style={{ flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" }}>
+                          <XText numberOfLines={2} variant="bodyRegular" style={{width: "80%"}}>{service.name}</XText>
+                          <XText numberOfLines={2} variant="captionLight" style={{width: "20%", textAlign: "right"}}>{service.duration} mins</XText>
                         </View>
-                        <XText style={{ color: theme.colors.primary, fontWeight: "bold" }}>
+                        <XText variant="bodyLight" style={{ }}>
                           ${service.regularPrice.toFixed(2)}
                         </XText>
                       </TouchableOpacity>

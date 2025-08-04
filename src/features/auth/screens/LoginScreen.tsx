@@ -154,7 +154,7 @@ export default function LoginScreen() {
       <View style={{padding: 10, backgroundColor: theme.colors.buttonFaceID, borderRadius: 10}}>
         <XIcon name="faceID" height={20} width={20} color="#999" />
       </View>
-      <XText variant="signInFaceID" style={{ marginLeft: 10 }}>
+      <XText variant="headingRegular" style={{ marginLeft: 10 }}>
         Sign in with Face ID
       </XText>
     </View>
@@ -163,13 +163,13 @@ export default function LoginScreen() {
 const useAnotherUser = 
 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
  
-  <XText variant="signInFaceID" style={{ color: theme.colors.gray700 }}>
+  <XText variant="bodyRegular" style={{ color: theme.colors.gray700 }}>
     Use another account?
   </XText>
   <TouchableOpacity onPress={()=>{
     setIsShowDialog(true);
   }}>
-    <XText variant="signInFaceID" style={{ color: theme.colors.primary, marginLeft: 10 }}>
+    <XText variant="bodyRegular" style={{ color: theme.colors.primary, marginLeft: 10 }}>
       Switch user
     </XText>
   </TouchableOpacity>
@@ -183,7 +183,7 @@ const useAnotherUser =
       editable={false}
       uri={avatarUri || undefined}
     />
-    <XText variant="h4" style={{ textAlign: 'center', marginTop: 20,color: theme.colors.gray700 }}>
+    <XText variant="titleMedium" style={{ textAlign: 'center', marginTop: 20,color: theme.colors.gray700 }}>
       {fullName}
     </XText>
   </View>
@@ -245,7 +245,7 @@ const useAnotherUser =
       }}
 
       visible={isShowDialog} content={<View>
-        <XText variant="content300" style={{ textAlign: 'center' }}>
+        <XText variant="captionRegular" style={{ textAlign: 'center' }}>
         {`Are you sure you want to\nswitch user?`}
         </XText>
       </View>} />

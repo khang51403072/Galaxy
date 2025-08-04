@@ -118,7 +118,7 @@ export default function AddCustomerScreen() {
                             alignItems: 'center', 
                             justifyContent: "flex-start"
                         }}>
-                        <XText variant="content400">{item.label}</XText>
+                        <XText variant="headingRegular">{item.label}</XText>
                     </View>
                 }}
                 placeholder="Gender" 
