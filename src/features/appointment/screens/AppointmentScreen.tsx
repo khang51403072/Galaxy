@@ -269,15 +269,15 @@ export default function AppointmentScreen() {
       />
   const colorMapText: { [key: string]: string } = {
     all: theme.colors.primaryMain,
-    new: theme.colors.category1Bg,
-    checkin: theme.colors.secondary,
-    checkout: theme.colors.primaryDark,
+    new: theme.colors.infoMain,
+    checkin: theme.colors.successMain,
+    checkout: theme.colors.gray600,
   }
   const colorMapBackground: { [key: string]: string } = {
     all: theme.colors.primaryOpacity5,
-    new: theme.colors.category1Opacity,
-    checkin: theme.colors.secondaryOpacity5,
-    checkout: theme.colors.primaryOpacity5,
+    new: theme.colors.infoLight,
+    checkin: theme.colors.successLight,
+    checkout: theme.colors.gray200,
   }
   // Render employee picker
   const employeePicker = 

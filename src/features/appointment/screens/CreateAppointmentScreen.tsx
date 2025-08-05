@@ -344,12 +344,15 @@ export default function CreateAppointmentScreen() {
 
     const datePicker = ()=>{
         return (
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+            <View
+            
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                     <XIcon name="date" width={16} height={16} />
                     <XText variant="titleRegular">Date</XText>
                 </View>
                 <XDatePicker
+                    containerStyle = {{backgroundColor: theme.colors.blackOpacity10, borderColor: 'transparent'}}
                     textAlign="center"
                     style={{ width: '52%' }}
                     value={selectedDate}
@@ -371,7 +374,8 @@ export default function CreateAppointmentScreen() {
                     <XIcon name="time" width={16} height={16} />
                     <XText variant="titleRegular">Time</XText>
                 </View>
-                <XDatePicker textAlign="center" mode="time" style={{ width: '52%' }} value={selectedDate} onChange={
+                <XDatePicker containerStyle = {{backgroundColor: theme.colors.blackOpacity10, borderColor: 'transparent'}}
+                     textAlign="center" mode="time" style={{ width: '52%' }} value={selectedDate} onChange={
                     (date)=>{
                         date.setMonth(selectedDate.getMonth());
                         date.setDate(selectedDate.getDate());
@@ -615,6 +619,11 @@ export default function CreateAppointmentScreen() {
             } />}
             >   
             <View style={{ gap: theme.spacing.md, paddingTop: theme.spacing.md, flex: 1 }}>
+                { !isAllowEdit &&
+                <View style={{gap:4, flexDirection: 'row', alignContent:'center', alignItems:'center'}}>
+                    <XIcon name="customer" height={24}width={24} color={theme.colors.primaryMain}></XIcon>
+                    <XText variant="titleRegular" color={theme.colors.gray700}>Customer Details</XText>
+                </View>}
                 {customerPicker()}
                 {MemoizedDropdown}
                 {confirmOnlineToggle()}

@@ -2,6 +2,7 @@ import messaging from '@react-native-firebase/messaging';
 import { Alert, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { v4 as uuidv4 } from 'uuid';
+import { useHomeStore } from '@/features/home/stores/homeStore';
 
 let unsubscribeOnMessage: (() => void) | null = null;
 
@@ -19,23 +20,28 @@ const NOTIFY_KEY = 'NOTIFICATIONS';
 export async function saveNotification(item: NotificationItem) {
   const list = await getNotifications();
   list.unshift(item); // thêm vào đầu danh sách
+
+  useHomeStore.getState().setNotificationCount(list.filter(e=>!e.read).length)
   await AsyncStorage.setItem(NOTIFY_KEY, JSON.stringify(list));
 }
 
 export async function getNotifications(): Promise<NotificationItem[]> {
   const data = await AsyncStorage.getItem(NOTIFY_KEY);
+  console.log(data)
   return data ? JSON.parse(data) : [];
 }
 
 export async function markNotificationAsRead(id: string) {
   const list = await getNotifications();
   const updated = list.map(n => n.id === id ? { ...n, read: true } : n);
+  useHomeStore.getState().setNotificationCount(updated.filter(e=>!e.read).length)
   await AsyncStorage.setItem(NOTIFY_KEY, JSON.stringify(updated));
 }
 
 export async function markAllNotificationAsRead() {
   const list = await getNotifications();
   const updated = list.map(n => ({ ...n, read: true }));
+  useHomeStore.getState().setNotificationCount(updated.filter(e=>!e.read).length)
   await AsyncStorage.setItem(NOTIFY_KEY, JSON.stringify(updated));
 }
 

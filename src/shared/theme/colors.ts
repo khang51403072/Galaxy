@@ -41,7 +41,7 @@ export const lightColors = {
   warningMain: '#EAB308',
   warningLight: '#FEFCF5',
   infoMain: '#3B96F6',
-  infoLight: '#F9FCFF',
+  infoLight: '#EAF4FE',
   
   // Gray Scale
   gray50: '#FDFDFD',

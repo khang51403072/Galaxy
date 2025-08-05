@@ -162,19 +162,17 @@ export default function  TicketScreen() {
               indicatorStyle={null}
               style={{ 
                 paddingVertical: theme.spacing.xs, 
-                borderRadius: theme.borderRadius.sm, 
+                borderRadius: theme.borderRadius.md, 
                 backgroundColor: theme.colors.backgroundTabBarReport }}
               renderTabBarItem={({ route, focused, jumpTo , ...props}) => (
                 <TouchableOpacity
                   onPress={() => jumpTo(route.key)}
                   style={{
-                    
                     backgroundColor: focused ? theme.colors.white : 'transparent',
                     borderRadius: theme.borderRadius.md,
                     marginHorizontal: theme.spacing.xs,
                     paddingVertical: theme.spacing.sm,
                     paddingHorizontal: theme.spacing.md,
-                    
                   }}
                   activeOpacity={0.8}
                 >                    

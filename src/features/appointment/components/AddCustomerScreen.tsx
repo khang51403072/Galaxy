@@ -107,6 +107,7 @@ export default function AddCustomerScreen() {
             <XDropdown 
                 label="Gender"
                 value={formData.gender}
+                style={{width:'48%'}}
                 renderItem={(item, isSelected) => {
                     return <View 
                         style={{

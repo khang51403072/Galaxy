@@ -6,7 +6,9 @@ import {
   StyleSheet,
   UIManager,
   findNodeHandle,
-  Dimensions
+  Dimensions,
+  StyleProp,
+  TextStyle
 } from 'react-native';
 import Popover from 'react-native-popover-view';
 import  XCalendar  from './XCalendar';
@@ -31,6 +33,7 @@ type Props = {
   maxDate?: Date;
   displayFormat?: string; // Thêm parameter displayFormat
   textAlign?: 'left' | 'center' | 'right';
+  containerStyle?: StyleProp<TextStyle>
 };
 
 export function XDatePicker({
@@ -41,7 +44,8 @@ export function XDatePicker({
   minDate, 
   maxDate,
   displayFormat,
-  textAlign
+  textAlign,
+  containerStyle
 }: Props) {
   const touchableRef = useRef<any>(null);
   const [show, setShow] = useState(false);
@@ -97,7 +101,7 @@ export function XDatePicker({
         style={style}
         hitSlop={{ top:13, bottom: 22, left: 0, right: 0 }} 
       >
-        <XInput textAlign='center' editable={false} value={display} label={label} />
+        <XInput containerStyle={containerStyle} textAlign='center' editable={false} value={display} label={label} />
         
       </TouchableOpacity>
       

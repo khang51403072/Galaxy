@@ -31,19 +31,19 @@ export const typography = {
   titleMedium: {
     fontFamily: Fonts.Outfit500,
     fontSize: 18,
-    lineHeight: 20,
+    lineHeight: 24,
     letterSpacing: 0.18,
   },
   titleRegular: {
     fontFamily: Fonts.Outfit400,
     fontSize: 18,
-    lineHeight: 20,
+    lineHeight: 24,
     letterSpacing: 0.18,
   },
   titleLight: {
     fontFamily: Fonts.Outfit300,
     fontSize: 18,
-    lineHeight: 20,
+    lineHeight: 24,
     letterSpacing: 0.18,
   },
 

@@ -108,6 +108,33 @@ android {
             keyPassword 'android'
         }
     }
+    // Product Flavors for different environments
+    flavorDimensions "environment"
+    
+    productFlavors {
+        development {
+            dimension "environment"
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+            resValue "string", "app_name", "GalaxyMe2 Dev"
+            buildConfigField "String", "ENVIRONMENT", '"development"'
+        }
+        
+        staging {
+            dimension "environment"
+            applicationIdSuffix ".staging"
+            versionNameSuffix "-staging"
+            resValue "string", "app_name", "GalaxyMe2 Staging"
+            buildConfigField "String", "ENVIRONMENT", '"staging"'
+        }
+        
+        production {
+            dimension "environment"
+            resValue "string", "app_name", "GalaxyMe2"
+            buildConfigField "String", "ENVIRONMENT", '"production"'
+        }
+    }
+    
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
