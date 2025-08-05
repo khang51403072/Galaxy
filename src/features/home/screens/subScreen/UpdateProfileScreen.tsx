@@ -121,7 +121,7 @@ export default function UpdateProfileScreen() {
   return (
     <XScreen title="Information" showHeader loading={isUpdating} error={errorMessage}>
       <XForm
-        style={{paddingTop: 16}}
+        style={{paddingTop: 16, paddingBottom: 8}}
         gap={16}
         fields={fields}
         onSubmit={handleSubmit}

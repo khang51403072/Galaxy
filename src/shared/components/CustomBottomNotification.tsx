@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 16,
     right: 16,
-    bottom: 32,
+    bottom: 120,
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 16,
@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 8,
     zIndex: 9999,
+
   },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   icon: { marginRight: 8 },

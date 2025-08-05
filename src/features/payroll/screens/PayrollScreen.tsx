@@ -31,9 +31,9 @@ export default function  TicketScreen() {
       header: {
         flexDirection: 'column',
         paddingTop: theme.spacing.md,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
-        paddingBottom: theme.spacing.md,
+        // borderBottomWidth: 1,
+        // borderBottomColor: theme.colors.border,
+        // paddingBottom: theme.spacing.md,
         gap: theme.spacing.md,
       },
     }), [theme]);
@@ -104,17 +104,22 @@ export default function  TicketScreen() {
       renderScene={renderScene}
       onIndexChange={setIndex}
       initialLayout={{ width: layout.width }}
+      
       renderTabBar={props => (
         <TabBar
           {...props}
           indicatorStyle={{ backgroundColor: theme.colors.primaryMain }}
-          style={{ backgroundColor: theme.colors.background }}
+          style={{
+            borderTopWidth: 0,
+        borderTopColor: theme.colors.primaryMain,
+            backgroundColor: theme.colors.background }}
           inactiveColor={theme.colors.gray200}
           activeColor={theme.colors.primaryMain}
           
         />
       )}
-      style={{ flex: 1 }}
+      style={{ flex: 1 ,borderTopWidth: 0,
+        borderTopColor: theme.colors.primaryMain,}}
     />
 
     // PayrollSkeleton component
