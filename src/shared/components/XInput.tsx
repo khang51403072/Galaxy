@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   TextInputProps,
   Text,
+  StyleProp,
+  TextStyle,
 } from 'react-native';
 import XIcon, { iconMap } from './XIcon';
 import { useTheme } from '../theme';
@@ -24,6 +26,7 @@ type XInputProps = TextInputProps & {
   editable?: boolean;
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'number-pad';
   textAlign?: 'left' | 'center' | 'right';
+  containerStyle?: StyleProp<TextStyle>
 };
 
 const XInput = forwardRef<TextInput, XInputProps>(
@@ -48,13 +51,14 @@ const XInput = forwardRef<TextInput, XInputProps>(
       editable = true,
       keyboardType = 'default',
       textAlign = 'left',
+      containerStyle,
       ...rest
     },
     ref
   ) => {
     const [isFocused, setIsFocused] = useState(false);
     const theme = useTheme()
-    const borderColor = isFocused ? theme.colors.border : theme.colors.primaryMain;
+    const borderColor = isFocused ? theme.colors.primaryLight : theme.colors.primaryMain;
     const iconColor = isFocused ? theme.colors.primaryMain : '#999';
     const styles = StyleSheet.create({
       container: {
@@ -89,6 +93,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
         <View style={[
           styles.container,
           { borderColor: borderColor},
+          containerStyle
         ]}> 
           {iconLeft && (
             typeof iconLeft === 'string' ? (

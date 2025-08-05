@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Alert, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import React, {  useEffect } from 'react';
+import { Alert, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import XText from '../../../../shared/components/XText';
 import XScreen from '../../../../shared/components/XScreen';
 import { useShallow } from 'zustand/react/shallow';
@@ -12,15 +12,22 @@ import { ROUTES } from '../../../../app/routes';
 import {  homeSelectors, useHomeStore } from '../../stores/homeStore';
 import HomeSkeleton from '../../components/HomeSkeleton';
 import { isSuccess } from '../../../../shared/types/Result';
-import { ChartEntity } from '../../types/HomeResponse';
-import { XSkeleton } from '../../../../shared/components/XSkeleton';
 import { navigate } from '@/app/NavigationService';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { appConfig } from '@/shared/utils/appConfig';
 import { employeeSelectors, useEmployeeStore } from '@/shared/stores/employeeStore';
+import BellWithBadge from '../../components/BellWithBadge';
+import { getNotifications } from '@/shared/services/FirebaseNotificationService';
 
 export default function HomeScreen() {
-  const { homeData, isLoading, error, getHomeData, getChartData,  isLoadingChart, toggleSwitch, json, chartDisplayData, selectedStore } = useHomeStore(
+  const { homeData, 
+    isLoading, 
+    error, 
+    getHomeData, 
+    getChartData,  
+    isLoadingChart, 
+    toggleSwitch, 
+    json, 
+    chartDisplayData, selectedStore, notificationCount, setNotificationCount } = useHomeStore(
     useShallow((state) => ({
       homeData: homeSelectors.selectHomeData(state),
       isLoading: homeSelectors.selectIsLoading(state),
@@ -33,6 +40,8 @@ export default function HomeScreen() {
       json: homeSelectors.selectJson(state),
       chartDisplayData: homeSelectors.selectChartDisplayData(state),
       selectedStore: homeSelectors.selectSelectedStore(state),
+      notificationCount: homeSelectors.selectNotificationCount(state),
+      setNotificationCount: homeSelectors.selectSetNotificationCount(state),
     }))
   );
   const fetchEmployees = useEmployeeStore(employeeSelectors.selectFetchEmployees);
@@ -58,6 +67,9 @@ export default function HomeScreen() {
   useEffect(() => {
     loadData();
     checkShowBiometricGuide();
+    getNotifications().then((list) => {
+      setNotificationCount(list.filter((e)=>!e.read).length);
+    });
   }, []);
   
   useEffect(() => {
@@ -165,14 +177,13 @@ export default function HomeScreen() {
     </XText>  
   </View>
   <TouchableOpacity onPress={()=>navigate(ROUTES.NOTIFICATIONS)}>
-    <XIcon  name='bell' width={24} height={24} color={theme.colors.primaryMain} />
-
+    <BellWithBadge count={notificationCount} />
   </TouchableOpacity>
   
 </View>
 
 const meEarningsToday = 
-<XText variant='bodyRegular' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.md }}>
+<XText variant='bodyRegular' style={{ color: theme.colors.gray800 }}>
   ME Earnings Today
 </XText>
 const saleCard =
@@ -262,7 +273,7 @@ const totalRevenue =
       {header}
       <View style={{ width: '100%' , gap: theme.spacing.md}}>
         {meEarningsToday}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: theme.spacing.md }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
           {saleCard}  
           {tipCard}          
         </View>

@@ -96,7 +96,6 @@ const XDropdown: React.FC<XDropdownProps> = ({
     },
     dropdownText: {
       color: value ? theme.colors.text : theme.colors.textPlaceholder,
-      flex: 1,
     },
     dropdownList: {
       position: 'absolute',
@@ -129,9 +128,7 @@ const XDropdown: React.FC<XDropdownProps> = ({
     selectedOption: {
       backgroundColor: theme.colors.primaryMain + '10',
     },
-    checkIcon: {
-      marginLeft: 8,
-    },
+  
     emptyState: {
       padding: 20,
       alignItems: 'center',
@@ -154,7 +151,7 @@ const XDropdown: React.FC<XDropdownProps> = ({
         >
           {renderLabel && value ? renderLabel(value) : (
           <XInput
-            value={value ? value.label : placeholder}
+            value={value?.label}
             onChangeText={() => {}}
             placeholder={placeholder}
             style={styles.dropdownText}

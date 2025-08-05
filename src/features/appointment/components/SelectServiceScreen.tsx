@@ -81,12 +81,19 @@ export default function SelectServiceScreen({ visible = true, onClose = () => {}
         style={{ borderTopLeftRadius: 100 }}
       >
         {/* HEADER */}
-        <View style={styles(theme).header}>
+        {/* <View style={styles(theme).header}>
           <XText variant="headingMedium" style={styles(theme).title}>Service</XText>
           <TouchableOpacity onPress={onClose} style={styles(theme).closeButton} accessibilityLabel="Close service selection">
             <XIcon name="x" width={20} height={20} color={theme.colors.textSecondary} />
           </TouchableOpacity>
-        </View>
+        </View> */}
+        <View style={styles(theme).header}>
+            <XText variant="headingRegular" color={theme.colors.gray800}>Service</XText>
+            <TouchableOpacity onPress={onClose} 
+            style={styles(theme).closeButton}>
+              <XIcon name="x" width={10} height={10} color={theme.colors.gray800} />
+            </TouchableOpacity>
+          </View>
         <View style={styles(theme).searchInput}>
           <XInput
             placeholder="Search..."
@@ -159,8 +166,9 @@ const styles = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: theme.spacing.md,
+    paddingBottom: theme.spacing.sm,
     borderBottomWidth: 1,
-    paddingHorizontal: 16,
     borderBottomColor: theme.colors.border,
   },
   searchInput: {
@@ -182,7 +190,8 @@ const styles = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
   },
   emptyContainer: { padding: 40, alignItems: 'center' },
   closeButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderRadius: 100, 
+    padding: theme.spacing.sm, 
+    backgroundColor: theme.colors.backroundIconClose
   },
 });

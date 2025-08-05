@@ -1,7 +1,7 @@
 import { StateCreator } from "zustand/vanilla";
 import { ChartEntity, HomeEntity } from "../types/HomeResponse"
 import { HomeError } from "../types/HomeError";
-import { isSuccess, Result } from "../../../shared/types/Result";
+import { isSuccess, Result, success } from "../../../shared/types/Result";
 import { keychainHelper, KeychainObject } from "../../../shared/utils/keychainHelper";
 import { HomeUseCase } from "../usecase/HomeUseCase";
 import { create } from "zustand";
@@ -19,11 +19,15 @@ export type homeState = {
     toggleSwitch: 'week' | 'month';
     json: KeychainObject | null;
     selectedStore: StoreEntity | null;
+    notificationCount: number;
+    companyProfile: CompanyProfileResponse | null;
     updateJson: (json: KeychainObject) => Promise<void>;
     getHomeData: () => Promise<Result<HomeEntity, HomeError>>;
     getChartData: () => Promise<Result<ChartEntity[], HomeError>>;
     setChartDisplayData: (data: ChartDisplayData[]) => void;
     setSelectedStore: (store: StoreEntity) => void;
+    setNotificationCount: (count: number) => void;
+    getCompanyProfile:()=>  Promise<Result<CompanyProfileResponse, Error>> 
 }
 
 // ===== Selector =====
@@ -40,8 +44,11 @@ export const homeSelectors = {
     selectChartDisplayData: (state: homeState) => state.chartDisplayData,
     selectSelectedStore: (state: homeState) => state.selectedStore,
     selectSetSelectedStore: (state: homeState) => state.setSelectedStore,
+    selectNotificationCount: (state: homeState) => state.notificationCount,
+    selectSetNotificationCount: (state: homeState) => state.setNotificationCount,
 }
-
+const appointmentRepository = new AppointmentRepositoryImplement();
+const appointmentUsecase = new AppointmentUsecase(appointmentRepository);
 // ===== HomeStore DI Creator =====
 export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeState> => (set, get) => ({
     homeData: null,
@@ -53,7 +60,9 @@ export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeStat
     error: null,
     json: null,
     selectedStore: null,
+    notificationCount: 0,
     chartDisplayData: [], // Khởi tạo rỗng, sẽ được set khi có data thực sự
+    companyProfile: null,
     getHomeData: async () => {
         const js = await appConfig.getUser();
         set({ isLoading: true, error: null, json: js });
@@ -101,6 +110,18 @@ export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeStat
     },
     setChartDisplayData: (data) => set({ chartDisplayData: data }),
     setSelectedStore: (store) => set({ selectedStore: store }),
+    setNotificationCount: (count) => set({ notificationCount: count }),
+    getCompanyProfile: async (): Promise<Result<CompanyProfileResponse, Error>> => {
+        if (get().companyProfile != null) {
+            return success(get().companyProfile!);
+        }
+        const response = await appointmentUsecase.apptCompanyProfile();
+        if(isSuccess(response))
+        {
+            set({companyProfile: response.value})    
+        }
+        return response;
+      },
 });
 
 // Khởi tạo real usecase ở production
@@ -108,5 +129,8 @@ import { ApiHomeRepository } from '../repositories/ApiHomeRepository';
 import { HomeAPI } from '../services/HomeApi';
 import { appConfig } from "@/shared/utils/appConfig";
 import { StoreEntity } from "../screens/subScreen/SwitchStoreScreen";
+import { CompanyProfileResponse } from "@/features/appointment/types/CompanyProfileResponse";
+import { AppointmentRepositoryImplement } from "@/features/appointment/repositories/AppointmentRepositoryImplement";
+import { AppointmentUsecase } from "@/features/appointment/usecases/AppointmentUsecase";
 const realHomeUseCase = new HomeUseCase(new ApiHomeRepository(HomeAPI));
 export const useHomeStore = create<homeState>()(createHomeStore(realHomeUseCase));

@@ -5,6 +5,7 @@ import xlog from '../utils/xlog';
 import { appConfig } from '@/shared/utils/appConfig';
 import { reset } from '@/app/NavigationService';
 import { ROUTES } from '@/app/routes';
+import { ENV } from '../../config/environment';
 
 class HttpClient {
   private static instance: AxiosInstance;
@@ -13,8 +14,8 @@ class HttpClient {
   public static getInstance(): AxiosInstance {
     if (!HttpClient.instance) {
       HttpClient.instance = axios.create({
-        baseURL: 'https://xsalonapi.prod.galaxyaccess.us/',
-        timeout: 10000,
+        baseURL: ENV.API_BASE_URL,
+        timeout: ENV.API_TIMEOUT,
         headers: {
           'Content-Type': 'application/json',
         },

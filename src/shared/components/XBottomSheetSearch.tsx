@@ -114,7 +114,7 @@ export default function XBottomSheetSearch({
         >
           {/* HEADER */}
           <View style={styles.header}>
-            <XText variant="bottomSheetTitle" color={theme.colors.gray800}>{title}</XText>
+            <XText variant="headingRegular" color={theme.colors.gray800}>{title}</XText>
             <TouchableOpacity onPress={onClose} 
             style={styles.closeButton}>
               <XIcon name="x" width={10} height={10} color={theme.colors.gray800} />
