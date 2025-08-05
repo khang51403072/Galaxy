@@ -44,7 +44,7 @@ const toggleField = React.useCallback((field: keyof typeof showPass) => {
        
       },
       secureTextEntry: showPass.oldPassword,
-      iconRight: showPass.oldPassword ? "showPassword" : "hidePassword",
+      iconRight: showPass.oldPassword ? "hidePassword" : "showPassword",
       onIconRightPress: () => toggleField('oldPassword'),
     },
     {
@@ -59,7 +59,7 @@ const toggleField = React.useCallback((field: keyof typeof showPass) => {
         required: 'New password is required',
       },
       secureTextEntry: showPass.newPassword,
-      iconRight: showPass.newPassword ? "showPassword" : "hidePassword",
+      iconRight: showPass.newPassword ? "hidePassword" : "showPassword",
       onIconRightPress: () => toggleField('newPassword'),
     },
     {
@@ -74,7 +74,7 @@ const toggleField = React.useCallback((field: keyof typeof showPass) => {
         required: 'New password is required',
       },
       secureTextEntry: showPass.confirmPassword,
-      iconRight: showPass.confirmPassword ? "showPassword" : "hidePassword",
+      iconRight: showPass.confirmPassword ? "hidePassword":"showPassword",
       onIconRightPress: () => toggleField('confirmPassword'),
     },
    
@@ -157,7 +157,7 @@ const toggleField = React.useCallback((field: keyof typeof showPass) => {
   }, []);
   return (
     <XScreen title='Change Password' showHeader loading={isLoading} error={error} >
-      <XForm style={{paddingTop: 16}} gap={16} fields={fields} onSubmit={handleSubmit} defaultValues={defaultValues} />
+      <XForm style={{paddingTop: 16, paddingBottom: 8}} gap={16} fields={fields} onSubmit={handleSubmit} defaultValues={defaultValues} />
       <XDialog
         visible={visible}
         content= "Are you sure you want to change your password?"

@@ -16,8 +16,8 @@ export default function ActionGroup({ title, icon = "pen", onPress }: TitleGroup
   const theme = useTheme();
   return (
     <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={onPress}>
-        <XIcon name={icon} color={theme.colors.primaryMain} width={10} height={10} />
-        <XText variant='titleRegular' style={{color: theme.colors.primaryDark, marginLeft: 5, fontFamily: Fonts.Outfit400}}>{title}</XText>
+        <XIcon name={icon} color={theme.colors.primaryMain} width={14} height={14} />
+        <XText variant='titleRegular' style={{color: theme.colors.primaryDark, marginLeft: 4, fontFamily: Fonts.Outfit400}}>{title}</XText>
       </TouchableOpacity>
   );
 }

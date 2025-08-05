@@ -338,7 +338,9 @@ export default function CreateAppointmentScreen() {
             </View>
         )
     }
-    const  divider = <View style={{ height: 1, backgroundColor: theme.colors.border}} />
+    const  divider = <View style={{ 
+        height: 1, 
+        backgroundColor: theme.colors.gray200}} />
 
     const datePicker = ()=>{
         return (
@@ -574,6 +576,7 @@ export default function CreateAppointmentScreen() {
                                 editable={false} placeholder="Choose Technician" pointerEvents="none"/>
                         </TouchableOpacity>
                     }
+                    {index !== listServices.length - 1 && divider}
             </View>
         })
     }
