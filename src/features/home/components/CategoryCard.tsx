@@ -41,7 +41,7 @@ export default function CategoryCard({
         borderRadius: theme.borderRadius.lg,
         }}>
             <XIcon name={icon}  width={40} height={40} color={textColor} />
-            <XText variant='helloText400' style={{ marginTop: 10, color: textColor }}>{title}</XText>
+            <XText variant='titleRegular' style={{ marginTop: 10, color: textColor }}>{title}</XText>
         </View>
         <XIcon
             name="iconCategory"

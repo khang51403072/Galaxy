@@ -169,7 +169,7 @@ const useAnotherUser =
   <TouchableOpacity onPress={()=>{
     setIsShowDialog(true);
   }}>
-    <XText variant="bodyRegular" style={{ color: theme.colors.primary, marginLeft: 10 }}>
+    <XText variant="bodyRegular" style={{ color: theme.colors.primaryMain, marginLeft: 10 }}>
       Switch user
     </XText>
   </TouchableOpacity>
@@ -196,13 +196,15 @@ const useAnotherUser =
   const loginForm = 
   <XForm 
     fields={fields} 
-    style={{width: '100%', gap: theme.spacing.md, backgroundColor: theme.colors.white}} 
+    style={{width: '100%', gap: theme.spacing.md, 
+      backgroundColor: theme.colors.white}} 
     onSubmit={(values)=>{
       setDefaultValues(values);
       handleLogin(values);
     }} 
     defaultValues={defaultValues} 
     scrollEnabled={false}
+    isGradient={true}
   />
   
   return (

@@ -164,7 +164,7 @@ export default function XTimeWheel({
       borderRadius: 8,
     },
     selected: {
-      backgroundColor: theme.colors.primary,
+      backgroundColor: theme.colors.primaryMain,
     },
     disabled: {
       opacity: 0.3,
@@ -172,7 +172,7 @@ export default function XTimeWheel({
     label: {
       fontSize: 16,
       color: theme.colors.text,
-      fontFamily: theme.typography.body.fontFamily,
+      fontFamily: theme.typography.bodyRegular.fontFamily,
     },
     selectedLabel: {
       color: theme.colors.white,
@@ -190,7 +190,7 @@ export default function XTimeWheel({
       width: '100%',
       borderBottomLeftRadius: theme.spacing.sm,
       borderTopLeftRadius: theme.spacing.sm,
-      backgroundColor: theme.colors.primary, // Màu nền mờ để highlight
+      backgroundColor: theme.colors.primaryMain, // Màu nền mờ để highlight
     },
     highlightOverlayRight: {
         position: 'absolute',
@@ -199,7 +199,7 @@ export default function XTimeWheel({
         width: '100%',
         borderBottomRightRadius: theme.spacing.sm,
         borderTopRightRadius: theme.spacing.sm,
-        backgroundColor: theme.colors.primary, // Màu nền mờ để highlight
+        backgroundColor: theme.colors.primaryMain, // Màu nền mờ để highlight
       },
   });
 
@@ -275,7 +275,7 @@ export default function XTimeWheel({
       <View style={{position: 'absolute',
       height: itemHeight,
       width: '100%',
-      backgroundColor: theme.colors.primary,}} />
+      backgroundColor: theme.colors.primaryMain,}} />
         <XText style={{ fontSize: 18, color: theme.colors.white }}>:</XText>
       </View>
       {/* Minute wheel */}

@@ -116,13 +116,13 @@ export default function MainTabsScreen() {
             name={activeIndex === index ? route.icon+"Filled" as any : route.icon+"Outline" as any}
             width={24}
             height={24}
-            color={activeIndex === index ? theme.colors.primary : theme.colors.textInputPlaceholder}
+            color={activeIndex === index ? theme.colors.primaryMain : theme.colors.textInputPlaceholder}
           />
           <Animated.Text
             style={{
               ...theme.typography.captionRegular,
               marginTop: 4,
-              color: activeIndex === index ? theme.colors.primary : theme.colors.gray700 ,
+              color: activeIndex === index ? theme.colors.primaryMain : theme.colors.gray700 ,
             }}
           >
             {route.label}

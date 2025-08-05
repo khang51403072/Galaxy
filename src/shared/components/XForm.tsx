@@ -66,6 +66,7 @@ type XFormProps<T extends FieldValues> = {
   maxHeight?: DimensionValue|undefined;
   scrollEnabled?: boolean;
   gap?: number;
+  isGradient?: boolean;
 };
 
 export default function XForm<T extends FieldValues = any>({
@@ -82,6 +83,8 @@ export default function XForm<T extends FieldValues = any>({
   maxHeight = '100%',
   scrollEnabled = true,
   gap = 8,
+  isGradient = false,
+  
 }: XFormProps<T>) {
   const { control, handleSubmit, formState: { errors, isValid } } = useForm<T>({
     mode: 'onChange',
@@ -196,6 +199,7 @@ export default function XForm<T extends FieldValues = any>({
             disabled={confirmDisabled ?? (!isValid || loading)}
             loading={loading}
             style={{ flex: 1 }}
+            useGradient={isGradient}
           />
         </View>
       </View>

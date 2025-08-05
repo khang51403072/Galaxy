@@ -12,7 +12,7 @@ import { useTheme } from '../theme';
 import XText from './XText';
 
 type XInputProps = TextInputProps & {
-  iconLeft?: keyof typeof iconMap;
+  iconLeft?: keyof typeof iconMap | React.ReactNode;
   iconRight?: keyof typeof iconMap | React.ReactNode;
   onIconRightPress?: () => void;
   errorMessage?: string;
@@ -23,7 +23,7 @@ type XInputProps = TextInputProps & {
   display?: 'none' | 'flex';
   editable?: boolean;
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'number-pad';
-
+  textAlign?: 'left' | 'center' | 'right';
 };
 
 const XInput = forwardRef<TextInput, XInputProps>(
@@ -47,20 +47,21 @@ const XInput = forwardRef<TextInput, XInputProps>(
       display = 'flex',
       editable = true,
       keyboardType = 'default',
+      textAlign = 'left',
       ...rest
     },
     ref
   ) => {
     const [isFocused, setIsFocused] = useState(false);
     const theme = useTheme()
-    const borderColor = isFocused ? theme.colors.border : theme.colors.primary;
-    const iconColor = isFocused ? theme.colors.primary : '#999';
+    const borderColor = isFocused ? theme.colors.border : theme.colors.primaryMain;
+    const iconColor = isFocused ? theme.colors.primaryMain : '#999';
     const styles = StyleSheet.create({
       container: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        borderColor: theme.colors.primary,
+        borderColor: theme.colors.primaryMain,
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 8,
@@ -90,13 +91,15 @@ const XInput = forwardRef<TextInput, XInputProps>(
           { borderColor: borderColor},
         ]}> 
           {iconLeft && (
-            <XIcon
-              style={[styles.iconLeft]}
-              name={iconLeft}
-              width={20}
-              height={20}
-              color={iconColor}
-            />
+            typeof iconLeft === 'string' ? (
+              <XIcon
+                style={[styles.iconLeft]}
+                name={iconLeft as any}
+                width={20}
+                height={20}
+                color={iconColor}
+              />
+            ) : iconLeft
           )}
           <TextInput
             ref={ref}
@@ -114,7 +117,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
                 justifyContent: 'center',
                 textAlignVertical: 'center',
                 includeFontPadding: true,
-
+                textAlign: textAlign,
               },
             ]}
             value={value}
@@ -136,9 +139,12 @@ const XInput = forwardRef<TextInput, XInputProps>(
             {...rest}
           />
           {iconRight && (
-            <TouchableOpacity onPress={onIconRightPress} style={styles.iconRight}>
+            <TouchableOpacity disabled={!onIconRightPress} onPress={onIconRightPress} style={styles.iconRight}>
               {typeof iconRight === 'string' ? (
-                <XIcon name={iconRight as any} width={20} height={20} color={theme.colors.textInputPlaceholder} />
+                <XIcon 
+                  name={iconRight as any} 
+                  width={20} height={20} 
+                  color={theme.colors.textInputPlaceholder} />
               ) : iconRight}
             </TouchableOpacity>
           )}

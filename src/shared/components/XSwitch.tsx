@@ -40,7 +40,7 @@ export default function XSwitch({
   }, [value]);
 
   const trackColor = value
-    ? trackColorOn || theme.colors.primary
+    ? trackColorOn || theme.colors.primaryMain
     : trackColorOff || '#ccc';
   const thumbColor = value
     ? thumbColorOn || theme.colors.white

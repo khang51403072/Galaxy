@@ -79,8 +79,6 @@ export default function HomeScreen() {
     });
   };
 
-  // Loại bỏ function loadData2Chart vì đã được xử lý trong store
-
 
   const buildColorNote = (text: string, color: string)=>{
     return (
@@ -98,7 +96,7 @@ export default function HomeScreen() {
       <View
         style={{
           flexDirection: 'row',
-          backgroundColor: '#eee',
+          backgroundColor: theme.colors.blackOpacity10,
           borderRadius: 8,
           overflow: 'hidden',
           width: "60%",
@@ -122,7 +120,7 @@ export default function HomeScreen() {
           onPress={() => onChange('week')}
           activeOpacity={0.8}
         >
-          <XText variant='captionRegular' style={{ color: value === 'week' ? '#222' : '#888', fontWeight: '500' }}>Week</XText>
+          <XText variant='captionRegular' style={{ color: theme.colors.gray700  }}>Week</XText>
         </TouchableOpacity>
         <TouchableOpacity
           style={{
@@ -137,7 +135,7 @@ export default function HomeScreen() {
           onPress={() => onChange('month')}
           activeOpacity={0.8}
         >
-          <XText variant='captionRegular' style={{ color: value === 'month' ? '#222' : '#888', fontWeight: '500' }}>Month</XText>
+          <XText variant='captionRegular' style={{ color: theme.colors.gray700 }}>Month</XText>
         </TouchableOpacity>
       </View>
     );
@@ -167,7 +165,7 @@ export default function HomeScreen() {
     </XText>  
   </View>
   <TouchableOpacity onPress={()=>navigate(ROUTES.NOTIFICATIONS)}>
-    <XIcon  name='bell' width={24} height={24} color={theme.colors.primary} />
+    <XIcon  name='bell' width={24} height={24} color={theme.colors.primaryMain} />
 
   </TouchableOpacity>
   
@@ -185,12 +183,13 @@ const saleCard =
     padding: theme.spacing.sm,
     backgroundColor: theme.colors.white,
     borderRadius: theme.borderRadius.md,
+    gap:theme.spacing.xs ,
     ...theme.shadows.sm
   }}>
-    <XText variant='bodyLight' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.xs }}>
+    <XText variant='bodyLight' style={{ color: theme.colors.gray700, }}>
       Sale:
     </XText>
-    <XText variant='bodyMedium' style={{ color: theme.colors.gray800 }}>
+    <XText variant='bodyMedium' style={{ color: theme.colors.gray700 }}>
       $ {homeData?.totalSale.toFixed(2) || 0}
     </XText>
   </View>
@@ -202,12 +201,13 @@ const tipCard =
     padding: theme.spacing.sm,
     backgroundColor: theme.colors.white,
     borderRadius: theme.borderRadius.md,
+    gap:theme.spacing.xs ,
     ...theme.shadows.sm
   }}>
-    <XText variant='bodyLight' style={{ color: theme.colors.gray800, marginBottom: theme.spacing.xs }}>
+    <XText variant='bodyLight' style={{ color: theme.colors.gray700, }}>
       Tips:
     </XText>
-    <XText variant='bodyMedium' style={{ color: theme.colors.gray800 }}>
+    <XText variant='bodyMedium' style={{ color: theme.colors.gray700 }}>
       $ {homeData?.nonCashTip.toFixed(2) || 0}
     </XText>
   </View>
@@ -217,29 +217,28 @@ const totalRevenue =
   <View style={{
     flexDirection: 'column',
     alignItems: 'flex-start',
-    padding: 16,
+    padding: theme.spacing.md,
     backgroundColor: theme.colors.white,
-    borderRadius: 8,
+    borderRadius: theme.borderRadius.md,
     ...theme.shadows.sm,
-    marginBottom: 16,
     width: CHART_WIDTH,
     minWidth: 280,
     maxWidth: 500,
     alignSelf: 'center',
   }}>
-    <XText variant='bodyRegular' style={{ color: theme.colors.gray800 }}>
+    <XText variant='bodyRegular' style={{ color: theme.colors.gray700 }}>
       Total revenue
     </XText>
     <View style={{ flexDirection: 'row', alignItems: 'center', width: 100, backgroundColor: 'transparent', borderRadius: 50, marginTop: theme.spacing.xs }}>
-      {buildColorNote('Sales', theme.colors.primary)}
-      {buildColorNote('Tips', theme.colors.cyan)}
+      {buildColorNote('Sales', theme.colors.primaryMain)}
+      {buildColorNote('Tips', theme.colors.secondary)}
     </View>
     <XChart
       data={chartDisplayData}
       width={CHART_WIDTH}
       height={200}
       isLoading={isLoadingChart || chartDisplayData.length === 0}
-      barColors={[theme.colors.primary, theme.colors.cyan]}
+      barColors={[theme.colors.primaryMain, theme.colors.secondary]}
       labelColor="#333"
       style={{ paddingTop: theme.spacing.md }}
     />
@@ -254,7 +253,7 @@ const totalRevenue =
       loading={isLoading}
       error={error}
       scrollable={true}
-      paddingHorizontal={16}
+      paddingHorizontal={theme.spacing.md}
       skeleton={<HomeSkeleton/>}
       backgroundColor={theme.colors.background}
       onRefresh={loadData}
@@ -268,16 +267,16 @@ const totalRevenue =
           {tipCard}          
         </View>
         {totalRevenue}
-        <XText variant='bodyRegular' style={{ color: theme.colors.gray800 }}>
+        <XText variant='titleRegular' style={{ color: theme.colors.gray800 }}>
           Category
         </XText>
         <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
-          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.TICKET)}} title='Tickets' icon='ticket' color={theme.colors.skyBlue} textColor={theme.colors.white} />
-          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.APPOINTMENT)}} title='Appointment' icon='appointment' color={theme.colors.purple} textColor={theme.colors.white} />
+          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.TICKET)}} title='Tickets' icon='ticket' color={theme.colors.category1Bg} textColor={theme.colors.white} />
+          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.APPOINTMENT)}} title='Appointment' icon='appointment' color={theme.colors.category2Bg} textColor={theme.colors.white} />
         </View>
         <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
-          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.PAYROLL)}} title='Payroll' icon='payroll' color={theme.colors.indigoBlue} textColor={theme.colors.white} />
-          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.REPORT)}} title='Report' icon='report' color={theme.colors.blue} textColor={theme.colors.white} /> 
+          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.PAYROLL)}} title='Payroll' icon='payroll' color={theme.colors.category3Bg} textColor={theme.colors.white} />
+          <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.REPORT)}} title='Report' icon='report' color={theme.colors.category4Bg} textColor={theme.colors.white} /> 
         </View>
 
         <View style={{ flexDirection: 'row', width: '100%', 

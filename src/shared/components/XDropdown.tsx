@@ -39,6 +39,7 @@ interface XDropdownProps {
   disabled?: boolean;
   searchable?: boolean;
   renderItem?: (option: DropdownOption, selected: boolean) => React.ReactNode;
+  renderLabel?: (option: DropdownOption) => React.ReactNode;
 }
 
 const XDropdown: React.FC<XDropdownProps> = ({
@@ -51,6 +52,7 @@ const XDropdown: React.FC<XDropdownProps> = ({
   disabled = false,
   searchable = false,
   renderItem,
+  renderLabel,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [pos, setPos] = useState({ left: MARGIN, top: MARGIN, width: DROPDOWN_MIN_WIDTH });
@@ -125,7 +127,7 @@ const XDropdown: React.FC<XDropdownProps> = ({
       flex: 1,
     },
     selectedOption: {
-      backgroundColor: theme.colors.primary + '10',
+      backgroundColor: theme.colors.primaryMain + '10',
     },
     checkIcon: {
       marginLeft: 8,
@@ -150,13 +152,17 @@ const XDropdown: React.FC<XDropdownProps> = ({
           activeOpacity={0.7}
           disabled={disabled}
         >
+          {renderLabel && value ? renderLabel(value) : (
           <XInput
             value={value ? value.label : placeholder}
             onChangeText={() => {}}
             placeholder={placeholder}
             style={styles.dropdownText}
             iconRight="downArrow"
+            editable={false}
+            pointerEvents="none"
           />
+          )}
         </TouchableOpacity>
       </View>
       <Modal

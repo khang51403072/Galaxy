@@ -46,7 +46,7 @@ export default function XButton({
   else if (radius && theme.borderRadius[radius]) borderRadius = Number(theme.borderRadius[radius]);
 
   // Use theme colors if backgroundColor not provided
-  const buttonBackgroundColor = backgroundColor || theme.colors.primary;
+  const buttonBackgroundColor = backgroundColor || theme.colors.primaryMain;
   const inactiveColor = theme.colors.buttonInactive;
   const gradientColors = theme.colors.primaryGradient;
   const textColor = defaultTextColor || theme.colors.textButton;

@@ -103,7 +103,7 @@ export default function XDialog({
             <XButton
               title={textConfirm}
               onPress={onConfirm}
-              backgroundColor={colorConfirm || theme.colors.primary}
+              backgroundColor={colorConfirm || theme.colors.primaryMain}
               style={styles.button}
               useGradient={false}
             />
