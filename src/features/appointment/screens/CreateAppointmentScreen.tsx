@@ -269,6 +269,31 @@ export default function CreateAppointmentScreen() {
         return (
             <XDropdown 
             value={selectedApptType}
+            renderLabel={
+                (item) =>{
+                    return <View style={{
+                            flexDirection: 'row', 
+                            alignItems: 'center', 
+                            justifyContent: 'space-between'
+                        }}>
+                        <XInput
+                            value={item.label}
+                            onChangeText={() => {}}
+                            iconLeft= {
+                                <View style={{
+                                    borderRadius:theme.spacing.sm,
+                                    height:theme.spacing.md, width:theme.spacing.md, 
+                                    backgroundColor: item.value.bgColor,
+                                }}>
+                                </View>
+                            }
+                            iconRight="downArrow"
+                            editable={false}
+                            pointerEvents="none"
+                        />
+                    </View>
+                }
+            }
             renderItem={
                 (item, isSelected) =>{
                     return <View 
@@ -323,13 +348,15 @@ export default function CreateAppointmentScreen() {
                     <XText variant="titleRegular">Date</XText>
                 </View>
                 <XDatePicker
-                    style={{ width: '40%' }}
+                    textAlign="center"
+                    style={{ width: '52%' }}
                     value={selectedDate}
                     onChange={(date)=>{
                         date.setHours(selectedDate.getHours(),selectedDate.getMinutes(),0,0);
                         setSelectedDate(date);
                         
                     }}
+                    displayFormat="EE, dd/MM/yyyy"   
                     mode='date'
                 />
             </View>
@@ -342,7 +369,7 @@ export default function CreateAppointmentScreen() {
                     <XIcon name="time" width={16} height={16} />
                     <XText variant="titleRegular">Time</XText>
                 </View>
-                <XDatePicker mode="time" style={{ width: '40%' }} value={selectedDate} onChange={
+                <XDatePicker textAlign="center" mode="time" style={{ width: '52%' }} value={selectedDate} onChange={
                     (date)=>{
                         date.setMonth(selectedDate.getMonth());
                         date.setDate(selectedDate.getDate());

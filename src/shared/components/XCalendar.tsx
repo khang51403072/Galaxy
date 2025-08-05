@@ -154,12 +154,12 @@ export default function XCalendar({ onSelect, selected, minDate, maxDate }: XCal
           style={[
             styles.cell,
             isToday && {
-              borderColor: theme.colors.primary,
+              borderColor: theme.colors.primaryMain,
               borderWidth: 2,
               borderRadius: theme.borderRadius.full,
             },
             isSelected && {
-              backgroundColor: theme.colors.primary,
+              backgroundColor: theme.colors.primaryMain,
               borderRadius: theme.borderRadius.full,
             },
             disabled && { opacity: 0.3 },
@@ -180,7 +180,7 @@ export default function XCalendar({ onSelect, selected, minDate, maxDate }: XCal
           <Text
             style={[
               styles.dayText,
-              { color: isSelected ? theme.colors.textButton : isToday ? theme.colors.primary : theme.colors.text },
+              { color: isSelected ? theme.colors.textButton : isToday ? theme.colors.primaryMain : theme.colors.text },
             ]}
           >
             {getDate(date)}
@@ -220,7 +220,7 @@ export default function XCalendar({ onSelect, selected, minDate, maxDate }: XCal
         accessibilityRole="button"
         disabled={animating}
       >
-        <Text style={{ color: theme.colors.primary, fontSize: 28 }}>‹</Text>
+        <Text style={{ color: theme.colors.primaryMain, fontSize: 28 }}>‹</Text>
       </TouchableOpacity>
       <Text style={styles.headerText}>{format(current, 'MMMM yyyy')}</Text>
       <TouchableOpacity
@@ -230,7 +230,7 @@ export default function XCalendar({ onSelect, selected, minDate, maxDate }: XCal
         accessibilityRole="button"
         disabled={animating}
       >
-        <Text style={{ color: theme.colors.primary, fontSize: 28 }}>›</Text>
+        <Text style={{ color: theme.colors.primaryMain, fontSize: 28 }}>›</Text>
       </TouchableOpacity>
     </View>
   );

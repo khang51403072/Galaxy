@@ -107,10 +107,10 @@ export default function  TicketScreen() {
       renderTabBar={props => (
         <TabBar
           {...props}
-          indicatorStyle={{ backgroundColor: theme.colors.primary }}
+          indicatorStyle={{ backgroundColor: theme.colors.primaryMain }}
           style={{ backgroundColor: theme.colors.background }}
           inactiveColor={theme.colors.gray200}
-          activeColor={theme.colors.primary}
+          activeColor={theme.colors.primaryMain}
           
         />
       )}

@@ -12,7 +12,7 @@ export interface ApptType {
 export function createApptType(
   id: string = "Misc",
   name: string = "Misc",
-  bgColor: string = useTheme().colors.cyan
+  bgColor: string = useTheme().colors.secondary
 ): ApptType {
   return {
     id,

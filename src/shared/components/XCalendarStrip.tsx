@@ -113,7 +113,7 @@ export const XCalendarStrip: React.FC<XCalendarStripProps> = ({ value, onChange,
   return (
     <View style={[styles.container, style]}>
       {/* Month cố định */}
-      <XText variant="dateSelectorMonth" style={[{ color: theme.colors.primary, marginBottom: 8 }]}> 
+      <XText variant="dateSelectorMonth" style={[{ color: theme.colors.primaryMain, marginBottom: 8 }]}> 
         {getMonthName(displayMonth)}
       </XText>
       {/* Weekday cố định */}
@@ -154,7 +154,7 @@ export const XCalendarStrip: React.FC<XCalendarStripProps> = ({ value, onChange,
                   onPress={() => handleSelectDay(d)}
                   activeOpacity={0.7}
                 >
-                  <View style={{ alignItems: 'center', justifyContent: 'center', width: colWidth*0.6, height: colWidth*0.6, backgroundColor: isSelected ? theme.colors.primary : 'transparent', borderRadius: colWidth }}>
+                  <View style={{ alignItems: 'center', justifyContent: 'center', width: colWidth*0.6, height: colWidth*0.6, backgroundColor: isSelected ? theme.colors.primaryMain : 'transparent', borderRadius: colWidth }}>
                     <XText variant="dateSelectorDay"
                       style={[
                         styles.dayText,

@@ -203,8 +203,8 @@ export default function XScreen({
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={[theme.colors.primary]}
-              tintColor={theme.colors.primary}
+              colors={[theme.colors.primaryMain]}
+              tintColor={theme.colors.primaryMain}
             />
           ) : undefined
         }

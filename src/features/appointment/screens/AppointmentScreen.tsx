@@ -102,7 +102,7 @@ export default function AppointmentScreen() {
             </XText>
         </View>
 
-        <XText variant="appointmentItemServiceName" style={{ color: theme.colors.primary }}>
+        <XText variant="appointmentItemServiceName" style={{ color: theme.colors.primaryMain }}>
             {getServiceName(item)}
         </XText>
       
@@ -220,7 +220,7 @@ export default function AppointmentScreen() {
         renderTabBar={props => (
           <CustomTabBar
             {...props}
-            indicatorStyle={{ backgroundColor: theme.colors.primary }}
+            indicatorStyle={{ backgroundColor: theme.colors.primaryMain }}
             style={{ 
               backgroundColor: theme.colors.background ,
               paddingVertical: theme.spacing.xs, 
@@ -230,9 +230,9 @@ export default function AppointmentScreen() {
             renderTabBarItem={({ route, focused, jumpTo, onLayout, ref, ...props }) =>
             
             {
-                const variantCount = focused ? "appointmentTabBarSelectedCount" : "appointmentTabBarUnselectedCount";
-                const variantTitle = focused ? "appointmentTabBarSelectedTitle" : "appointmentTabBarUnselectedTitle";
-                const colorTitle = focused ? theme.colors.primary : theme.colors.primary80;
+                const variantCount = "captionRegular" ;
+                const variantTitle = "captionMedium" ;
+                const colorTitle = focused ? theme.colors.primaryMain : theme.colors.primaryOpacity50;
                 const colorCount = focused ? theme.colors.gray800 : theme.colors.gray400;
                 let count = appointmentList.filter(item => route.key === "all" ? true : item.apptStatus.toLowerCase() === route.key).length;
                 return (
@@ -268,16 +268,16 @@ export default function AppointmentScreen() {
         )}
       />
   const colorMapText: { [key: string]: string } = {
-    all: theme.colors.primary,
-    new: theme.colors.skyBlue,
-    checkin: theme.colors.cyan,
-    checkout: theme.colors.primary600,
+    all: theme.colors.primaryMain,
+    new: theme.colors.category1Bg,
+    checkin: theme.colors.secondary,
+    checkout: theme.colors.primaryDark,
   }
   const colorMapBackground: { [key: string]: string } = {
-    all: theme.colors.primary200,
-    new: theme.colors.skyBlue200,
-    checkin: theme.colors.cyan200,
-    checkout: theme.colors.primary200,
+    all: theme.colors.primaryOpacity5,
+    new: theme.colors.category1Opacity,
+    checkin: theme.colors.secondaryOpacity5,
+    checkout: theme.colors.primaryOpacity5,
   }
   // Render employee picker
   const employeePicker = 
@@ -314,7 +314,7 @@ export default function AppointmentScreen() {
           position: 'absolute',
           right: 24,
           bottom: 32,
-          backgroundColor: theme.colors.primary,
+          backgroundColor: theme.colors.primaryMain,
           borderRadius: 32,
           width: 56,
           height: 56,

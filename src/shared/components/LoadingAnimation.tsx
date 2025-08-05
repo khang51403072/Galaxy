@@ -19,7 +19,7 @@ export default function LoadingAnimation() {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.primary,
+      backgroundColor: theme.colors.primaryMain,
       alignItems: 'center',
       justifyContent: 'center',
       width: '100%',

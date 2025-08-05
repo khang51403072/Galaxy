@@ -29,21 +29,43 @@ type Props = {
   label?: string;
   minDate?: Date;
   maxDate?: Date;
+  displayFormat?: string; // Thêm parameter displayFormat
+  textAlign?: 'left' | 'center' | 'right';
 };
 
 export function XDatePicker({
-  mode='date', value, onChange, placeholder='Chọn...', label, style, minDate, maxDate
+  mode='date', value, onChange, 
+  placeholder='Select...', 
+  label, 
+  style, 
+  minDate, 
+  maxDate,
+  displayFormat,
+  textAlign
 }: Props) {
   const touchableRef = useRef<any>(null);
   const [show, setShow] = useState(false);
   const [temp, setTemp] = useState(value||new Date());
 
+  // Tạo hàm để lấy format mặc định dựa trên mode
+  const getDefaultFormat = (mode: Mode) => {
+    switch (mode) {
+      case 'time':
+        return 'hh:mm a'; // Thay đổi từ 'HH:mm' thành 'hh:mm a' để hiển thị AM/PM
+      case 'date':
+        return 'yyyy-MM-dd';
+      case 'datetime':
+        return 'yyyy-MM-dd hh:mm a'; // Thay đổi từ 'yyyy-MM-dd HH:mm' thành 'yyyy-MM-dd hh:mm a'
+      default:
+        return 'yyyy-MM-dd';
+    }
+  };
+
+  // Sử dụng displayFormat nếu được cung cấp,否则 sử dụng format mặc định
+  const formatToUse = displayFormat || getDefaultFormat(mode);
+
   const display = value
-    ? mode==='time'
-      ? format(value,'HH:mm')
-      : mode==='date'
-      ? format(value,'yyyy-MM-dd')
-      : format(value,'yyyy-MM-dd HH:mm')
+    ? format(value, formatToUse)
     : placeholder;
 
   // confirm for datetime
@@ -75,7 +97,7 @@ export function XDatePicker({
         style={style}
         hitSlop={{ top:13, bottom: 22, left: 0, right: 0 }} 
       >
-        <XInput editable={false} value={display} label={label} />
+        <XInput textAlign='center' editable={false} value={display} label={label} />
         
       </TouchableOpacity>
       
@@ -100,7 +122,7 @@ export function XDatePicker({
                 if(mode==='date'){
                   onChange(d);
                   setTemp(d)
-                  setShow(false);
+                  // setShow(false);
                 } else {
                   setTemp(d);
                 }
@@ -119,7 +141,7 @@ export function XDatePicker({
                 if(mode==='time'){
                   onChange(d);
                   setTemp(d);
-                  setShow(false);
+                  // setShow(false);
                 } else {
                   setTemp(d);
                 }

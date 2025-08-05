@@ -17,7 +17,7 @@ export default function SplashScreen() {
       flex: 1,
       width,
       height,
-      backgroundColor: theme.colors.primary,
+      backgroundColor: theme.colors.primaryMain,
     },
   }); 
  

@@ -145,14 +145,17 @@ export default function ProfileScreen() {
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
         locations={[0, 1]}
-        style={{ width: '100%', height: '25%', alignItems: 'center', justifyContent: 'center' }}
+        style={{gap: theme.spacing.sm, flexDirection: 'column', width: '100%', height: '25%', alignItems: 'center', justifyContent: 'center' }}
       >
         <XAvatar
           uri={avatarUri || undefined} 
-          size={120}
+          size={100}
           onPickImage={handlePickImage}
           editable={!avatarLoading}
         />
+        <XText variant='titleMedium' style={{ color: theme.colors.white }}>
+          {getDisplayName()}
+        </XText>
       </LinearGradient>
       
       {/* Content Section */}
@@ -214,7 +217,7 @@ export default function ProfileScreen() {
               reset([{ name: ROUTES.LOGIN }], 0);
             }}
           useGradient={false}
-          backgroundColor={theme.colors.primary}
+          backgroundColor={theme.colors.primaryMain}
           style={{ borderRadius: theme.borderRadius.md, marginTop: theme.spacing.md }}
         />
         <XText variant="captionLight" style={{ textAlign: 'center', marginTop: 16}}>
