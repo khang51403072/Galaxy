@@ -13,12 +13,14 @@ export type UserState = {
   isUpdating: boolean;
   error: string | null;
   isUseFaceId: boolean;
+  showTooltip: boolean;
   setIsUseFaceId: (isUseFaceId: boolean) => void;
   getProfile: () => Promise<Result<ProfileEntity, UserError>>;
   updateProfile: (request: UpdateProfileRequest) => Promise<Result<ProfileEntity, UserError>>;
   changePassword: (request: ChangePasswordRequest) => Promise<Result<void, UserError>>;
   logout: () => Promise<void>;
   uploadAvatar: (imageData: Asset) => Promise<Result<string, UserError>>;
+  setShowTooltip: (value:boolean) => void
 };
 
 export const userSelectors = {
@@ -33,6 +35,8 @@ export const userSelectors = {
   selectLogout: (state: UserState) => state.logout,
   selectSetIsUseFaceId: (state: UserState) => state.setIsUseFaceId,
   selectUploadAvatar: (state: UserState) => state.uploadAvatar,
+  selectShowTooltip: (state: UserState) => state.showTooltip,
+  selectSetShowTooltip: (state: UserState) => state.setShowTooltip,
 };
 
 // Refactor: nhận profileUseCase từ ngoài vào
@@ -42,6 +46,7 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
   isUpdating: false,
   error: null,
   isUseFaceId: false,
+  showTooltip: false,
   getProfile: async (): Promise<Result<ProfileEntity, UserError>> => {
     set({ isLoading: true });
     const profileResult = await profileUseCase.getProfile();
@@ -104,6 +109,7 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
     set({ isLoading: false });
     return uploadResult;
   },
+  setShowTooltip: (value: boolean) => set({showTooltip: value})
 });
 
 // Khởi tạo real usecase ở production

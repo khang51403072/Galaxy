@@ -16,6 +16,9 @@ import { useTheme } from '@/shared/theme';
 import XIcon from '../../../shared/components/XIcon';
 import HomeScreen from './tabs/HomeScreen';
 import ProfileScreen from './tabs/ProfileScreen';
+import { appConfig } from '@/shared/utils/appConfig';
+import { Alert } from 'react-native';
+import { useUserStore } from '../stores/profileStore';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -46,15 +49,33 @@ export default function MainTabsScreen() {
   // Initialize entrance animation
   useEffect(() => {
     slideAnim.value = withSpring(1, { damping: 8, stiffness: 120 });
+    checkShowBiometricGuide();
   }, []);
-
+  async function checkShowBiometricGuide() {
+    const shown = await appConfig.getUseBiometric();
+    if (!shown) {
+      Alert.alert(
+        'Warning',
+        'You have not enabled biometric login, do you want to enable it in the profile section?',
+        [
+          { text: 'Later', style: 'cancel' },
+          { text: 'Enable', onPress: () => {
+              // AsyncStorage.setItem('biometricGuideShown', '0');
+              // navigate(ROUTES.PROFILE, { showBiometricTooltip: true });
+              useUserStore.getState().setShowTooltip(true)
+              handleTabChange(1)
+            }
+          }
+        ]
+      );
+    }
+  }
   // Handle tab change
   const handleTabChange = useCallback((index: number) => {
     if (index === activeIndex) return;
     
     setActiveIndex(index);
     indicatorAnim.value = withSpring(index, { damping: 8, stiffness: 150 });
-    
     // Animate pager view
     pagerRef.current?.setPage(index);
   }, [activeIndex]);
@@ -159,3 +180,5 @@ export default function MainTabsScreen() {
     </View>
   );
 }
+
+

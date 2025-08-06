@@ -52,27 +52,11 @@ export default function HomeScreen() {
   );
   const fetchEmployees = useEmployeeStore(employeeSelectors.selectFetchEmployees);
   const theme = useTheme();  
-  async function checkShowBiometricGuide() {
-    const shown = await appConfig.getUseBiometric();
-    if (!shown) {
-      Alert.alert(
-        'Warning',
-        'You have not enabled biometric login, do you want to enable it in the profile section?',
-        [
-          { text: 'Later', style: 'cancel' },
-          { text: 'Enable', onPress: () => {
-              // AsyncStorage.setItem('biometricGuideShown', '0');
-              navigate(ROUTES.PROFILE, { showBiometricTooltip: true });
-            }
-          }
-        ]
-      );
-    }
-  }
+  
 
   useEffect(() => {
     loadData();
-    checkShowBiometricGuide();
+    
     getNotifications().then((list) => {
       setNotificationCount(list.filter((e)=>!e.read).length);
     });
