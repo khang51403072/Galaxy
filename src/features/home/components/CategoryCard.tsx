@@ -1,6 +1,6 @@
 import { StyleProp, TouchableOpacity, View, ViewStyle } from "react-native";
 import { useTheme } from "../../../shared/theme/ThemeProvider";
-import { ColorScheme } from "../../../shared/theme/colors";
+import { ColorScheme } from "../../../shared/theme/colors/colors";
 import XIcon, { iconMap } from "../../../shared/components/XIcon";
 import XText from "../../../shared/components/XText";
 import { Fonts } from "../../../shared/constants/fonts";

@@ -2,13 +2,15 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { XSkeleton } from '../../../shared/components/XSkeleton';
 import LinearGradient from 'react-native-linear-gradient';
+import { useTheme } from '@/shared/theme';
 
 export const ProfileSkeleton: React.FC = () => {
+  const theme = useTheme();
   return (
     <View style={styles.container}>
       {/* Header with gradient background */}
       <LinearGradient
-        colors={["#3B96F6", "#1D62D8"]}
+        colors={theme.colors.primaryGradient}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
         style={styles.header}

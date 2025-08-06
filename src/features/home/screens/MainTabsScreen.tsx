@@ -122,7 +122,7 @@ export default function MainTabsScreen() {
             style={{
               ...theme.typography.captionRegular,
               marginTop: 4,
-              color: activeIndex === index ? theme.colors.primaryMain : theme.colors.gray700 ,
+              color: theme.colors.gray700,
             }}
           >
             {route.label}
