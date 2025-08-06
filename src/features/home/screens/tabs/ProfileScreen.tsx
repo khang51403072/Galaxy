@@ -26,9 +26,17 @@ import { useHomeStore } from '../../stores/homeStore';
 export default function ProfileScreen() {
   const route = useRoute<any>();
   const theme = useTheme();
-  const [showTooltip, setShowTooltip] = useState((route.params as any)?.showBiometricTooltip);
   // User store for profile data with selectors
-  const { profile, isLoading: profileLoading, getProfile, logout, setIsUseFaceId, isUseFaceId, uploadAvatar } = useUserStore(
+  const { profile, 
+    isLoading: profileLoading, 
+    getProfile, 
+    logout, 
+    setIsUseFaceId, 
+    isUseFaceId, 
+    uploadAvatar,
+    setShowTooltip,
+    showTooltip
+     } = useUserStore(
     useShallow((state) => ({
       profile: userSelectors.selectProfile(state),
       isLoading: userSelectors.selectIsLoading(state),
@@ -38,6 +46,8 @@ export default function ProfileScreen() {
       setIsUseFaceId: userSelectors.selectSetIsUseFaceId(state),
       isUseFaceId: userSelectors.selectIsUseFaceId(state),
       uploadAvatar: userSelectors.selectUploadAvatar(state),
+      setShowTooltip:userSelectors.selectSetShowTooltip(state),
+      showTooltip: userSelectors.selectShowTooltip(state),
     }))
   );
 
