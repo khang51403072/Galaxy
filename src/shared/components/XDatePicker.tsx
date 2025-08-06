@@ -17,6 +17,8 @@ import { format } from 'date-fns';
 import XText from './XText';
 import XInput from './XInput';
 import { registerPopover, unregisterPopover } from '../utils/PopoverManager';
+import DateTimePicker, { DateType, useDefaultStyles } from 'react-native-ui-datepicker';
+import { useTheme } from '../theme/ThemeProvider';
 
 const { width: SW } = Dimensions.get('window');
 const POPUP_H = 360;
@@ -50,7 +52,7 @@ export function XDatePicker({
   const touchableRef = useRef<any>(null);
   const [show, setShow] = useState(false);
   const [temp, setTemp] = useState(value||new Date());
-
+  const theme = useTheme();
   // Tạo hàm để lấy format mặc định dựa trên mode
   const getDefaultFormat = (mode: Mode) => {
     switch (mode) {
@@ -91,7 +93,7 @@ export function XDatePicker({
       if (show) unregisterPopover();
     };
   }, [show]);
-
+  const defaultStyles = useDefaultStyles();
   return (
     <>
       <TouchableOpacity
@@ -120,35 +122,117 @@ export function XDatePicker({
       >
         <View style={{ maxWidth: SW - 16, minWidth: 280, maxHeight: POPUP_H }}>
           {(mode==='date' || mode==='datetime') && (
-            <XCalendar
-              selected={temp}
-              onSelect={d => {
+            // <XCalendar
+            //   selected={temp}
+            //   onSelect={d => {
+            //     if(mode==='date'){
+            //       onChange(d);
+            //       setTemp(d)
+            //       // setShow(false);
+            //     } else {
+            //       setTemp(d);
+            //     }
+            //   }}
+            //   minDate={minDate}
+            //   maxDate={maxDate}
+            // />
+            <DateTimePicker
+              mode="single"
+              date={temp}
+              onChange={({ date }) =>  {
                 if(mode==='date'){
-                  onChange(d);
-                  setTemp(d)
+                  onChange(date as Date);
+                  setTemp(date as Date)
                   // setShow(false);
-                } else {
-                  setTemp(d);
-                }
+                } 
               }}
-              minDate={minDate}
-              maxDate={maxDate}
+              styles={{
+                ...defaultStyles,
+               
+                day: {
+                  ...defaultStyles.day,
+                },
+                day_label: {
+                  ...defaultStyles.day_label,
+                  color: theme.colors.gray700
+                },
+                selected: { backgroundColor: theme.colors.primaryMain,
+                  borderRadius: 50,
+                }, // Highlight the selected day
+                selected_label: { color: theme.colors.white },
+                
+                month_label: {
+                  ...defaultStyles.month_label,
+                  color: theme.colors.gray700
+                },
+                month: {
+                  ...defaultStyles.month,
+                  backgroundColor: theme.colors.primaryMain,
+                },
+                header: {
+                  ...defaultStyles.header,
+                  backgroundColor: theme.colors.primaryMain,
+                },
+                
+                
+
+              }}
             />
           )}
-          {(mode==='time' || mode==='datetime') && (
-            <XTimePicker
-              hour={temp.getHours()}
-              minute={temp.getMinutes()}
-              onTimeChange={(h,m)=>{
-                const d=new Date(temp);
-                d.setHours(h,m);
-                if(mode==='time'){
-                  onChange(d);
-                  setTemp(d);
-                  // setShow(false);
-                } else {
-                  setTemp(d);
-                }
+          {(mode==='time') && (
+            // <XTimePicker
+            //   hour={temp.getHours()}
+            //   minute={temp.getMinutes()}
+            //   onTimeChange={(h,m)=>{
+            //     const d=new Date(temp);
+            //     d.setHours(h,m);
+            //     if(mode==='time'){
+            //       onChange(d);
+            //       setTemp(d);
+            //       // setShow(false);
+            //     } else {
+            //       setTemp(d);
+            //     }
+            //   }}
+            // />
+            <DateTimePicker
+              mode="single"
+              date={temp}
+              timePicker={true}
+              onChange={({ date }) =>  {
+                onChange(date as Date);
+                setTemp(date as Date)
+              }}
+              styles={{
+                ...defaultStyles,
+               
+                day: {
+                  ...defaultStyles.day,
+                },
+                day_label: {
+                  ...defaultStyles.day_label,
+                  color: theme.colors.gray700
+                },
+                selected: { backgroundColor: theme.colors.primaryMain,
+                  borderRadius: 50,
+                }, // Highlight the selected day
+                selected_label: { color: theme.colors.white },
+                
+                month_label: {
+                  ...defaultStyles.month_label,
+                  color: theme.colors.gray700
+                },
+                month: {
+                  ...defaultStyles.month,
+                  backgroundColor: theme.colors.primaryMain,
+                },
+                header: {
+                  ...defaultStyles.header,
+                  backgroundColor: theme.colors.primaryMain,
+                },
+                
+                
+
               }}
             />
           )}
