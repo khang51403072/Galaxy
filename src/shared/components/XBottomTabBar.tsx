@@ -42,7 +42,7 @@ const XBottomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) =>
               activeOpacity={0.7}
             >
               <XIcon name={iconName} width={24} height={24} color={isFocused ? theme.colors.primaryMain : theme.colors.textTertiary} />
-              <XText variant='bodyRegular' style={[styles.label, { color: isFocused ? theme.colors.primaryMain : theme.colors.textTertiary }]}>
+              <XText variant='bodyRegular' style={[styles.label, { color: theme.colors.textTertiary }]}>
                 {label as string}
               </XText>
             </TouchableOpacity>

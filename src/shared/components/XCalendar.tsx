@@ -72,9 +72,8 @@ export default function XCalendar({ onSelect, selected, minDate, maxDate }: XCal
         maxWidth: 400,
       },
       headerText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: theme.colors.text,
+        ...theme.typography.titleRegular,
+        color: theme.colors.gray800,
       },
       navBtn: {
         padding: theme.spacing.xs,
@@ -90,7 +89,7 @@ export default function XCalendar({ onSelect, selected, minDate, maxDate }: XCal
         textAlign: 'center',
         fontWeight: '600',
         fontSize: 12,
-        color: theme.colors.textSecondary,
+        color: theme.colors.primaryMain,
       },
       weekRow: {
         flexDirection: 'row',
@@ -180,7 +179,7 @@ export default function XCalendar({ onSelect, selected, minDate, maxDate }: XCal
           <Text
             style={[
               styles.dayText,
-              { color: isSelected ? theme.colors.textButton : isToday ? theme.colors.primaryMain : theme.colors.text },
+              { color: isSelected ? theme.colors.textButton : isToday ? theme.colors.primaryMain : theme.colors.gray700 },
             ]}
           >
             {getDate(date)}
@@ -220,7 +219,7 @@ export default function XCalendar({ onSelect, selected, minDate, maxDate }: XCal
         accessibilityRole="button"
         disabled={animating}
       >
-        <Text style={{ color: theme.colors.primaryMain, fontSize: 28 }}>‹</Text>
+        <Text style={{ color: theme.colors.primaryMain, fontSize: 34 }}>‹</Text>
       </TouchableOpacity>
       <Text style={styles.headerText}>{format(current, 'MMMM yyyy')}</Text>
       <TouchableOpacity
@@ -230,7 +229,7 @@ export default function XCalendar({ onSelect, selected, minDate, maxDate }: XCal
         accessibilityRole="button"
         disabled={animating}
       >
-        <Text style={{ color: theme.colors.primaryMain, fontSize: 28 }}>›</Text>
+        <Text style={{ color: theme.colors.primaryMain, fontSize: 34 }}>›</Text>
       </TouchableOpacity>
     </View>
   );

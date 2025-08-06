@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
 import { XDatePicker } from './XDatePicker';
 import XIcon from './XIcon';
+import { useTheme } from '../theme';
 
 interface Props {
   fromDate: Date;
@@ -24,6 +25,25 @@ const XDateRangerSearch: React.FC<Props> = ({
   labelTo = 'To Date',
   style
 }) => {
+  const theme = useTheme();
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      gap: theme.spacing.sm,
+      alignItems: 'flex-end',
+    },
+    datePicker: {
+      flex: 1,
+    },
+    searchBtn: {
+      height: 40,
+      width: 40,
+      borderRadius: theme.spacing.sm,
+      backgroundColor: theme.colors.primaryMain,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  }), [theme.spacing.sm, theme.colors.primaryMain]);
   return (
     <View style={[styles.container, style]}>
       <XDatePicker
@@ -45,29 +65,12 @@ const XDateRangerSearch: React.FC<Props> = ({
         onPress={onSearch}
         activeOpacity={0.7}
       >
-        <XIcon name="search" width={24} height={24} color="#fff" />
+        <XIcon name="search" width={24} height={24} color={theme.colors.white} />
       </TouchableOpacity>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'flex-end',
-  },
-  datePicker: {
-    flex: 1,
-  },
-  searchBtn: {
-    height: 40,
-    width: 40,
-    borderRadius: 8,
-    backgroundColor: '#2563eb',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+
 
 export default XDateRangerSearch; 

@@ -348,7 +348,7 @@ export default function CreateAppointmentScreen() {
             
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                    <XIcon name="date" width={16} height={16} />
+                    <XIcon name="date" width={16} height={16} color={theme.colors.primaryMain} />
                     <XText variant="titleRegular">Date</XText>
                 </View>
                 <XDatePicker
@@ -371,7 +371,7 @@ export default function CreateAppointmentScreen() {
         return (
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                    <XIcon name="time" width={16} height={16} />
+                    <XIcon name="time" width={16} height={16} color={theme.colors.primaryMain}/>
                     <XText variant="titleRegular">Time</XText>
                 </View>
                 <XDatePicker containerStyle = {{backgroundColor: theme.colors.blackOpacity10, borderColor: 'transparent'}}
@@ -389,7 +389,7 @@ export default function CreateAppointmentScreen() {
         return (
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                    <XIcon name="menu" width={16} height={16} />
+                    <XIcon name="menu" width={16} height={16} color={theme.colors.primaryMain} />
                     <XText variant="titleRegular">Service</XText>
                 </View>
                 <View style={{ width: '40%' }}>
@@ -476,7 +476,10 @@ export default function CreateAppointmentScreen() {
                     >
                         <XInput value={e?.service?.name} editable={false} 
                             placeholder="Add Service" pointerEvents="none" 
-                            iconRight= {e.service ? "closeCircle" : "addCircle"}
+                            iconRight= {
+                                e.service 
+                                ? "closeCircle" 
+                                : <XIcon name="addCircle" height={20} width={20} color={theme.colors.primaryMain}></XIcon>}
                             onIconRightPress={()=>{
                                 if(e.service) {
                                     useCreateAppointmentStore.setState({
@@ -539,7 +542,9 @@ export default function CreateAppointmentScreen() {
             }}>
                 <XInput value={e?.service?.name} editable={false} 
                     placeholder="Add Service" pointerEvents="none" 
-                    iconRight= {e.service ? "closeCircle" : "addCircle"}
+                    iconRight= {e.service 
+                        ? "closeCircle" 
+                        : <XIcon name="addCircle" height={20} width={20} color={theme.colors.primaryMain}></XIcon>}
                     onIconRightPress={()=>{
                         if(e.service) {
                             useCreateAppointmentStore.setState({

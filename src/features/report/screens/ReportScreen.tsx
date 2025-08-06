@@ -86,11 +86,11 @@ export default function  TicketScreen() {
                   <XText variant="bodyRegular">{getDisplayName(item)}</XText>
 
                   <View style = {{flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm}}>
-                    <XIcon name = 'clockIn' width={16} height={16}  />
+                    <XIcon name = 'clockIn' width={16} height={16} color={theme.colors.primaryMain}  />
                     <XText variant="bodyLight">{getClockIn(item)}</XText>
                   </View>
                   <View style = {{flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm}}>
-                    <XIcon name = 'clockOut' width={16} height={16} />
+                    <XIcon name = 'clockOut' width={16} height={16} color={theme.colors.primaryMain}/>
                     <XText variant="bodyLight">{getClockOut(item)}</XText>
                   </View>
                 </View>
@@ -103,7 +103,7 @@ export default function  TicketScreen() {
       batchHistory: () => (
         reportBatchHistory.length > 0 ? (
           <View style={{flex: 1, flexDirection: 'column', paddingTop: theme.spacing.sm}}>
-            <View style={{backgroundColor: "#1D62D812", flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md, ...theme.shadows.sm}}>
+            <View style={{backgroundColor: theme.colors.primaryOpacity5, flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md, ...theme.shadows.sm}}>
               <XText variant="bodyRegular" style={{flex: 3}}>Batch Date</XText>
               <XText variant="bodyRegular" style={{flex: 1}}>Count</XText>
               <XText variant="bodyRegular" style={{flex: 1}}>Return</XText>

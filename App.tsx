@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 import AppNavigator from './src/app/AppNavigator';
 import { StatusBar, StyleSheet, useColorScheme, View, Alert, Platform } from 'react-native';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
-import { ThemeProvider } from './src/shared/theme';
+import { pinkTheme, ThemeProvider } from './src/shared/theme';
 import './src/shared/utils/extensions';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
