@@ -27,7 +27,12 @@ export default function HomeScreen() {
     isLoadingChart, 
     toggleSwitch, 
     json, 
-    chartDisplayData, selectedStore, notificationCount, setNotificationCount } = useHomeStore(
+    chartDisplayData, 
+    selectedStore, 
+    notificationCount, 
+    setNotificationCount,
+    getCompanyProfile
+   } = useHomeStore(
     useShallow((state) => ({
       homeData: homeSelectors.selectHomeData(state),
       isLoading: homeSelectors.selectIsLoading(state),
@@ -42,6 +47,7 @@ export default function HomeScreen() {
       selectedStore: homeSelectors.selectSelectedStore(state),
       notificationCount: homeSelectors.selectNotificationCount(state),
       setNotificationCount: homeSelectors.selectSetNotificationCount(state),
+      getCompanyProfile: homeSelectors.selectGetCompanyProfile(state)
     }))
   );
   const fetchEmployees = useEmployeeStore(employeeSelectors.selectFetchEmployees);
@@ -83,6 +89,7 @@ export default function HomeScreen() {
   
   const loadData = async () => {
     fetchEmployees();
+    getCompanyProfile();
     await getHomeData();
     getChartData().then((result) => {
       if(isSuccess(result)) {

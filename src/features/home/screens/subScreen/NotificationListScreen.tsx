@@ -8,6 +8,8 @@ import XAlert from '@/shared/components/XAlert';
 import XDialog from '@/shared/components/XDialog';
 import XNoDataView from '@/shared/components/XNoDataView';
 import XText from '@/shared/components/XText';
+import { homeSelectors, useHomeStore } from '../../stores/homeStore';
+import { useShallow } from 'zustand/react/shallow';
 const NotificationListScreen = () => {
   const theme =  useTheme() ;
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -41,6 +43,15 @@ const NotificationListScreen = () => {
     // alert(JSON.stringify(item, null, 2));
   };
 
+
+  const mapRetendType: Record<string, string> = {
+    'Misc': useHomeStore.getState().companyProfile?.data.posTheme.miscBackColor ?? "",
+    'NewCustomer': useHomeStore.getState().companyProfile?.data.posTheme.newCustomerBackColor ?? "",
+    'Request': useHomeStore.getState().companyProfile?.data.posTheme.heldOnBackColor ?? "",
+    'NonRequest': useHomeStore.getState().companyProfile?.data.posTheme.nonRequestBackColor ?? "",
+    'WalkIn': useHomeStore.getState().companyProfile?.data.posTheme.walkinBackColor ?? "",
+    'Online': useHomeStore.getState().companyProfile?.data.posTheme.onlineBackColor ?? ""
+  }; 
   const renderItem = ({ item }: { item: NotificationItem }) =>{ 
     const listServiceData = item.data.service.split('##')
     const listMess = item.message.split("booked")
@@ -52,8 +63,12 @@ const NotificationListScreen = () => {
         }]}
         onPress={() => handlePress(item)}
       >
-        <View style={{flexDirection:"row", justifyContent:"space-between"}}>
-          <XText variant='titleMedium' color={theme.colors.gray800}>{item.title}</XText>
+        <View style={{flexDirection:"row", justifyContent:"space-between", marginBottom: theme.spacing.xs}}>
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+            <View style={{height:12, width:12, borderRadius:10, backgroundColor: mapRetendType[item.data.retentionType]}}></View>
+            <XText variant='titleMedium' color={theme.colors.gray800}>{item.title}</XText>
+          
+          </View>
           <XText variant='captionLight' color={theme.colors.gray700}>{new Date(item.receivedAt).toMMDD()}</XText>
         </View>
         <XText variant='bodyRegular'>

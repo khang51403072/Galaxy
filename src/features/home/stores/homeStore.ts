@@ -46,6 +46,8 @@ export const homeSelectors = {
     selectSetSelectedStore: (state: homeState) => state.setSelectedStore,
     selectNotificationCount: (state: homeState) => state.notificationCount,
     selectSetNotificationCount: (state: homeState) => state.setNotificationCount,
+    selectGetCompanyProfile: (state: homeState) => state.getCompanyProfile,
+    selectCompanyProfile: (state: homeState)=> state.companyProfile
 }
 const appointmentRepository = new AppointmentRepositoryImplement();
 const appointmentUsecase = new AppointmentUsecase(appointmentRepository);
