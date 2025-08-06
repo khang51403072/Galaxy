@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import XText from './XText';
 import XIcon from './XIcon';
 import useSignalRStore from '@/shared/stores/signalRStore';
-import { lightColors as colors } from '@/shared/theme/colors';
+import { lightColors as colors } from '@/shared/theme/colors/colors';
 
 interface SignalRStatusIndicatorProps {
   showDetails?: boolean;

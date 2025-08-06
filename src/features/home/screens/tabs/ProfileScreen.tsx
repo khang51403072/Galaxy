@@ -184,6 +184,15 @@ export default function ProfileScreen() {
         <RowInfo titleLeft="Income" titleRight={getFormattedIncome() || ''} />
         <RowInfo titleLeft="Store" titleRight={profile?.storeName || ''} />
         <XDivider />
+        <TitleGroup 
+          titleIcon="Change" 
+          title="Theme" 
+          icon="pen" 
+          onPress={() => {
+            navigate(ROUTES.CHANGE_THEME)}}
+          type="edit" 
+        />
+        <XDivider />
         <TitleGroup isShowTooltip={showTooltip} onCloseTooltip={
           () => setShowTooltip(false)} title="Sign In With Face ID" 
           onPress={() => {}} 
