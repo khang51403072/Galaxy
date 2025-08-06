@@ -20,6 +20,7 @@ import AddCustomerScreen from '@/features/appointment/components/AddCustomerScre
 import HomeScreen from '@/features/home/screens/tabs/HomeScreen';
 import ProfileScreen from '@/features/home/screens/tabs/ProfileScreen';
 import SwitchStoreScreen from '@/features/home/screens/subScreen/SwitchStoreScreen';
+import ChangeThemeScreen from '@/features/home/screens/subScreen/ChangeThemeScreen';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -45,6 +46,7 @@ export default function AppNavigator() {
         <Stack.Screen name={ROUTES.DASHBOARD} component={HomeScreen} />
         <Stack.Screen name={ROUTES.PROFILE} component={ProfileScreen} />   
         <Stack.Screen name={ROUTES.SWITCH_STORE} component={SwitchStoreScreen} />
+        <Stack.Screen name={ROUTES.CHANGE_THEME} component={ChangeThemeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

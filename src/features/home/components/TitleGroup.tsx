@@ -43,7 +43,7 @@ export default function TitleGroup({
       <XText variant="titleMedium">{title}</XText>
 
       {type === 'edit' && titleIcon && (
-        <ActionGroup title={titleIcon} icon={icon} onPress={onPress!} />
+        <ActionGroup  title={titleIcon} icon={icon} onPress={onPress!} />
       )}
 
       {type === 'switch' && (

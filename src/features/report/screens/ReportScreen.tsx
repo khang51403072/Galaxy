@@ -86,11 +86,11 @@ export default function  TicketScreen() {
                   <XText variant="bodyRegular">{getDisplayName(item)}</XText>
 
                   <View style = {{flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm}}>
-                    <XIcon name = 'clockIn' width={16} height={16}  />
+                    <XIcon name = 'clockIn' width={16} height={16} color={theme.colors.primaryMain}  />
                     <XText variant="bodyLight">{getClockIn(item)}</XText>
                   </View>
                   <View style = {{flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm}}>
-                    <XIcon name = 'clockOut' width={16} height={16} />
+                    <XIcon name = 'clockOut' width={16} height={16} color={theme.colors.primaryMain}/>
                     <XText variant="bodyLight">{getClockOut(item)}</XText>
                   </View>
                 </View>

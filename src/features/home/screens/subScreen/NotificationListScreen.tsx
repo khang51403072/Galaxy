@@ -84,7 +84,7 @@ const NotificationListScreen = () => {
   const readAllIcon = <TouchableOpacity onPress={()=>{
     setShowAlert(true);
   }}>
-    <XIcon name="readAll" width={theme.spacing.lg} height={theme.spacing.lg} />
+    <XIcon color={theme.colors.primaryMain} name="readAll" width={theme.spacing.lg} height={theme.spacing.lg} />
   </TouchableOpacity>
 
   return (

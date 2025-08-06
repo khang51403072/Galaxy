@@ -10,7 +10,9 @@ import { CustomerEntity } from '../types/CustomerResponse';
 import { goBack, navigate } from '@/app/NavigationService';
 import { appointmentSelectors, createAppointmentStore, useAppointmentStore } from '../stores/appointmentStore';
 import { ROUTES } from '@/app/routes';
+import { useTheme } from '@/shared/theme';
 export default function SelectCustomerScreen() {
+  const theme = useTheme();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +66,7 @@ export default function SelectCustomerScreen() {
       <TouchableOpacity onPress={()=>{
         navigate(ROUTES.CREATE_CUSTOMER as never);
       }}>
-      <XIcon name="userPlus" width={24} height={24} />
+      <XIcon name="userPlus" width={24} height={24} color={theme.colors.primaryMain}  />
       </TouchableOpacity>
     }>
       <View style={{ paddingTop: 8 }}>

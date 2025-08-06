@@ -19,6 +19,7 @@ export const ROUTES = {
     CREATE_CUSTOMER: 'CreateCustomer',
     DASHBOARD: 'Dashboard',
     SWITCH_STORE: 'SwitchStore',
+    CHANGE_THEME: 'ChangeTheme',
     // Thêm các route khác ở đây
   } as const;
   
@@ -43,6 +44,7 @@ export const ROUTES = {
     [ROUTES.CREATE_CUSTOMER]: undefined;
     [ROUTES.DASHBOARD]: undefined;
     [ROUTES.SWITCH_STORE]: undefined;
+    [ROUTES.CHANGE_THEME]: undefined;
     // Thêm params cho các route khác nếu cần
   };
   
