@@ -15,8 +15,7 @@ export const lightColors = {
   primaryLight: '#2578EB',
   primaryOpacity25: '#1D62D840',
   primaryGradient: ['#3B96F6', '#1D62D8'],
-  splashScreen: ['#F0879E', '#EC6986'],
-
+  splashScreen: ['#2578EB', '#1E4FAF'],
   
   primaryOpacity50: '#1D62D880',
   primaryDark: '#1E4FAF',
@@ -118,7 +117,7 @@ export const darkColors = {
   primaryOpacity25: '#1D62D840',
   primaryOpacity5: '#1D62D80D',
   primaryGradient: ['#3B96F6', '#1D62D8'],
-  splashScreen: ['#F0879E', '#EC6986'],
+  splashScreen: ['#2578EB', '#1E4FAF'],
   // Secondary Colors
   secondary: '#1CD8D9',
   secondaryOpacity5: '#1CD8D90D',

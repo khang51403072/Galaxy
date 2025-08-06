@@ -34,7 +34,10 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   icon: { marginRight: 8 },
   title: {...theme.typography.headingMedium, color: theme.colors.gray800 },
-  closeBtn: { padding: 4 },
+  closeBtn: { padding: 4 ,position: 'absolute',
+    right: 2,
+    top: 0,
+  },
   message: { ...theme.typography.bodyLight, color: theme.colors.gray800},
   link: { color: theme.colors.primaryMain, ...theme.typography.captionRegular },
 });
