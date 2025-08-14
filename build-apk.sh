@@ -101,7 +101,7 @@ print_info "Step 4: Building Android APK..."
 cd android
 
 # Determine the variant name
-VARIANT_NAME="${ENVIRONMENT}${BUILD_TYPE^}"  # Capitalize first letter
+VARIANT_NAME="${ENVIRONMENT}${BUILD_TYPE}"  # Capitalize first letter
 TASK_NAME="assemble${VARIANT_NAME}"
 
 print_info "Building variant: $VARIANT_NAME"
