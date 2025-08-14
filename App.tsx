@@ -23,6 +23,7 @@ import { ROUTES } from '@/app/routes';
 import { XAlertProvider } from '@/shared/components/XAlertContext';
 import { SignalRService } from '@/core/network';
 import useSignalRStore from '@/shared/stores/signalRStore';
+import { helloKota } from '@kang/kota';
 
 
 function App() {
@@ -43,7 +44,7 @@ function App() {
   }, [initializeSignalR]);
 
   const isDarkMode = useColorScheme() === 'dark';
-
+  helloKota();
   return (
     <GestureHandlerRootView>
       <BottomSheetModalProvider>

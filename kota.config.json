@@ -1,0 +1,5 @@
+{
+  "repo": "git@github.com:khang51403072/GalaxyMeOTA.git",
+  "branch": "main",
+  "outputDir": "ota_builds"
+}

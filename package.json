@@ -2,6 +2,10 @@
   "name": "GalaxyMe2.0",
   "version": "01.0.1",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
@@ -20,11 +24,14 @@
     "build:all": "npm run build:dev && npm run build:staging && npm run build:prod",
     "env:dev": "cp src/config/environments/development.ts src/config/environment.ts",
     "env:staging": "cp src/config/environments/staging.ts src/config/environment.ts",
-    "env:prod": "cp src/config/environments/production.ts src/config/environment.ts"
+    "env:prod": "cp src/config/environments/production.ts src/config/environment.ts",
+    "kota:publish:android": "node packages/kota/src/publish/publishApp.js android",
+    "kota:publish:ios": "node packages/kota/src/publish/publishApp.js ios"
   },
   "dependencies": {
     "@expo/react-native-action-sheet": "^4.1.1",
     "@gorhom/bottom-sheet": "^5.1.6",
+    "@kang/kota": "file:./packages/kota",
     "@microsoft/signalr": "^8.0.7",
     "@react-native-async-storage/async-storage": "^1.24.0",
     "@react-native-firebase/app": "^22.4.0",
@@ -64,7 +71,7 @@
     "react-native-walkthrough-tooltip": "^1.6.0",
     "react-native-webview": "^13.15.0",
     "sb": "^9.0.13",
-    "uuid": "^11.1.0",
+    "uuid": "^8.3.2",
     "zustand": "^5.0.5"
   },
   "devDependencies": {
