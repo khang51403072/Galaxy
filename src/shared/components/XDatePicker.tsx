@@ -197,6 +197,8 @@ export function XDatePicker({
             // />
             <DateTimePicker
               mode="single"
+              initialView='time'
+              use12Hours= {true}
               date={temp}
               timePicker={true}
               onChange={({ date }) =>  {
@@ -205,7 +207,7 @@ export function XDatePicker({
               }}
               styles={{
                 ...defaultStyles,
-               
+                
                 day: {
                   ...defaultStyles.day,
                 },
@@ -230,22 +232,30 @@ export function XDatePicker({
                   ...defaultStyles.header,
                   backgroundColor: theme.colors.primaryMain,
                 },
+                time_label: {
+                  ...defaultStyles.time_label,
+                  color: theme.colors.primaryLight
+                },
                 
-                
+                time_selected_indicator: {
+                  ...defaultStyles.time_selected_indicator,
+                  backgroundColor: theme.colors.primaryMain,
+
+                },
+                time_selector: {
+                  ...defaultStyles.time_selector,
+                  backgroundColor: theme.colors.primaryMain,
+                },
+                time_selector_label: {
+                  ...defaultStyles.time_selector_label,
+                  color: theme.colors.white
+                  
+                }
 
               }}
             />
           )}
-          {mode==='datetime' && (
-            <View style={styles.actions}>
-              <TouchableOpacity onPress={()=>setShow(false)} style={styles.btn}>
-                <Text>Huỷ</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={confirm} style={styles.btn}>
-                <Text>Xác nhận</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          
         </View>
       </Popover>}
     </>
