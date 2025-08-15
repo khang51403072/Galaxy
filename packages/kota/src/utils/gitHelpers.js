@@ -1,21 +1,48 @@
-const { execSync } = require('child_process');
+const { spawn } = require('child_process');
+const chalk = require('chalk');
+const fs = require('fs');
+const path = require('path');
 
-function runCommand(cmd) {
-  console.log(`\x1b[36m[CMD]\x1b[0m ${cmd}`);
-  execSync(cmd, { stdio: 'inherit' });
+function ensureLogDir() {
+  const logDir = path.join(process.cwd(), 'logs');
+  if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
+  return logDir;
+}
+
+function runCommandSilent(cmd, args, cwd, logFileName) {
+  return new Promise((resolve, reject) => {
+    const logDir = ensureLogDir();
+    const logFilePath = path.join(logDir, logFileName);
+    fs.writeFileSync(logFilePath, ''); // reset log
+
+    const child = spawn(cmd, args, { cwd});
+
+    child.stdout.on('data', data => fs.appendFileSync(logFilePath, data));
+    child.stderr.on('data', data => fs.appendFileSync(logFilePath, data));
+
+    child.on('close', code => {
+      if (code === 0) {
+        resolve(logFilePath);
+      } else {
+        reject({ code, logFilePath, cmd: `${cmd} ${args.join(' ')}` });
+      }
+    });
+  });
 }
 
 function gitCloneOrPull(repo, branch, targetDir) {
-  const fs = require('fs');
-  if (!fs.existsSync(targetDir)) {
-    runCommand(`git clone -b ${branch} ${repo} ${targetDir}`);
-  } else {
-    runCommand(`cd ${targetDir} && git pull origin ${branch}`);
+  if (fs.existsSync(targetDir)) {
+    return runCommandSilent('git', ['pull', 'origin', branch], targetDir, 'git.log');
   }
+  return runCommandSilent('git', ['clone', '-b', branch, repo, targetDir], process.cwd(), 'git.log');
 }
 
 function gitCommitAndPush(dir, message) {
-  runCommand(`cd ${dir} && git add . && git commit -m "${message}" && git push`);
+    const safeMessage = message.replace(/'/g, "'\\''"); // escape dấu nháy đơn
+
+  return runCommandSilent('git', ['add', '.'], dir, 'git.log')
+    .then(() => runCommandSilent('git', ['commit', '-m', safeMessage], dir, 'git.log'))
+    .then(() => runCommandSilent('git', ['push'], dir, 'git.log'));
 }
 
-module.exports = { runCommand, gitCloneOrPull, gitCommitAndPush };
+module.exports = { runCommandSilent, gitCloneOrPull, gitCommitAndPush };

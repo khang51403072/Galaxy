@@ -190,7 +190,7 @@ const useAnotherUser =
 
   const appName = 
   <XText variant="h1" style={{ textAlign: 'center', marginBottom: 20 }}>
-    GALAXY ME
+    GALAXY MEE
   </XText>
 
   const loginForm = 

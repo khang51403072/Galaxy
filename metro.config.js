@@ -1,12 +1,14 @@
 // metro.config.js (project root)
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
-
+const exclusionList = require('metro-config/src/defaults/exclusionList');
+const path = require("path");
 module.exports = (async () => {
   const defaultConfig = await getDefaultConfig(__dirname);
   const { assetExts, sourceExts } = defaultConfig.resolver;
-  const path = require("path");
+  
   const projectRoot = __dirname;
   const workspaceRoot = path.resolve(projectRoot, "../..");
+
   return mergeConfig(defaultConfig, {
     transformer: {
       babelTransformerPath: require.resolve('react-native-svg-transformer'),
@@ -26,6 +28,9 @@ module.exports = (async () => {
         path.resolve(projectRoot, 'node_modules'),path.resolve(workspaceRoot, 'node_modules'),
       ],
       disableHierarchicalLookup: true,
+      blacklistRE: exclusionList([
+      /packages\/kota\/bin\/.*/,
+    ]),
     },
     
   });
