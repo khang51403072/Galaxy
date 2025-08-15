@@ -7,8 +7,9 @@
 
 // Import polyfill for React Native URL compatibility - must be imported first
 import 'react-native-url-polyfill/auto';
+import { AppState, AppStateStatus } from 'react-native';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import AppNavigator from './src/app/AppNavigator';
 import { StatusBar, StyleSheet, useColorScheme, View, Alert, Platform } from 'react-native';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
@@ -23,13 +24,13 @@ import { ROUTES } from '@/app/routes';
 import { XAlertProvider } from '@/shared/components/XAlertContext';
 import { SignalRService } from '@/core/network';
 import useSignalRStore from '@/shared/stores/signalRStore';
-import { helloKota, initOTA } from '@kang/kota';
+import { initOTA } from '@kang/kota';
 
 
 function App() {
   const [notify, setNotify] = useState<{title: string, message: string}|null>(null);
   const { initialize: initializeSignalR } = useSignalRStore();
-  
+  const appState = useRef(AppState.currentState);
   useEffect(() => {
     initFirebaseNotificationService(setNotify);
     
@@ -38,14 +39,23 @@ function App() {
       console.error('Failed to initialize SignalR:', error);
     });
     
+    const subscription = AppState.addEventListener('change', async (nextAppState: AppStateStatus) => {
+      // Khi app chuyển từ background -> active
+      if (appState.current.match(/inactive|background|stop/) && nextAppState === 'active') {
+        console.log("🔄 App resumed - checking for OTA update...");
+        await initOTA('GalaxyMe', App, '1.0.0', '100');
+      }
+      appState.current = nextAppState;
+    });
+
     return () => {
       removeFirebaseNotificationListener();
+       subscription.remove();
     };
   }, [initializeSignalR]);
 
   const isDarkMode = useColorScheme() === 'dark';
-  helloKota();
-  initOTA('GalaxyMe', App, '1.0.0', '100');
+  
 
   return (
     <GestureHandlerRootView>
