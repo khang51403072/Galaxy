@@ -23,7 +23,7 @@ import { ROUTES } from '@/app/routes';
 import { XAlertProvider } from '@/shared/components/XAlertContext';
 import { SignalRService } from '@/core/network';
 import useSignalRStore from '@/shared/stores/signalRStore';
-import { helloKota } from '@kang/kota';
+import { helloKota, initOTA } from '@kang/kota';
 
 
 function App() {
@@ -45,6 +45,8 @@ function App() {
 
   const isDarkMode = useColorScheme() === 'dark';
   helloKota();
+  initOTA('GalaxyMe', App, '1.0.0', '100');
+
   return (
     <GestureHandlerRootView>
       <BottomSheetModalProvider>
