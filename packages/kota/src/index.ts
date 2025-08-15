@@ -11,7 +11,3 @@ export async function initOTA(appName:string, App:any, currentVersion:string, cu
     AppRegistry.registerComponent(appName, () => App);
   }
 }
-export function helloKota() {
-  console.log("🚀 KOTA lib is running!");
-  return "Hello from KOTA";
-}
