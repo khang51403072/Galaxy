@@ -22,10 +22,13 @@ export async function checkAndUpdateBundle(currentVersion:string, currentVersion
       (latestInfo.version === currentVersion &&
         parseInt(latestInfo.versionCode) > parseInt(currentVersionCode));
 
+     
+
+    console.log("isNewVersion",isNewVersion, parseInt(latestInfo.versionCode) ,parseInt(currentVersionCode))
     if (isNewVersion && latestInfo.type === 'bundle') {
       console.log('[OTA] Found new bundle:', latestInfo);
 
-      const success = await downloadFile(latestInfo.url, BUNDLE_FILE);
+      const success = await downloadFile(latestInfo.bundleLink, BUNDLE_FILE);
       if (success) {
         console.log('[OTA] Bundle updated successfully:', BUNDLE_FILE);
         return true;
