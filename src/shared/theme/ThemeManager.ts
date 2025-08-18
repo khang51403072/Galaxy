@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { lightTheme, darkTheme, pinkTheme, Theme } from './ThemeProvider';
+import { lightTheme, darkTheme, pinkTheme, greenTheme, Theme } from './ThemeProvider';
 
 // Theme types
-export type ThemeType = 'light' | 'pink';
+export type ThemeType = 'light' | 'pink' | 'green';
 
 // Theme configuration
 export const THEMES = {
@@ -18,6 +18,13 @@ export const THEMES = {
     name: 'Pink',
     theme: pinkTheme,
     previewColor: '#EC6986'
+  },
+  
+  green: {
+    id: 'green',
+    name: 'Green',
+    theme: greenTheme,
+    previewColor: '#84AB6A'
   }
 } as const;
 
@@ -65,4 +72,4 @@ export const loadThemeSelection = async (): Promise<ThemeType> => {
 export const getCurrentTheme = async (): Promise<Theme> => {
   const themeId = await loadThemeSelection();
   return getThemeById(themeId);
-}; 
+};
