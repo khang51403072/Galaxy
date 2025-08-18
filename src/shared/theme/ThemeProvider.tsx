@@ -6,6 +6,7 @@ import { borderRadius, BorderRadius } from './borderRadius';
 import { typography, Typography } from './typography';
 import { shadows, Shadows } from './shadows';
 import { pinkColors } from './colors/pinkColors';
+import { greenColors } from './colors/greenColors';
 import { ThemeType, getCurrentTheme, saveThemeSelection, getThemeById } from './ThemeManager';
 
 // Theme interface
@@ -18,7 +19,7 @@ export interface Theme {
   isDark: boolean;
 }
 
-// Create light and dark themes
+// Create light, dark, pink and green themes
 export const lightTheme: Theme = {
   colors: lightColors,
   spacing,
@@ -39,6 +40,15 @@ export const darkTheme: Theme = {
 
 export const pinkTheme: Theme = {
   colors: pinkColors,
+  spacing,
+  borderRadius,
+  typography,
+  shadows,
+  isDark: true,
+};
+
+export const greenTheme: Theme = {
+  colors: greenColors,
   spacing,
   borderRadius,
   typography,
@@ -71,8 +81,10 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       const savedTheme = await getCurrentTheme();
       setCurrentTheme(savedTheme);
       // Determine theme ID from saved theme
-     if (savedTheme === pinkTheme) {
+      if (savedTheme === pinkTheme) {
         setCurrentThemeId('pink');
+      } else if (savedTheme === greenTheme) {
+        setCurrentThemeId('green');
       } else {
         setCurrentThemeId('light');
       }
@@ -117,4 +129,4 @@ export function useThemeContext(): ThemeContextType {
 export function useAppColorScheme(): 'light' | 'dark' {
   const theme = useTheme();
   return theme.isDark ? 'dark' : 'light';
-} 
+}
