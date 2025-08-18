@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useAuthStore } from '../stores/authStore';
 import XIcon from '../../../shared/components/XIcon';
 import XScreen from '../../../shared/components/XScreen';
@@ -14,6 +14,7 @@ import { checkBiometricAvailable, simpleBiometricAuth } from '../../../shared/se
 import { reset } from '@/app/NavigationService';
 import { appConfig } from '@/shared/utils/appConfig';
 import XDialog from '@/shared/components/XDialog';
+import { ImageBackground } from 'react-native';
 
 export default function LoginScreen() {
   const { login, isLoading, error } = useAuthStore();
@@ -24,6 +25,29 @@ export default function LoginScreen() {
   const [fullName, setFullName] = useState('');
   const [avatarUri, setAvatarUri] = useState(null);
   const [isShowDialog, setIsShowDialog] = useState(false);
+  const styles = useMemo(
+    ()=> StyleSheet.create({
+       imageBackground: {
+        width: '100%',
+        height: '100%',
+        alignSelf: 'center',
+        marginBottom: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+    }),[]
+  )
+  const imageBackground = useMemo(()=> <ImageBackground
+    source={{
+      uri: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop'
+    }}
+    style={styles.imageBackground}
+    resizeMode="cover"
+  >
+         
+  </ImageBackground>,[]
+
+)
   const fields: XFormField[] = [
     {
       name: 'username',
@@ -197,7 +221,7 @@ const useAnotherUser =
   <XForm 
     fields={fields} 
     style={{width: '100%', gap: theme.spacing.md, 
-      backgroundColor: theme.colors.white}} 
+      backgroundColor: 'transparent'}} 
     onSubmit={(values)=>{
       setDefaultValues(values);
       handleLogin(values);
@@ -211,10 +235,14 @@ const useAnotherUser =
     <XScreen
       keyboardAvoiding={false}
       dismissKeyboard={true}
-      backgroundColor={theme.colors.white}
+      backgroundColor={'transparent'}
       loading={isLoading}
       error={error}
+      imgBackgroundPath={require('../../../shared/assets/images/background.png')}
     >
+      
+
+
       {/* <LoginForm onSubmit={handleLogin} loading={isLoading} /> */}
       <View style={{ 
         alignItems: 'center', 
@@ -230,7 +258,7 @@ const useAnotherUser =
         {fullName!='' && isShowBiometric && faceIdLoginButton}
         {fullName!='' && useAnotherUser}
       </View>  
-      {backgroundLogo}
+      {/* {backgroundLogo} */}
       <XDialog
       onCancel={()=>{
         setIsShowDialog(false);

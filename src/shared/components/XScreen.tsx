@@ -39,7 +39,7 @@
  * Author: [Khangnt]
  * Last updated: [2025.07.16]
  */
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import {
   View,
   ScrollView,
@@ -60,6 +60,7 @@ import XAppBar from './XAppBar';
 import XAlert from './XAlert';
 import { XSkeleton } from './XSkeleton';
 import LoadingAnimation from './LoadingAnimation';
+import { ImageBackground } from 'react-native';
 
 interface XScreenProps {
   children: ReactNode;
@@ -84,6 +85,7 @@ interface XScreenProps {
   rightIcon?: ReactNode;
   haveBottomTabBar?: boolean;
   onBackPress?: () => void;
+  imgBackgroundPath?: any
 }
 
 
@@ -110,6 +112,7 @@ export default function XScreen({
   rightIcon,
   haveBottomTabBar = false,
   onBackPress,
+  imgBackgroundPath
 }: XScreenProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -117,11 +120,19 @@ export default function XScreen({
   const screenPadding = padding ?? theme.spacing.md;
   const screenPaddingHorizontal = paddingHorizontal ?? screenPadding;
   const screenPaddingVertical = paddingVertical ?? screenPadding;
-  const styles = StyleSheet.create({
+  const styles = 
+  useMemo(() => 
+  StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
     },
+    imageBackground: {
+        width: '100%',
+        height: '100%',
+        alignSelf: 'center',
+      
+      },
     content: {
       flex: 1,
       
@@ -148,7 +159,7 @@ export default function XScreen({
       alignItems: 'center',
       padding: 16,
     },
-  }); 
+  }),[theme]); 
   // Loading screen (skeleton or spinner)
   if (loading) {
     if (skeleton) {
@@ -231,21 +242,41 @@ export default function XScreen({
       </KeyboardAvoidingView>
     );
   }
+
+  
   return (
-    <View
-      style={[
-        styles.container,
-      ]}
-    >
-      <XAppBar
+    imgBackgroundPath?
+    <ImageBackground style={styles.imageBackground} 
+          source={
+            imgBackgroundPath
+          }
+      >
+        <XAppBar
           title={title ?? ""}
           showBack={true}
          
           rightIcon={rightIcon}
           safeArea={safeArea}
           onBackPress={onBackPress}
-      />
-      {content}
+        />
+        {content}        
+      </ImageBackground>
+    :
+
+    <View
+      style={[
+        styles.container,
+      ]}
+    > 
+       <XAppBar
+          title={title ?? ""}
+          showBack={true}
+         
+          rightIcon={rightIcon}
+          safeArea={safeArea}
+          onBackPress={onBackPress}
+        />
+        {content}    
       {footer && <View style={styles.footer}>{footer}</View>}
     </View>
   );
