@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { ApptRes, ApptResResponse, Hour, WorkHours } from '../types/ApptResResponse';
 import { failure, isSuccess, Result, success } from '../../../shared/types/Result';
@@ -23,6 +24,14 @@ export type BookingServiceEntity = {
   technician?: EmployeeEntity|null
   comboItems?: BookingServiceEntity[]|null
 }
+
+type UpdateBookingParams = {
+  serviceIndex: number;
+  e: MenuItemEntity | EmployeeEntity;
+  type: 'service' | 'technician';
+  comboIndex?: number;
+};
+
 export type CreateAppointmentState = {
   error: string | null;
   isLoading: boolean;
@@ -72,10 +81,12 @@ export type CreateAppointmentState = {
   setComboIndex: (index: number) => void;
   setIsShowTechnician: (value: boolean) => void;
   getIsAllowEdit: ()=> boolean;
-  //
+
   saveAppointment: ()=> Promise<Result<DataAppt, Error>>;
   setIsAllowBookAnyway: (value: boolean)=> void;
-  //
+
+  updateBookingService: (params: UpdateBookingParams) => void;
+  removeBookingService: (index: number) => void;
 };
 
 
@@ -121,6 +132,7 @@ const createAppointmentCreator = (set: any, get:any) => ({
   companyProfile: null,
   listApptResource: [],
   listEmployeeOnWork: [],
+  // ... các hàm khác giữ nguyên ...
   setSelectedDate: (value: Date) => set({ selectedDate: value }),
   setIsConfirmOnline: (value: boolean) => set({ isConfirmOnline: value }),
   setIsGroupAppt: (value: boolean) => set({ isGroupAppointment: value }),
@@ -423,7 +435,76 @@ const createAppointmentCreator = (set: any, get:any) => ({
     }
     
     return false;
-  }
+  },
+  updateBookingService: (params: UpdateBookingParams) => {
+    const { type, e, serviceIndex, comboIndex } = params;
+    const state = get();
+    const { listBookingServices, listItemMenu } = state;
+
+    let newList: BookingServiceEntity[];
+
+    if (type === 'technician') {
+        newList = listBookingServices.map((item: BookingServiceEntity, i: number) => {
+            if (i !== serviceIndex) {
+                return item;
+            }
+
+            if (comboIndex != null && comboIndex > -1 && item.comboItems) {
+                return {
+                    ...item,
+                    comboItems: item.comboItems.map((combo: BookingServiceEntity, j: number) =>
+                        j === comboIndex ? { ...combo, technician: e as EmployeeEntity } : combo
+                    ),
+                };
+            }
+            
+            return { ...item, technician: e as EmployeeEntity };
+        });
+
+        set({
+            listBookingServices: newList,
+            isShowTechnician: false,
+            comboIndex: -1,
+        });
+    } else { // type === 'service'
+        const service = e as MenuItemEntity;
+        const technician = listBookingServices[serviceIndex]?.technician;
+        let comboItems: BookingServiceEntity[] = [];
+
+        if (service.menuItemType === 'ServicePackage') {
+            const mapIds = new Set(service.servicePackageMaps.map(map => map.mapMenuItemId));
+            // FIX: Thêm kiểu dữ liệu cho 'item'
+            comboItems = listItemMenu
+                .filter((item: MenuItemEntity) => mapIds.has(item.id))
+                .map((item: MenuItemEntity) => ({
+                    service: item,
+                    technician: null,
+                }));
+        }
+
+        const newItem: BookingServiceEntity = { service, technician, comboItems };
+
+        if (serviceIndex === listBookingServices.length - 1) {
+            newList = [
+                ...listBookingServices.slice(0, listBookingServices.length - 1),
+                newItem,
+                listBookingServices[listBookingServices.length - 1],
+            ];
+        } else {
+            newList = listBookingServices.map((item: BookingServiceEntity, i: number) => (i === serviceIndex ? newItem : item));
+        }
+
+        set({
+            listBookingServices: newList,
+            showServiceSheet: false,
+        });
+    }
+  },
+  removeBookingService: (index: number) => {
+    set((state: CreateAppointmentState) => ({
+      listBookingServices: state.listBookingServices.filter((_, i) => i !== index),
+    }));
+  },
 });
 
 
@@ -474,8 +555,11 @@ export const createAppointmentSelectors = {
   selectIsShowTechnician: (state: CreateAppointmentState) => state.isShowTechnician,
   selectSetIsShowTechnician: (state: CreateAppointmentState) => state.setIsShowTechnician,
   selectGetIsAllowEdit: (state: CreateAppointmentState) => state.getIsAllowEdit,
+  selectUpdateBookingService: (state: CreateAppointmentState) => state.updateBookingService,
+  selectRemoveBookingService: (state: CreateAppointmentState) => state.removeBookingService,
 }; 
 
+// ... Các hàm helper còn lại giữ nguyên ...
 function validBookings(
   useCreateAppointmentStore: CreateAppointmentState,
   setAlertMessage: (msg: string) => void
