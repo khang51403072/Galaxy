@@ -7,20 +7,85 @@ import XText from "@/shared/components/XText";
 import XIcon from "@/shared/components/XIcon";
 import { useCreateAppointmentStore, createAppointmentSelectors } from "../stores/createAppointmentStore";
 import { useShallow } from "zustand/react/shallow";
-import { useTheme } from "@/shared/theme/ThemeProvider";
+import { useTheme, Theme } from "@/shared/theme/ThemeProvider";
 import { MenuItemEntity } from "../types/MenuItemResponse";
 import { CategoryEntity } from "../types/CategoriesResponse";
 import XNoDataView from "@/shared/components/XNoDataView";
+import { useDebounce } from "@/shared/hooks/useDebounce"; // Import từ file riêng
 
-// simple debounce hook
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-  return debouncedValue;
+// --- Tách thành các component con để tối ưu render ---
+
+interface CategoryItemProps {
+  category: CategoryEntity;
+  isExpanded: boolean;
+  onToggle: (id: string) => void;
 }
+
+const CategoryItem = React.memo(({ category, isExpanded, onToggle }: CategoryItemProps) => {
+  const theme = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+  const handlePress = useCallback(() => onToggle(category.id), [onToggle, category.id]);
+
+  return (
+    <TouchableOpacity
+      onPress={handlePress}
+      style={styles.categoryHeader}
+      accessibilityLabel={`Toggle category ${category.name}, currently ${isExpanded ? 'expanded' : 'collapsed'}`}
+    >
+      <XText variant="bodyRegular">{category.name}</XText>
+      <XIcon 
+        name={isExpanded ? "caretUp" : "caretDown"} 
+        width={22} 
+        height={22} 
+        color={theme.colors.text} 
+      />
+    </TouchableOpacity>
+  );
+});
+
+interface ServiceItemProps {
+  service: MenuItemEntity;
+  onSelect: (item: MenuItemEntity) => void;
+}
+
+const ServiceItem = React.memo(({ service, onSelect }: ServiceItemProps) => {
+  const theme = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+  const handlePress = useCallback(() => onSelect(service), [onSelect, service]);
+
+  return (
+    <TouchableOpacity
+      style={styles.serviceItem}
+      onPress={handlePress}
+      accessibilityLabel={`Select service ${service.name}, price $${service.regularPrice.toFixed(2)}`}
+    >
+      <View style={styles.serviceContent}>
+        <View style={styles.serviceHeader}>
+          <XText 
+            numberOfLines={2} 
+            variant="bodyRegular" 
+            style={styles.serviceName}
+          >
+            {service.name}
+          </XText>
+          <XText 
+            numberOfLines={2} 
+            variant="captionLight" 
+            style={styles.serviceDuration}
+          >
+            {service.duration} mins
+          </XText>
+        </View>
+        <XText variant="bodyLight" style={styles.servicePrice}>
+          ${service.regularPrice.toFixed(2)}
+        </XText>
+      </View>
+    </TouchableOpacity>
+  );
+});
+
+
+// --- Component chính ---
 
 interface SelectServiceScreenProps {
   visible?: boolean;
@@ -31,23 +96,20 @@ interface SelectServiceScreenProps {
 interface FlatListItem {
   type: 'category' | 'service';
   id: string;
-  category?: CategoryEntity;
-  service?: MenuItemEntity;
-  categoryId?: string;
+  data: CategoryEntity | MenuItemEntity;
 }
 
-export default function SelectServiceScreen({ 
+function SelectServiceScreen({ 
   visible = true, 
   onClose = () => {}, 
   onSelect = () => {} 
 }: SelectServiceScreenProps) {
   const theme = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const sheetRef = useRef<BottomSheetType>(null);
   const snapPoints = useMemo(() => ["90%"], []);
   const [searchText, setSearchText] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
-
-  const themedStyles = useMemo(() => styles(theme), [theme]);
 
   const { listCategories, listItemMenu } = useCreateAppointmentStore(
     useShallow((state) => ({
@@ -64,7 +126,6 @@ export default function SelectServiceScreen({
     }
   }, [visible]);
 
-  // debounce search text to avoid filtering on every keystroke
   const debouncedSearch = useDebounce(searchText, 250);
 
   const filteredServices = useMemo(() => {
@@ -74,7 +135,7 @@ export default function SelectServiceScreen({
     );
   }, [debouncedSearch, listItemMenu]);
 
-  const flatListData = useMemo(() => {
+  const flatListData = useMemo((): FlatListItem[] => {
     const safeCategories = Array.isArray(listCategories) ? listCategories : [];
     return safeCategories.flatMap((category) => {
       const categoryServices = filteredServices.filter(
@@ -83,20 +144,18 @@ export default function SelectServiceScreen({
       if (categoryServices.length === 0) return [];
 
       const items: FlatListItem[] = [{
-        type: 'category' as const,
+        type: 'category',
         id: `category-${category.id}`,
-        category,
+        data: category,
       }];
 
       if (expandedCategories[category.id]) {
         items.push(...categoryServices.map((service): FlatListItem => ({
           type: 'service',
           id: `service-${service.id}`,
-          service,
-          categoryId: category.id,
+          data: service,
         })));
       }
-
       return items;
     });
   }, [filteredServices, listCategories, expandedCategories]);
@@ -108,68 +167,23 @@ export default function SelectServiceScreen({
   }, [onSelect, onClose]);
 
   const toggleCategory = useCallback((categoryId: string) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [categoryId]: !prev[categoryId]
-    }));
+    setExpandedCategories(prev => ({ ...prev, [categoryId]: !prev[categoryId] }));
   }, []);
 
   const renderItem = useCallback(({ item }: { item: FlatListItem }) => {
-    if (item.type === 'category' && item.category) {
-      const { category } = item;
-      const isExpanded = expandedCategories[category.id];
+    if (item.type === 'category') {
+      const category = item.data as CategoryEntity;
       return (
-        <TouchableOpacity
-          onPress={() => toggleCategory(category.id)}
-          style={themedStyles.categoryHeader}
-          accessibilityLabel={`Toggle category ${category.name}`}
-        >
-          <XText variant="bodyRegular">{category.name}</XText>
-          <XIcon 
-            name={isExpanded ? "caretUp" : "caretDown"} 
-            width={22} 
-            height={22} 
-            color={theme.colors.text} 
-          />
-        </TouchableOpacity>
+        <CategoryItem
+          category={category}
+          isExpanded={!!expandedCategories[category.id]}
+          onToggle={toggleCategory}
+        />
       );
     }
-
-    if (item.type === 'service' && item.service) {
-      const { service } = item;
-      return (
-        <TouchableOpacity
-          style={themedStyles.serviceItem}
-          onPress={() => handleSelect(service)}
-          accessibilityLabel={`Select service ${service.name}`}
-        >
-          <View style={themedStyles.serviceContent}>
-            <View style={themedStyles.serviceHeader}>
-              <XText 
-                numberOfLines={2} 
-                variant="bodyRegular" 
-                style={themedStyles.serviceName}
-              >
-                {service.name}
-              </XText>
-              <XText 
-                numberOfLines={2} 
-                variant="captionLight" 
-                style={themedStyles.serviceDuration}
-              >
-                {service.duration} mins
-              </XText>
-            </View>
-            <XText variant="bodyLight" style={themedStyles.servicePrice}>
-              ${service.regularPrice.toFixed(2)}
-            </XText>
-          </View>
-        </TouchableOpacity>
-      );
-    }
-
-    return null;
-  }, [expandedCategories, handleSelect, theme, toggleCategory, themedStyles]);
+    // item.type === 'service'
+    return <ServiceItem service={item.data as MenuItemEntity} onSelect={handleSelect} />;
+  }, [expandedCategories, toggleCategory, handleSelect]);
 
   const keyExtractor = (item: FlatListItem) => item.id;
 
@@ -181,49 +195,41 @@ export default function SelectServiceScreen({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <View style={themedStyles.overlay}>
+      <View style={styles.overlay}>
         <BottomSheet
           ref={sheetRef}
           index={0}
           snapPoints={snapPoints}
           onClose={onClose}
           enablePanDownToClose
-          enableDynamicSizing={false}
         >
-          <View style={themedStyles.header}>
-            <XText variant="headingRegular" color={theme.colors.gray800}>
-              Service
-            </XText>
-            <TouchableOpacity onPress={onClose} style={themedStyles.closeButton}>
+          <View style={styles.header}>
+            <XText variant="headingRegular" color={theme.colors.gray800}>Service</XText>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <XIcon name="x" width={10} height={10} color={theme.colors.gray800} />
             </TouchableOpacity>
           </View>
 
-          <View style={themedStyles.searchContainer}>
-            <XInput
-              placeholder="Search..."
-              value={searchText}
-              onChangeText={setSearchText}
-              iconLeft="search"
-              blurOnSubmit={false}
-            />
-          </View>
+          <XInput
+            containerStyle={styles.searchContainer}
+            placeholder="Search..."
+            value={searchText}
+            onChangeText={setSearchText}
+            iconLeft="search"
+            blurOnSubmit={false}
+          />
 
           <BottomSheetFlatList
             data={flatListData}
             keyExtractor={keyExtractor}
             renderItem={renderItem}
-            showsVerticalScrollIndicator
-            nestedScrollEnabled
-            keyboardShouldPersistTaps="handled"
             ListEmptyComponent={<XNoDataView />}
-            style={themedStyles.flatList}
-            contentContainerStyle={themedStyles.contentContainer}
+            contentContainerStyle={styles.contentContainer}
+            keyboardShouldPersistTaps="handled"
             removeClippedSubviews
             maxToRenderPerBatch={10}
             windowSize={10}
             initialNumToRender={15}
-            updateCellsBatchingPeriod={50}
           />
         </BottomSheet>
       </View>
@@ -231,7 +237,10 @@ export default function SelectServiceScreen({
   );
 }
 
-const styles = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
+// Bọc component trong React.memo để tối ưu
+export default React.memo(SelectServiceScreen);
+
+const createStyles = (theme: Theme) => StyleSheet.create({
   overlay: {
     flex: 1, 
     backgroundColor: theme.colors.overlay
@@ -254,9 +263,6 @@ const styles = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
   },
-  flatList: {
-    flex: 1,
-  },
   contentContainer: {
     paddingBottom: 40,
     flexGrow: 1,
@@ -278,12 +284,6 @@ const styles = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
     borderBottomColor: theme.colors.border,
     minHeight: 64,
   },
-  selectedItem: {
-    backgroundColor: theme.colors.primaryOpacity5,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-    minHeight: 64,
-  },
   serviceContent: {
     paddingVertical: 8,
     paddingLeft: 32,
@@ -296,10 +296,10 @@ const styles = (theme: ReturnType<typeof useTheme>) => StyleSheet.create({
     width: '100%',
   },
   serviceName: {
-    width: "80%",
+    flex: 1, 
+    marginRight: 8,
   },
   serviceDuration: {
-    width: "20%", 
     textAlign: "right",
   },
   servicePrice: {

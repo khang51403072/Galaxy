@@ -1,3 +1,5 @@
+import { getDisplayName } from "./AppointmentResponse";
+
 export interface CustomerPayload {
   pageNumber: number;
   pageSize: number;
@@ -111,3 +113,4 @@ export interface CustomerSaveData {
   channels: string;
   uid: string[];
 } 
+
