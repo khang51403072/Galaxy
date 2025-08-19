@@ -29,7 +29,7 @@ export default function XBottomSheetSearch({
   title = "Tìm kiếm"
 }: Props) {
   const sheetRef = useRef<BottomSheetType>(null);
-  const snapPoints = useMemo(() => ['80%'], []);
+  const snapPoints = useMemo(() => ['90%'], []);
   const [searchText, setSearchText] = useState('');
   const [filteredData, setFilteredData] = useState(data);
   const theme = useTheme();
@@ -111,6 +111,8 @@ export default function XBottomSheetSearch({
           snapPoints={snapPoints}
           onClose={onClose}
           enablePanDownToClose
+          enableDynamicSizing={false}
+          handleIndicatorStyle={{ backgroundColor: theme.colors.gray400 }}
         >
           {/* HEADER */}
           <View style={styles.header}>
@@ -141,7 +143,11 @@ export default function XBottomSheetSearch({
               <XNoDataView/>
             }
             style={{ flex: 1 , paddingTop: 16}}
-            contentContainerStyle={{ paddingBottom: 40 }}
+            contentContainerStyle={{ paddingBottom: 40,flexGrow: 1 }}
+            // Thêm props này để tối ưu performance
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={10}
+            windowSize={10}
           />
         </BottomSheet>
       </View>

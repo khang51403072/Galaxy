@@ -17,7 +17,7 @@ const NotificationListScreen = () => {
     container: { flex: 1, backgroundColor: theme.colors.background},
     header: { fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
     item: { padding: 12, borderRadius: 8, backgroundColor: theme.colors.white },
-    unread: { backgroundColor: theme.colors.unselectedNotify },
+    unread: { backgroundColor: theme.colors.primaryOpacity5 },
 
     message: { fontSize: 14, marginTop: 4 },
     time: { fontSize: 12, color: '#888', marginTop: 4 },
