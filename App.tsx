@@ -43,6 +43,7 @@ function App() {
       // Khi app chuyển từ background -> active
       if (appState.current.match(/inactive|background|stop/) && nextAppState === 'active') {
         console.log("🔄 App resumed - checking for OTA update...");
+        if(Platform.OS=='android')
         await initOTA('GalaxyMe', App, '1.0.0', '100');
       }
       appState.current = nextAppState;
@@ -50,7 +51,7 @@ function App() {
 
     return () => {
       removeFirebaseNotificationListener();
-       subscription.remove();
+      subscription.remove();
     };
   }, [initializeSignalR]);
 

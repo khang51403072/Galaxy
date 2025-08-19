@@ -17,6 +17,8 @@ import { appConfig } from '@/shared/utils/appConfig';
 import { employeeSelectors, useEmployeeStore } from '@/shared/stores/employeeStore';
 import BellWithBadge from '../../components/BellWithBadge';
 import { getNotifications } from '@/shared/services/FirebaseNotificationService';
+import XDropdown, { DropdownOption } from '@/shared/components/XDropdown';
+import XInput from '@/shared/components/XInput';
 
 export default function HomeScreen() {
   const { homeData, 
@@ -85,7 +87,7 @@ export default function HomeScreen() {
 
   const buildColorNote = (text: string, color: string)=>{
     return (
-      <View style={{  flexDirection: 'row', alignItems: 'center', width: 100, backgroundColor: 'transparent', borderRadius: 50 }}>
+      <View style={{  flexDirection: 'row', alignItems: 'center',backgroundColor: 'transparent', borderRadius: 50 }}>
         <View style={{ width: 10, height: 10, backgroundColor: color, borderRadius: 50 }}>
         </View>
         <XText variant='captionLight' style={{ color: theme.colors.gray800, marginLeft: theme.spacing.xs }}>
@@ -214,7 +216,41 @@ const tipCard =
     </XText>
   </View>
 
-
+  const dropdownOptions = [
+    "This week",
+    "Last week",
+    "This month",
+    "Last month",
+  ]
+  const chartFilter = ()=>
+  <View style={{ 
+    position: 'absolute',
+    top:theme.spacing.md,
+    right: theme.spacing.sm,
+    width: "35%"
+    }}>
+    <XDropdown style={{width:'100%'}}
+      value={{label: "This week", value: "This week"}}
+      options={dropdownOptions.map((e)=>{return{label: e, value: e}})}
+      onSelect= {()=>{}}
+      
+      renderLabel={(value)=>{
+        return <XInput
+            value={value?.label}
+            onChangeText={() => {}}
+            iconRight="downArrowBlack"
+            editable={false}
+            pointerEvents="none"
+            containerStyle={{backgroundColor: theme.colors.white ,borderColor: theme.colors.blackOpacity10, borderRadius: 12}}
+            textInputStyle={{...theme.typography.captionLight, color: theme.colors.gray700, paddingVertical: theme.spacing.sm, paddingHorizontal: 0 }}
+            
+          />
+          
+      }}
+    >
+    </XDropdown>
+  </View>
+  
 const totalRevenue = 
   <View style={{
     flexDirection: 'column',
@@ -231,10 +267,16 @@ const totalRevenue =
     <XText variant='bodyRegular' style={{ color: theme.colors.gray700 }}>
       Total revenue
     </XText>
-    <View style={{ flexDirection: 'row', alignItems: 'center', width: 100, backgroundColor: 'transparent', borderRadius: 50, marginTop: theme.spacing.xs }}>
+    <View style={{ 
+      gap:10, flexDirection: 'row', 
+      alignItems: 'center',
+      backgroundColor: 'transparent', borderRadius: 50, 
+      marginTop: theme.spacing.xs }}>
       {buildColorNote('Sales', theme.colors.primaryMain)}
       {buildColorNote('Tips', theme.colors.secondary)}
     </View>
+    {chartFilter()}
+   
     <XChart
       data={chartDisplayData}
       width={CHART_WIDTH}
@@ -250,6 +292,9 @@ const totalRevenue =
       }} />
     </View>
   </View>
+
+
+
   return (
     <XScreen
       loading={isLoading}

@@ -95,7 +95,8 @@ const XDropdown: React.FC<XDropdownProps> = ({
       marginBottom: 4,
     },
     dropdownText: {
-      color: value ? theme.colors.text : theme.colors.textPlaceholder,
+      color: value ? theme.colors.gray700 : theme.colors.textPlaceholder,
+      width:"100%"
     },
     dropdownList: {
       position: 'absolute',
@@ -104,7 +105,6 @@ const XDropdown: React.FC<XDropdownProps> = ({
       borderWidth: 1,
       borderColor: theme.colors.border,
       maxHeight: DROPDOWN_MAX_HEIGHT,
-      
       shadowColor: '#000',
       shadowOpacity: 0.1,
       shadowRadius: 8,
@@ -122,7 +122,7 @@ const XDropdown: React.FC<XDropdownProps> = ({
     },
     optionText: {
       fontSize: 16,
-      color: theme.colors.text,
+      color: theme.colors.gray700,
       flex: 1,
     },
     selectedOption: {
@@ -149,7 +149,9 @@ const XDropdown: React.FC<XDropdownProps> = ({
           activeOpacity={0.7}
           disabled={disabled}
         >
-          {renderLabel && value ? renderLabel(value) : (
+          {renderLabel && value ? 
+          renderLabel(value) 
+          : (
           <XInput
             value={value?.label}
             onChangeText={() => {}}

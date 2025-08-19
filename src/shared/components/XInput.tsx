@@ -26,7 +26,8 @@ type XInputProps = TextInputProps & {
   editable?: boolean;
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'number-pad';
   textAlign?: 'left' | 'center' | 'right';
-  containerStyle?: StyleProp<TextStyle>
+  containerStyle?: StyleProp<TextStyle>,
+  textInputStyle?: StyleProp<TextStyle>
 };
 
 const XInput = forwardRef<TextInput, XInputProps>(
@@ -52,6 +53,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
       keyboardType = 'default',
       textAlign = 'left',
       containerStyle,
+      textInputStyle,
       ...rest
     },
     ref
@@ -124,6 +126,7 @@ const XInput = forwardRef<TextInput, XInputProps>(
                 includeFontPadding: true,
                 textAlign: textAlign,
               },
+              textInputStyle
             ]}
             value={value}
             onChangeText={(text)=>{
