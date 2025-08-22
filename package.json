@@ -8,7 +8,6 @@
   ],
   "scripts": {
     "android": "cd android && ./gradlew installProductionDebug && cd .. && npx react-native start",
-
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
@@ -19,9 +18,8 @@
     "build:dev": "./build-apk.sh development release",
     "build:staging": "./build-apk.sh staging release",
     "build:prod": "./build-apk.sh production release",
-   
     "kota:publish:android:production": "node packages/kota/bin/publishApp.js android production",
-    "kota:publish:ios": "node packages/kota/src/publish/publishApp.js ios"
+    "kota:publish:ios:production": "node packages/kota/bin/publishApp.js ios production"
   },
   "dependencies": {
     "@expo/react-native-action-sheet": "^4.1.1",
@@ -42,6 +40,7 @@
     "chalk": "^4.1.2",
     "date-fns": "^4.1.0",
     "form-data": "^4.0.4",
+    "plist": "^3.1.0",
     "react": "19.1.0",
     "react-hook-form": "^7.58.1",
     "react-native": "0.80.0",

@@ -24,8 +24,10 @@ export interface ApptServiceItem {
   userInfo?: UserInfo;
   apptServicePackageId: string;
   apptServicePackageName: string;
-  apptServicePackageFilter: string;
+  apptServicePackageFilter?: string;
   position: number;
+  foreColor?: string;
+  backColor?: string;
 }
 
 export interface StartTime {
@@ -152,20 +154,6 @@ export interface Customer {
   cellPhone: string;
 }
 
-export interface ApptServiceItem {
-  id: string;
-  name: string;
-  duration: number;
-  startTime: TimeInfo;
-  price: number;
-  employeeId: string;
-  note: string;
-  foreColor: string;
-  backColor: string;
-  position: number;
-  userInfo?: UserInfo;
-  apptServicePackageFilter: string;
-}
 
 export interface UserInfo {
   id: string;

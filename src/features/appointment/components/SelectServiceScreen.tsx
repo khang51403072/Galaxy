@@ -113,8 +113,8 @@ function SelectServiceScreen({
 
   const { listCategories, listItemMenu } = useCreateAppointmentStore(
     useShallow((state) => ({
-      listCategories: createAppointmentSelectors.selectListCategories(state),
-      listItemMenu: createAppointmentSelectors.selectListItemMenu(state),
+      listCategories: createAppointmentSelectors.listCategories(state),
+      listItemMenu: createAppointmentSelectors.listItemMenu(state),
     }))
   );
 
