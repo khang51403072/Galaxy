@@ -1,69 +1,75 @@
 import { create } from 'zustand';
 import { EmployeeEntity } from '@/features/ticket/types/TicketResponse';
 
-type UIState = {
+// --- STATE AND ACTIONS TYPE ---
+export type AppointmentUIState = {
   showServiceSheet: boolean;
-  isShowTechnician: boolean;
+  employeeForAvailable: EmployeeEntity[];
   serviceIndex: number;
   comboIndex: number;
-  employeeForAvailable: EmployeeEntity[];
-  
-  // Actions
+  isShowTechnician: boolean;
+
+  // --- ACTIONS ---
   setShowServiceSheet: (value: boolean) => void;
-  setIsShowTechnician: (value: boolean) => void;
+  openServiceSheet: (serviceIndex: number) => void;
+  setEmployeeForAvailable: (employees: EmployeeEntity[]) => void;
   setServiceIndex: (index: number) => void;
   setComboIndex: (index: number) => void;
-  setEmployeeForAvailable: (employees: EmployeeEntity[]) => void;
-  openTechnicianSheet: (params: {
-    employees: EmployeeEntity[];
-    serviceIndex: number;
-    comboIndex?: number;
-  }) => void;
-  resetUI: () => void;
+  setIsShowTechnician: (value: boolean) => void;
+  openTechnicianSheet: (config: { employees: EmployeeEntity[]; serviceIndex: number; comboIndex?: number }) => void;
+  closeTechnicianSheet: () => void;
 };
 
-const initialUIState = {
+// --- INITIAL STATE ---
+export const initialUIState = {
   showServiceSheet: false,
-  isShowTechnician: false,
+  employeeForAvailable: [],
   serviceIndex: 0,
   comboIndex: -1,
-  employeeForAvailable: [],
+  isShowTechnician: false,
 };
 
-export const useCreateAppointmentUIStore = create<UIState>((set) => ({
+// --- STORE CREATION ---
+export const useAppointmentUIStore = create<AppointmentUIState>((set) => ({
   ...initialUIState,
-  setShowServiceSheet: (value) => set({ showServiceSheet: value }),
-  setIsShowTechnician: (value) => set({ isShowTechnician: value }),
-  setServiceIndex: (index) => set({ serviceIndex: index }),
-  setComboIndex: (index) => set({ comboIndex: index }),
-  setEmployeeForAvailable: (employees) => set({ employeeForAvailable: employees }),
+
+  // --- SETTERS AND ACTIONS ---
+  setShowServiceSheet: (value: boolean) => set({ showServiceSheet: value }),
+  openServiceSheet: (serviceIndex: number) => set({ showServiceSheet: true, serviceIndex }),
+
+  setEmployeeForAvailable: (employees: EmployeeEntity[]) => set({ employeeForAvailable: employees }),
   
-  openTechnicianSheet: ({ employees, serviceIndex, comboIndex = -1 }) => {
+  setServiceIndex: (index: number) => set({ serviceIndex: index }),
+  setComboIndex: (index: number) => set({ comboIndex: index }),
+
+  setIsShowTechnician: (value: boolean) => set({ isShowTechnician: value }),
+
+  openTechnicianSheet: ({ employees, serviceIndex, comboIndex = -1 }) =>
     set({
+      isShowTechnician: true,
       employeeForAvailable: employees,
       serviceIndex,
       comboIndex,
-      isShowTechnician: true,
-    });
-  },
+    }),
   
-  resetUI: () => set(initialUIState),
+  closeTechnicianSheet: () => set({ isShowTechnician: false, employeeForAvailable: [], comboIndex: -1 }),
 }));
 
-// --- Selectors ---
-// BỔ SUNG: Thêm object selectors để component sử dụng
-export const uiSelectors = {
-  selectShowServiceSheet: (state: UIState) => state.showServiceSheet,
-  selectIsShowTechnician: (state: UIState) => state.isShowTechnician,
-  selectServiceIndex: (state: UIState) => state.serviceIndex,
-  selectComboIndex: (state: UIState) => state.comboIndex,
-  selectEmployeeForAvailable: (state: UIState) => state.employeeForAvailable,
-  
-  // Actions
-  selectSetShowServiceSheet: (state: UIState) => state.setShowServiceSheet,
-  selectSetIsShowTechnician: (state: UIState) => state.setIsShowTechnician,
-  selectOpenTechnicianSheet: (state: UIState) => state.openTechnicianSheet,
 
-  // Selector tiện ích: Lấy tất cả state và action, dùng với useShallow
-  selectAll: (state: UIState) => state,
+// --- SELECTORS ---
+export const appointmentUISelectors = {
+  showServiceSheet: (state: AppointmentUIState) => state.showServiceSheet,
+  employeeForAvailable: (state: AppointmentUIState) => state.employeeForAvailable,
+  serviceIndex: (state: AppointmentUIState) => state.serviceIndex,
+  comboIndex: (state: AppointmentUIState) => state.comboIndex,
+  isShowTechnician: (state: AppointmentUIState) => state.isShowTechnician,
+
+  // actions
+  actions: (state: AppointmentUIState) => ({
+    setShowServiceSheet: state.setShowServiceSheet,
+    openServiceSheet: state.openServiceSheet,
+    setEmployeeForAvailable: state.setEmployeeForAvailable,
+    openTechnicianSheet: state.openTechnicianSheet,
+    closeTechnicianSheet: state.closeTechnicianSheet,
+  }),
 };

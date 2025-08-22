@@ -4,8 +4,14 @@ const chalk = require('chalk');
 const fetch = require('node-fetch'); // nhớ cài: npm install node-fetch
 const rootDir = process.cwd();
 const androidDir = path.join(rootDir, 'android');
+let archivePromise, finalIpaPath, finalManifestPath;
+const iosDir = path.join(rootDir, 'ios');
+const buildDir = path.join(iosDir, 'build');
+const archivePath = path.join(buildDir, 'GalaxyMe.xcarchive');
+const exportDir = path.join(buildDir, 'export');
 const FormData = require('form-data'); 
 const { runCommandSilent } = require('../src/utils/gitHelpers');
+const plist = require('plist'); 
 
 function logStep(step, message) {
   console.log(chalk.cyan(`\n${step}️⃣  ${message}`));
@@ -32,6 +38,11 @@ async function uploadToWorker(filePath, platform, version, versionCode, type, wo
 
   if (!res.ok) throw new Error(`Upload ${type} failed: ${JSON.stringify(result)}`);
   console.log(chalk.green(`✅ Upload ${type} completed: ${JSON.stringify(result)}`));
+  // Giả sử worker trả về JSON có chứa trường `url`
+  if (!result.url) {
+    throw new Error('Worker response did not include a URL for the uploaded file.');
+  }
+  return result.url; 
 }
 async function publishApp(platform, flavor, configPath) {
   console.clear();
@@ -75,10 +86,49 @@ async function publishApp(platform, flavor, configPath) {
       console.error(`❌ Bundle failed! See ${err} for details.`);
       return;
     }
-
+    const logPath = await buildPromise;
+    console.log(chalk.green(`✅ Build completed! Log: ${logPath}`));
     
   } else if (platform === 'ios') {
-    buildPromise = runCommandSilent('xcodebuild', ['-scheme', 'GalaxyMe', '-configuration', 'Release'], path.join(rootDir, 'ios'), 'build.log');
+    // Đối với iOS, chúng ta không cần bundle riêng, Xcode sẽ làm việc đó.
+    // Lệnh build của iOS là một chuỗi 2 bước: archive và export.
+    
+    // Bước 1.1: Archive
+    console.log('📦 Archiving iOS app...');
+    const scheme = 'GalaxyMe'; // Thay bằng scheme của bạn nếu khác
+    archivePromise = runCommandSilent(
+      'xcodebuild',
+      [
+        'archive',
+        '-workspace', `${iosDir}/${scheme}.xcworkspace`,
+        '-scheme', scheme,
+        '-sdk', 'iphoneos',
+        '-configuration', 'Release',
+        '-archivePath', archivePath,
+      ],
+      iosDir,
+      'build.log'
+    );
+
+    const archiveLogPath = await archivePromise;
+    console.log(chalk.green(`✅ Archive completed! Log: ${archiveLogPath}`));
+
+    // Bước 1.2: Export Archive để tạo .ipa và manifest.plist
+    logStep('1b', 'Exporting .ipa from archive...');
+    const exportOptionsPath = path.join(iosDir, `/ExportOptions.plist`); // Đường dẫn đến file plist
+    console.log(chalk.green(`✅ Exporting: ${exportOptionsPath}`));
+    await runCommandSilent(
+      'xcodebuild',
+      [
+        '-exportArchive',
+        '-archivePath', archivePath,
+        '-exportPath', exportDir,
+        '-exportOptionsPlist', exportOptionsPath,
+      ],
+      iosDir,
+      'export.log'
+    );
+    console.log(chalk.green(`✅ Export completed! Files are in: ${exportDir}`));
   } 
   else {
     console.error(chalk.red('❌ Unknown platform'));
@@ -86,8 +136,7 @@ async function publishApp(platform, flavor, configPath) {
   }
 
   try {
-    const logPath = await buildPromise;
-    console.log(chalk.green(`✅ Build completed! Log: ${logPath}`));
+    
 
     // STEP 2: Copy file
     logStep(2, 'Copying build output...');

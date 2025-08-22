@@ -2,9 +2,8 @@ import XIcon from "@/shared/components/XIcon";
 import XScreen from "@/shared/components/XScreen";
 import XText from "@/shared/components/XText";
 import { useTheme, Theme } from "@/shared/theme/ThemeProvider";
-import { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { useCreateAppointmentStore } from "../stores/createAppointmentStore";
 import { useShallow } from "zustand/react/shallow";
 import { RootStackParamList, ROUTES } from "@/app/routes";
 import { goBack, navigate } from "@/app/NavigationService";
@@ -20,7 +19,6 @@ import { appConfig } from "@/shared/utils/appConfig";
 import useSignalR from "@/shared/hooks/useSignalR";
 import { DataAppt } from "../types/ApptSaveResponse";
 import { RouteProp, useRoute } from "@react-navigation/native";
-import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import { useBackHandler } from "@/shared/hooks/useBackHandler";
 import ServiceList from "../components/ServiceList";
@@ -29,7 +27,12 @@ import { ConfirmOnlineToggle, GroupApptToggle } from "../components/AppointmentT
 import { CustomerPicker } from "../components/AppointmentPickers";
 import { DatePickerField, TimePickerField } from "../components/DateTimePickerField";
 
-// --- Helper Functions ---
+// --- IMPORT CÁC STORE MỚI ---
+import { useCreateAppointmentStore } from "../stores/createAppointmentStore";
+import { useAppointmentUIStore } from "../stores/createAppointmentUIStore";
+
+
+// --- Helper Functions (Không thay đổi) ---
 interface ApptMessage {
     message: string;
     date: string;
@@ -57,18 +60,16 @@ export default function CreateAppointmentScreen() {
     const styles = useMemo(() => createStyles(theme), [theme]);
     const { showAlert } = useXAlert();
     const { sendMessage } = useSignalR();
-    
-    // Lấy state và actions từ store. Giữ cấu trúc phẳng để tránh tạo object mới.
+    const navigation = useNavigation();
+
+    // --- LẤY STATE & ACTIONS TỪ FORM STORE ---
     const { 
         selectedCustomer, selectedApptType, listApptType, 
-        listItemMenu, isLoading, listServices, selectedDate,
+        isLoading, listServices, selectedDate,
         isConfirmOnline, isGroupAppt, error, listEmployeeOnWork,
-        showServiceSheet, employeeForAvailable, serviceIndex,
-        comboIndex, isShowTechnician, apptDetails,
-        
-        setSelectedApptType, setShowServiceSheet, setIsShowTechnician, 
-        setServiceIndex, setComboIndex, setSelectedDate,
-        setIsConfirmOnline, setIsGroupAppt, setEmployeeForAvailable,
+        apptDetails,
+        setSelectedApptType, setSelectedDate,
+        setIsConfirmOnline, setIsGroupAppt,
         reset, saveAppointment, initData, getIsAllowEdit,
         updateBookingService, removeBookingService,
     } = useCreateAppointmentStore(
@@ -76,7 +77,6 @@ export default function CreateAppointmentScreen() {
             selectedCustomer: s.selectedCustomer,
             selectedApptType: s.selectedApptType,
             listApptType: s.listApptType,
-            listItemMenu: s.listItemMenu,
             isLoading: s.isLoading,
             listServices: s.listBookingServices,
             selectedDate: s.selectedDate,
@@ -84,22 +84,11 @@ export default function CreateAppointmentScreen() {
             isGroupAppt: s.isGroupAppointment,
             error: s.error,
             listEmployeeOnWork: s.listEmployeeOnWork,
-            showServiceSheet: s.showServiceSheet,
-            employeeForAvailable: s.employeeForAvailable,
-            serviceIndex: s.serviceIndex,
-            comboIndex: s.comboIndex,
-            isShowTechnician: s.isShowTechnician,
-            apptDetails: s.apptDetails, // Cần apptDetails để tính isAllowEdit
-
+            apptDetails: s.apptDetails,
             setSelectedApptType: s.setSelectedApptType,
-            setShowServiceSheet: s.setShowServiceSheet,
-            setIsShowTechnician: s.setIsShowTechnician,
-            setServiceIndex: s.setServiceIndex,
-            setComboIndex: s.setComboIndex,
             setSelectedDate: s.setSelectedDate,
             setIsConfirmOnline: s.setIsConfirmOnline,
             setIsGroupAppt: s.setIsGroupAppt,
-            setEmployeeForAvailable: s.setEmployeeForAvailable,
             reset: s.reset,
             saveAppointment: s.saveAppointment,
             initData: s.initData,
@@ -108,30 +97,47 @@ export default function CreateAppointmentScreen() {
             removeBookingService: s.removeBookingService,
         }))
     );
-
+    
+    // --- LẤY STATE & ACTIONS TỪ UI STORE ---
+    const {
+        showServiceSheet, employeeForAvailable, serviceIndex,
+        comboIndex, isShowTechnician, openServiceSheet,
+        closeServiceSheet, openTechnicianSheet, closeTechnicianSheet,
+    } = useAppointmentUIStore(
+        useShallow((s) => ({
+            showServiceSheet: s.showServiceSheet,
+            employeeForAvailable: s.employeeForAvailable,
+            serviceIndex: s.serviceIndex,
+            comboIndex: s.comboIndex,
+            isShowTechnician: s.isShowTechnician,
+            openServiceSheet: s.openServiceSheet,
+            closeServiceSheet: () => s.setShowServiceSheet(false), // Có thể tạo action riêng nếu muốn
+            openTechnicianSheet: s.openTechnicianSheet,
+            closeTechnicianSheet: s.closeTechnicianSheet,
+        }))
+    );
+    
+    // Các hook khác không thay đổi
     const { getAppointmentList } = useAppointmentStore(
         useShallow((s) => ({ getAppointmentList: s.getAppointmentList }))
     );
     
-    const navigation = useNavigation();
     useBackHandler(navigation, reset);
 
-    // GIẢI PHÁP 2: Dùng useMemo để tính toán state thay vì dùng useState
-    // Giá trị này sẽ tự động cập nhật khi apptDetails thay đổi mà không gây re-render lặp
     const isAllowEdit = useMemo(() => getIsAllowEdit(), [apptDetails, getIsAllowEdit]);
 
-    // useEffect để load data
     useEffect(() => {
         initData(apptId);
-    }, [apptId, initData]);
+        // Clean up store khi unmount
+        return () => {
+            reset();
+        }
+    }, [apptId, initData, reset]);
 
-    // useEffect thứ hai để xử lý logic điều hướng KHI state thay đổi
     useEffect(() => {
-        // Chỉ kiểm tra khi quá trình loading ban đầu đã kết thúc
         if (!isLoading && selectedCustomer == null && !apptId) {
             navigate(ROUTES.SELECT_CUSTOMER as never);
         }
-        // Effect này chạy lại mỗi khi isLoading hoặc selectedCustomer thay đổi
     }, [isLoading, selectedCustomer, apptId]);
    
     const dropdownOptions = useMemo(() => 
@@ -139,7 +145,7 @@ export default function CreateAppointmentScreen() {
         [listApptType]
     );
 
-    // --- Memoized Callbacks ---
+    // --- Memoized Callbacks - Cập nhật để dùng actions từ các store mới ---
     const handleSave = useCallback(async () => {
         const result = await saveAppointment();
         if (isSuccess(result)) {  
@@ -170,38 +176,36 @@ export default function CreateAppointmentScreen() {
         setSelectedDate(newDate);
     }, [setSelectedDate, selectedDate]);
     
-    const handleSelectService = useCallback((index: number) => {
-        setServiceIndex(index);
-        setShowServiceSheet(true);
-    }, [setServiceIndex, setShowServiceSheet]);
-
-    const handleSelectTechnician = useCallback((index: number, comboIndex = -1) => {
-        setServiceIndex(index);
-        setComboIndex(comboIndex);
-        const service = comboIndex === -1
+    const handleSelectTechnician = useCallback((index: number, comboIdx = -1) => {
+        const service = comboIdx === -1
             ? listServices[index].service
-            : listServices[index].comboItems?.[comboIndex]?.service;
-        const allowedEmployees = service?.allowedEmployees || [];
-        const setEmployee = new Set(allowedEmployees);
-        const listEmployee = listEmployeeOnWork.filter((emp) => setEmployee.has(emp.id));
-        setEmployeeForAvailable(listEmployee);
-        setIsShowTechnician(true);
-    }, [setServiceIndex, setComboIndex, listServices, listEmployeeOnWork, setEmployeeForAvailable, setIsShowTechnician]);
+            : listServices[index].comboItems?.[comboIdx]?.service;
+            
+        if (!service) return;
+
+        const allowedEmployeesIds = service.allowedEmployees || [];
+        // Nếu không có allowedEmployees, hiển thị tất cả nhân viên đang làm việc
+        const listEmployee = allowedEmployeesIds.length > 0
+            ? listEmployeeOnWork.filter((emp) => allowedEmployeesIds.includes(emp.id))
+            : listEmployeeOnWork;
+
+        openTechnicianSheet({ employees: listEmployee, serviceIndex: index, comboIndex: comboIdx });
+    }, [listServices, listEmployeeOnWork, openTechnicianSheet]);
     
     const handleSelectServiceItem = useCallback((service: MenuItemEntity) => {
        updateBookingService({ serviceIndex, e: service, type: 'service' });
-    }, [updateBookingService, serviceIndex]);
+       closeServiceSheet(); // Tự động đóng sau khi chọn
+    }, [updateBookingService, serviceIndex, closeServiceSheet]);
 
     const handleSelectEmployeeItem = useCallback((item: EmployeeEntity) => {
         updateBookingService({ serviceIndex, e: item, type: 'technician', comboIndex });
-    }, [updateBookingService, serviceIndex, comboIndex]);
+        closeTechnicianSheet(); // Tự động đóng sau khi chọn
+    }, [updateBookingService, serviceIndex, comboIndex, closeTechnicianSheet]);
 
-    const handleCloseServiceSheet = useCallback(() => setShowServiceSheet(false), [setShowServiceSheet]);
-    const handleCloseTechnicianSheet = useCallback(() => setIsShowTechnician(false), [setIsShowTechnician]);
-
+    // --- JSX (Gần như không thay đổi, chỉ truyền prop từ các biến mới) ---
     return (
         <XScreen 
-            title="Booking Appointment" 
+            title={apptId ? "Edit Appointment" : "Booking Appointment"}
             loading={isLoading} 
             error={error}
             scrollable={true}
@@ -209,10 +213,7 @@ export default function CreateAppointmentScreen() {
         >   
             <View style={styles.container}>
                 {!isAllowEdit &&
-                    <View style={styles.customerDetailsContainer}>
-                        <XIcon name="customer" height={24} width={24} color={theme.colors.primaryMain} />
-                        <XText variant="titleRegular" color={theme.colors.gray700}>Customer Details</XText>
-                    </View>
+                    <View style={styles.mask} />
                 }
                 <CustomerPicker customer={selectedCustomer} onSelect={handleNavigateToSelectCustomer} />
                 <AppointmentTypeDropdown
@@ -238,7 +239,7 @@ export default function CreateAppointmentScreen() {
                 <ServiceList
                     services={listServices}
                     listEmployeeOnWork={listEmployeeOnWork}
-                    onSelectService={handleSelectService}
+                    onSelectService={openServiceSheet} // Sử dụng trực tiếp action mới
                     onRemoveService={removeBookingService}
                     onSelectTechnician={handleSelectTechnician}
                 />
@@ -246,25 +247,23 @@ export default function CreateAppointmentScreen() {
             
             <SelectServiceScreen
                 visible={showServiceSheet}
-                onClose={handleCloseServiceSheet}
+                onClose={closeServiceSheet} // Sử dụng action mới
                 onSelect={handleSelectServiceItem}
             />
             
             <XBottomSheetSearch
                 visible={isShowTechnician}
-                onClose={handleCloseTechnicianSheet}
+                onClose={closeTechnicianSheet} // Sử dụng action mới
                 data={employeeForAvailable}
                 onSelect={handleSelectEmployeeItem}
                 placeholder="Search..."
                 title="Technician"
             /> 
-            
-            
         </XScreen>
     );
 }   
 
-// --- Styles ---
+// --- Styles (Không thay đổi) ---
 const createStyles = (theme: Theme) => StyleSheet.create({
     container: {
         gap: theme.spacing.md,
@@ -291,7 +290,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: '#FFFFFF80',
-        zIndex: 1000,
+        backgroundColor: 'rgba(255, 255, 255, 0.7)', // Thêm độ trong suốt
+        zIndex: 10,
     },
 });
