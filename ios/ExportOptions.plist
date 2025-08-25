@@ -5,11 +5,17 @@
 <dict>
     <!-- Phương thức xuất file: enterprise cho tài khoản doanh nghiệp -->
     <key>method</key>
-    <string>enterprise</string>
+    <string>ad-hoc</string>
 
     <!-- Team ID của tài khoản Apple Developer của bạn -->
     <key>teamID</key>
-    <string>YOUR_TEAM_ID</string> 
+    <string>8557W7W88J</string> 
+    <!-- DÒNG QUAN TRỌNG NHẤT CẦN THÊM VÀO -->
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>com.galaxyaccess.me</key>
+        <string>Adhoc_distribute</string> 
+    </dict>
 
     <!-- Tắt bitcode, thường không cần cho phân phối nội bộ -->
     <key>compileBitcode</key>

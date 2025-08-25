@@ -1,7 +1,8 @@
 const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
-const fetch = require('node-fetch'); // nhớ cài: npm install node-fetch
+const axios = require('axios');
+
 const rootDir = process.cwd();
 const androidDir = path.join(rootDir, 'android');
 let archivePromise, finalIpaPath, finalManifestPath;
@@ -24,6 +25,46 @@ function printErrorLog(logFilePath) {
   console.error(chalk.gray('--- Last 10 log lines ---'));
   console.error(chalk.yellow(tail));
 }
+
+/**
+ * Cập nhật file manifest.plist với URL của file IPA mới.
+ * @param {string} manifestPath - Đường dẫn đầy đủ đến file manifest.plist
+ * @param {string} newIpaUrl - URL tải trực tiếp (.ipa?dl=1) mới
+ */
+function updateManifest(manifestPath, newIpaUrl) {
+  console.log(`📝 Reading manifest file at: ${manifestPath}`);
+  
+  try {
+    // Đọc nội dung file
+    const manifestContent = fs.readFileSync(manifestPath, 'utf-8');
+    
+    // Chuyển đổi nội dung XML thành một đối tượng JavaScript
+    const manifestJson = plist.parse(manifestContent);
+
+    // Truy cập và cập nhật URL
+    // Cấu trúc của manifest là: items -> mảng (lấy phần tử đầu) -> assets -> mảng (lấy phần tử đầu) -> url
+    if (manifestJson.items && manifestJson.items[0] && manifestJson.items[0].assets && manifestJson.items[0].assets[0]) {
+      console.log(`  -> Found old URL: ${manifestJson.items[0].assets[0].url}`);
+      manifestJson.items[0].assets[0].url = newIpaUrl;
+      console.log(`  -> Set new URL: ${newIpaUrl}`);
+    } else {
+      throw new Error("Manifest file has an unexpected structure.");
+    }
+    
+    // Chuyển đổi đối tượng JavaScript trở lại thành chuỗi XML
+    const updatedManifestContent = plist.build(manifestJson);
+
+    // Ghi đè file manifest cũ với nội dung đã được cập nhật
+    fs.writeFileSync(manifestPath, updatedManifestContent);
+    
+    console.log(chalk.green('✅ Manifest file updated successfully!'));
+
+  } catch (error) {
+    console.error(chalk.red(`❌ Failed to update manifest file: ${error.message}`));
+    throw error; // Ném lỗi ra ngoài để dừng script
+  }
+}
+
 // Tách hàm upload chung
 async function uploadToWorker(filePath, platform, version, versionCode, type, workerUrl) {
   const form = new FormData();
@@ -33,16 +74,29 @@ async function uploadToWorker(filePath, platform, version, versionCode, type, wo
   form.append('versionCode', versionCode);
   form.append('type', type);
 
-  const res = await fetch(`${workerUrl}/upload`, { method: 'POST', body: form });
-  const result = await res.json();
+  try {
+    const response = await axios.post(`${workerUrl}/upload`, form, {
+      headers: form.getHeaders(), // Rất quan trọng, để axios dùng đúng header
+      maxContentLength: Infinity, // Cho phép upload file lớn
+      maxBodyLength: Infinity
+    });
 
-  if (!res.ok) throw new Error(`Upload ${type} failed: ${JSON.stringify(result)}`);
-  console.log(chalk.green(`✅ Upload ${type} completed: ${JSON.stringify(result)}`));
-  // Giả sử worker trả về JSON có chứa trường `url`
-  if (!result.url) {
-    throw new Error('Worker response did not include a URL for the uploaded file.');
+    const result = response.data;
+    console.log(chalk.green(`✅ Upload ${type} completed: ${JSON.stringify(result)}`));
+    return result.url; // Giả sử worker trả về url
+
+  } catch (error) {
+    if (error.response) {
+      // Server đã trả về lỗi (vd: 400, 500)
+      throw new Error(`Upload ${type} failed with status ${error.response.status}: ${JSON.stringify(error.response.data)}`);
+    } else if (error.request) {
+      // Request đã được gửi nhưng không nhận được response
+      throw new Error(`Upload ${type} failed: No response received. Error: ${error.message}`);
+    } else {
+      // Lỗi khác
+      throw new Error(`Upload ${type} failed with error: ${error.message}`);
+    }
   }
-  return result.url; 
 }
 async function publishApp(platform, flavor, configPath) {
   console.clear();
@@ -141,29 +195,66 @@ async function publishApp(platform, flavor, configPath) {
     // STEP 2: Copy file
     logStep(2, 'Copying build output...');
     fs.mkdirSync(otaDir, { recursive: true });
-    let finalApkPath = '';
+    let finalIntallPath = '';
+    let finalBundlePath = '';
     if (platform === 'android') {
       const apkPath = path.resolve(`${androidDir}/app/build/outputs/apk/${flavor}/release/app-${flavor}-release.apk`);
-      finalApkPath = path.join(otaDir, `GalaxyMe-${platform}-${flavor}.apk`);
-      fs.copyFileSync(apkPath, finalApkPath);
-      console.log(`📂 APK saved at: ${chalk.green(finalApkPath)}`);
+      finalIntallPath = path.join(otaDir, `GalaxyMe-${platform}-${flavor}.apk`);
+      fs.copyFileSync(apkPath, finalIntallPath);
+      console.log(`📂 APK saved at: ${chalk.green(finalIntallPath)}`);
 
       //
       const bundleSrc = path.resolve(`${androidDir}/app/build/generated/assets/react/${flavor}/release/index.android.bundle`);
       finalBundlePath = path.join(otaDir, `bundle_${new Date().toISOString().replace(/[-:.TZ]/g, '')}.jsbundle`);
       fs.copyFileSync(bundleSrc, finalBundlePath);
       console.log(`📂 Bundle saved at: ${chalk.green(finalBundlePath)}`);
+        // STEP 3: Upload lên Worker
+      logStep(3.1, `Uploading to Worker: ${workerUrl}`);
+      await uploadToWorker(finalIntallPath, platform, version, versionCode, type, workerUrl);
+
+      // STEP 3.1: Upload Bundle
+      // logStep(3.2, `Uploading Bundle to Worker: ${workerUrl}`);
+      // await uploadToWorker(finalBundlePath, platform, version, versionCode, 'bundle', workerUrl);
     }
+    else if(platform==='ios')
+    {   
+      // Tìm file .ipa và manifest.plist trong thư mục export
+      const exportDir = path.join(rootDir, 'ios/build/export'); // Đường dẫn export của iOS
+      const ipaFileName = fs.readdirSync(exportDir).find(file => file.endsWith('.ipa'));
+      if (!ipaFileName) throw new Error('Could not find .ipa file in export directory.');
 
-    // STEP 3: Upload lên Worker
-    logStep(3.1, `Uploading to Worker: ${workerUrl}`);
-    await uploadToWorker(finalApkPath, platform, version, versionCode, type, workerUrl);
+      const ipaSrcPath = path.join(exportDir, ipaFileName);
+      finalIntallPath = path.join(otaDir, `GalaxyMe-${platform}-${flavor}.ipa`);
+      fs.copyFileSync(ipaSrcPath, finalIntallPath);
+      console.log(`📂 IPA saved at: ${chalk.green(finalIntallPath)}`);
+      // STEP 3: Upload lên Worker
+      logStep(3.1, `Uploading to Worker: ${workerUrl}`);
+      // Giả sử hàm uploadToWorker trả về một object { success, url }
+      const uploadResult = await uploadToWorker(finalIntallPath, platform, version, versionCode, 'ipa', workerUrl);
+      console.log(`  -> IPA URL from worker: ${uploadResult}`);
 
-    // STEP 3.1: Upload Bundle
-    logStep(3.2, `Uploading Bundle to Worker: ${workerUrl}`);
-    await uploadToWorker(finalBundlePath, platform, version, versionCode, 'bundle', workerUrl);
+      // 2. "Cook" the Manifest
+      logStep(3.2, `Cooking the manifest file...`);
+      // Lấy link tải trực tiếp
+      const directIpaUrl = uploadResult.replace("&dl=0", "&dl=1").replace("?dl=0", "?dl=1");;
+      // Lấy đường dẫn đến manifest gốc
+      const manifestSrcPath = path.join(exportDir, 'manifest.plist');
+      // Cập nhật manifest
+      updateManifest(manifestSrcPath, directIpaUrl);
 
+      // 3. Upload file manifest đã được cập nhật
+      logStep(3.3, `Uploading updated manifest to Worker...`);
+      const manifestUploadResult = await uploadToWorker(manifestSrcPath, platform, version, versionCode, 'manifest', workerUrl);
+      
+      // 4. Lấy link tải trực tiếp cho manifest
+      const directManifestUrl = manifestUploadResult.replace("&dl=0", "&dl=1").replace("?dl=0", "?dl=1");;
 
+      // 5. Tạo link cài đặt cuối cùng và in ra màn hình
+      const installUrl = `itms-services://?action=download-manifest&url=${directManifestUrl}`;
+      
+      console.log(chalk.greenBright(`\n🎉 DONE! Send this link to your testers:`));
+      console.log(chalk.cyan(installUrl));
+    }
   } catch (err) {
     if (err.logFilePath) {
       console.error(chalk.red(`\n❌ Command failed: ${err.cmd}`));
