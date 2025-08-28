@@ -1,19 +1,16 @@
 // features/auth/services/AuthApi.ts
 import { httpClient } from '../../../core/network/HttpClient';
 import { ApiResponse } from '../../../core/network/ApiResponse';
-import { LoginEntity, LogoutMRequest, RegisterFCMRequest } from '../types/AuthTypes';
+import { LoginEntity, LoginRequest, LogoutMRequest, RegisterFCMRequest } from '../types/AuthTypes';
 import { API_ENDPOINTS } from '../../../core/network/endpoints';
 
 type LoginResponse = ApiResponse<LoginEntity>;
 
 type RegisterResponse = ApiResponse<any>;
 export const AuthApi = {
-  login: async (username: string, password: string): Promise<LoginResponse> => {
+  login: async (request : LoginRequest): Promise<LoginResponse> => {
     try {
-      const res = await httpClient.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, {
-        username,
-        password,
-      });
+      const res = await httpClient.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, request);
       return res.data;
     } catch (error: any) {
         throw error;

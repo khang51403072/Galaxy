@@ -1,4 +1,5 @@
 import { Platform } from "react-native";
+import { StoreItemEntity } from "../usecase/AuthUsecase";
 export enum Permissions {
   VIEW_PROFILE = 'VIEW_PROFILE',
   EDIT_PROFILE = 'EDIT_PROFILE',
@@ -15,7 +16,8 @@ export type LoginInput = {
   export interface LoginRequest {
     userName: string;
     password: string;
-    deviceId?: string;
+    masterEmployeeId?: string;
+    masterStoreId?: string;
     [key: string]: any; // mở rộng nếu cần
   }
 
@@ -49,6 +51,7 @@ export type LoginInput = {
     fullName: string;
     listRole: string[];
     isShowPhone: boolean;
+    switchableStores: StoreItemEntity[]
   }
 
 

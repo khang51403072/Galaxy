@@ -18,14 +18,14 @@ export type homeState = {
     chartDisplayData: ChartDisplayData[];
     toggleSwitch: 'week' | 'month';
     json: KeychainObject | null;
-    selectedStore: StoreEntity | null;
+    selectedStore: StoreItemEntity | null;
     notificationCount: number;
     companyProfile: CompanyProfileResponse | null;
     updateJson: (json: KeychainObject) => Promise<void>;
     getHomeData: () => Promise<Result<HomeEntity, HomeError>>;
     getChartData: () => Promise<Result<ChartEntity[], HomeError>>;
     setChartDisplayData: (data: ChartDisplayData[]) => void;
-    setSelectedStore: (store: StoreEntity) => void;
+    setSelectedStore: (store: StoreItemEntity) => void;
     setNotificationCount: (count: number) => void;
     getCompanyProfile:()=>  Promise<Result<CompanyProfileResponse, Error>> 
 }
@@ -130,9 +130,9 @@ export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeStat
 import { ApiHomeRepository } from '../repositories/ApiHomeRepository';
 import { HomeAPI } from '../services/HomeApi';
 import { appConfig } from "@/shared/utils/appConfig";
-import { StoreEntity } from "../screens/subScreen/SwitchStoreScreen";
 import { CompanyProfileResponse } from "@/features/appointment/types/CompanyProfileResponse";
 import { AppointmentRepositoryImplement } from "@/features/appointment/repositories/AppointmentRepositoryImplement";
 import { AppointmentUsecase } from "@/features/appointment/usecases/AppointmentUsecase";
+import { StoreItemEntity } from "@/features/auth/usecase/AuthUsecase";
 const realHomeUseCase = new HomeUseCase(new ApiHomeRepository(HomeAPI));
 export const useHomeStore = create<homeState>()(createHomeStore(realHomeUseCase));

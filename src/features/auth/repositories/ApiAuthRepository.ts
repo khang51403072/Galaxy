@@ -1,5 +1,5 @@
 import { AuthRepository } from './AuthRepository';
-import { LoginEntity, RegisterFCMRequest, LogoutMRequest } from '../types/AuthTypes';
+import { LoginEntity, RegisterFCMRequest, LogoutMRequest, LoginRequest } from '../types/AuthTypes';
 import { AuthApi } from '../services/AuthApi';
 import { Result, success, failure } from '../../../shared/types/Result';
 import { AuthError, createAuthError } from '../types/AuthErrors';
@@ -7,9 +7,9 @@ import { AuthError, createAuthError } from '../types/AuthErrors';
 export class ApiAuthRepository implements AuthRepository {
   constructor(private authApi: typeof AuthApi) {}
 
-  async login(email: string, password: string): Promise<Result<LoginEntity, AuthError>> {
+  async login(request: LoginRequest): Promise<Result<LoginEntity, AuthError>> {
     try {
-      const response = await this.authApi.login(email, password);
+      const response = await this.authApi.login(request);
       if (!response.data) {
         return failure(new AuthError('Invalid response from server', 'SERVER_ERROR'));
       }
@@ -40,7 +40,8 @@ export class ApiAuthRepository implements AuthRepository {
         employeeId: response.employeeId || '',
         isOwner: response.isOwner || false,
         listRole: response.listRole || [],
-        isShowPhone: response.isShowPhone || false
+        isShowPhone: response.isShowPhone || false,
+        switchableStores: response.switchableStores
       };
       return success(loginData);
     } catch (error: any) {

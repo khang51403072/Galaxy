@@ -43,15 +43,17 @@ export const createAuthStore = (authUseCase: AuthUseCase) => (set: any, get: any
       userName: loginResult.userName,
       listRole: loginResult.listRole,
       isShowPhone: loginResult.isShowPhone,
+      switchableStores: loginResult.switchableStores
     }
     set(user);
     await appConfig.saveUser( user);
     await appConfig.saveAutoLogin(true);
   },
-  login: async (email: string, password: string): Promise<Result<LoginResult, AuthError>> => {
+  login: async (usename: string, password: string): Promise<Result<LoginResult, AuthError>> => {
     set({ isLoading: true });
     set({ error: null });
-    const loginResult = await authUseCase.loginUser(email, password);
+    const request = { userName: usename, password: password };
+    const loginResult = await authUseCase.loginUser(request);
     if (isSuccess(loginResult)) {
       const loginData = loginResult.value;
       const storeLogin = get().storeLogin;

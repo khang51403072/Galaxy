@@ -1,6 +1,6 @@
 import xlog from '../../../core/utils/xlog';
 import { AuthRepository } from '../repositories/AuthRepository';
-import { LoginEntity, RegisterFCMRequest, LogoutMRequest } from '../types/AuthTypes';
+import { LoginEntity, RegisterFCMRequest, LogoutMRequest, LoginRequest } from '../types/AuthTypes';
 import { Result, success, failure, isSuccess } from '../../../shared/types/Result';
 import { AuthError } from '../types/AuthErrors';
 
@@ -16,27 +16,47 @@ export interface LoginResult {
   isOwner: boolean;
   listRole: string[];
   isShowPhone: boolean;
+  switchableStores: StoreItemEntity []
 }
 
+export interface StoreItemEntity  {
+  storeId: string;
+  storeName: string;
+  storeLogo?: string; 
+  address: string;
+  corporateId: string;
+  employeeId: string;
+  empUser: string;
+  empPassword?: string;
+  empPhone?: string;
+
+  // Các trường có thể không tồn tại
+  masterStoreId?: string;
+  masterStoreName?: string;
+  masterEmployeeId?: string;
+  empPOSPassword?: string;
+}
 export class AuthUseCase {
   constructor(private authRepository: AuthRepository) {}
   getUserName = (email: string) => email.split('@')[0];
-  async loginUser(email: string, password: string): Promise<Result<LoginResult, AuthError>> {
+
+  async loginUser(request: LoginRequest): Promise<Result<LoginResult, AuthError>> {
     try {
-      const loginResult = await this.authRepository.login(email, password);
+      const loginResult = await this.authRepository.login(request);
       if (isSuccess(loginResult)) {
         const loginData = loginResult.value;
         const result: LoginResult = {
           userName: this.getUserName(loginData.userName) || "",
           token: loginData.token || "",
-          password: password || "",
+          password: request.password || "",
           userId: loginData.userId || "",
           firstName: loginData.firstName || "",
           lastName: loginData.lastName || "",
           employeeId: loginData.employeeId || "",
           isOwner: loginData.isOwner || false,
           listRole: loginData.listRole || [],
-          isShowPhone: loginData.isShowPhone || false
+          isShowPhone: loginData.isShowPhone || false,
+          switchableStores: loginData.switchableStores || [],
         };
         return success(result);
       } else {

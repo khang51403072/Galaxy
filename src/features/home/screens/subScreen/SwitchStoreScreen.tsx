@@ -12,20 +12,17 @@ import { ROUTES } from '@/app/routes';
 import { navigate } from '@/app/NavigationService';
 import XAvatar from '@/shared/components/XAvatar';
 import XText from '@/shared/components/XText';
+import { appConfig } from '@/shared/utils/appConfig';
+import { StoreItemEntity } from '@/features/auth/usecase/AuthUsecase';
 
 
- export type StoreEntity = {
-  url: string;
-  name: string;
-  address: string;
-  
- }
+
 
 
 const SwitchStoreScreen = () => {
   const theme =  useTheme() ;
-  const [stores, setStores] = useState<StoreEntity[]>();
-  const { selectedStore, setSelectedStore } = useHomeStore();
+  const [stores, setStores] = useState<StoreItemEntity[]>();
+  const { selectedStore, setSelectedStore, json } = useHomeStore();
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.colors.background},
     header: { fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
@@ -47,16 +44,8 @@ const SwitchStoreScreen = () => {
     empty: { textAlign: 'center', color: '#888', marginTop: 40 },
   });
   const loadStores = async () => {
-    const list: StoreEntity[] = [{
-        url: "https://www.google.com",
-        name: "Store 1",
-        address: "123 Main St, Anytown, USA"
-      },
-      {
-        url: "https://www.google.com",
-        name: "Store 2",
-        address: "321 Main St, Anytown, USA"
-      }]
+    const user = await appConfig.getUser();
+    const list: StoreItemEntity[] = user.switchableStores
     setStores(list);
   };
 
@@ -64,19 +53,19 @@ const SwitchStoreScreen = () => {
     loadStores();
   }, []);
 
-  const handlePress = async (item: StoreEntity) => {
+  const handlePress = async (item: StoreItemEntity) => {
     setSelectedStore(item);
     navigate(ROUTES.HOME);
   };
 
-  const renderItem = ({ item }: { item: StoreEntity }) => (
+  const renderItem = ({ item }: { item: StoreItemEntity }) => (
     <TouchableOpacity
       style={[styles.item]}
       onPress={() => handlePress(item)}
     > 
-      <XAvatar uri={item.url} size={50} />
+      <XAvatar uri={item.storeLogo} size={50} />
       <View style={{flexDirection:"column", justifyContent:"space-between", gap: theme.spacing.sm}}>
-        <XText variant="titleRegular" style={{color: theme.colors.gray800}}>{item.name}</XText>
+        <XText variant="titleRegular" style={{color: theme.colors.gray800}}>{item.storeName}</XText>
         <XText variant="bodyLight" style={{color: theme.colors.gray600}}>{item.address}</XText>
       </View>
       
@@ -88,7 +77,7 @@ const SwitchStoreScreen = () => {
     <XScreen title='Switch Stores' style={styles.container} paddingHorizontal={0}>
       <FlatList
         data={stores}
-        keyExtractor={item => item.url}
+        keyExtractor={item => item.masterStoreId+item.storeId}
         renderItem={renderItem}
         contentContainerStyle={{gap: theme.spacing.sm, paddingHorizontal: theme.spacing.sm,
             paddingVertical: theme.spacing.sm}}
