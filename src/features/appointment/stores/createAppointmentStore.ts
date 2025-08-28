@@ -3,20 +3,19 @@ import { ApptRes, WorkHours } from '../types/ApptResResponse';
 import { failure, isSuccess, Result, success } from '../../../shared/types/Result';
 import { AppointmentRepositoryImplement } from '../repositories/AppointmentRepositoryImplement';
 import { AppointmentUsecase } from '../usecases/AppointmentUsecase';
-import { CustomerEntity, CustomerResponse, CustomerPayload } from '../types/CustomerResponse';
+import { CustomerResponse, CustomerPayload } from '../types/CustomerResponse';
 import { ApptType, createApptType } from '../types/AppointmentType';
 import { CategoryEntity } from '../types/CategoriesResponse';
 import { MenuItemEntity } from '../types/MenuItemResponse';
 import { EmployeeEntity } from '@/features/ticket/types/TicketResponse';
 import { ApptPackageItem, ApptPayload, ApptServiceItem, DataAppt } from '../types/ApptSaveResponse';
 import { CompanyProfileResponse, dateFromTimeEntity, TimeRange } from '../types/CompanyProfileResponse';
-import { ApptDetail, ApptDetailsResponse, ApptServicePackage } from '../types/ApptDetailsResponse';
+import { ApptDetail} from '../types/ApptDetailsResponse';
 import { useEmployeeStore } from '@/shared/stores/employeeStore';
 import { DropdownOption } from '@/shared/components/XDropdown';
 import { Permissions } from '@/features/auth/types/AuthTypes';
-import { useAuthStore } from '@/features/auth/stores/authStore';
 import { useHomeStore } from '@/features/home/stores/homeStore';
-import { appConfig } from '@/shared/utils/appConfig';
+import { useCustomerStore } from './customerStore';
 
 
 // --- TYPE DEFINITIONS ---
@@ -37,8 +36,6 @@ export type UpdateBookingParams = {
 export type AppointmentFormState = {
   error: string | null;
   isLoading: boolean;
-  customerList: CustomerEntity[] | null;
-  selectedCustomer: CustomerEntity | null;
   isConfirmOnline: boolean;
   isGroupAppointment: boolean;
   selectedApptType: DropdownOption | null;
@@ -59,14 +56,12 @@ export type AppointmentFormState = {
   getListCategories: () => Promise<Result<CategoryEntity[], Error>>;
   getListItemMenu: () => Promise<Result<MenuItemEntity[], Error>>;
   getApptResource: () => Promise<Result<ApptRes[], Error>>;
-  getCustomerLookup: (pageNumber?: number, pageSize?: number, phoneNumber?: string) => Promise<Result<CustomerResponse, Error>>;
   getCompanyProfile: () => Promise<Result<CompanyProfileResponse, Error>>;
   getApptDetails: (id: string) => Promise<Result<ApptDetail, Error>>;
   initData: (id?: string) => Promise<void>;
   // SET Form Data
   setIsConfirmOnline: (value: boolean) => void;
   setIsGroupAppt: (value: boolean) => void;
-  setSelectedCustomer: (value: CustomerEntity) => void;
   setSelectedDate: (value: Date) => void;
   setSelectedApptType: (value: DropdownOption) => void;
   setIsAllowBookAnyway: (value: boolean) => void;
@@ -84,13 +79,11 @@ export const initialFormState = {
   apptDetails: null,
   isConfirmOnline: false,
   isGroupAppointment: false,
-  selectedCustomer: null,
   selectedApptType: null,
   selectedDate: new Date(),
   isAllowBookAnyway: false,
   listCategories: [],
   listItemMenu: [],
-  customerList: [],
   companyProfile: null,
   listApptResource: [],
   listEmployeeOnWork: [],
@@ -109,6 +102,7 @@ export const initialFormState = {
 const appointmentRepository = new AppointmentRepositoryImplement();
 const appointmentUsecase = new AppointmentUsecase(appointmentRepository);
 
+
 export const useCreateAppointmentStore = create<AppointmentFormState>((set, get) => ({
   ...initialFormState,
 
@@ -119,7 +113,6 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
   setIsConfirmOnline: (value: boolean) => set({ isConfirmOnline: value }),
   setIsGroupAppt: (value: boolean) => set({ isGroupAppointment: value }),
   setSelectedApptType: (value: DropdownOption) => set({ selectedApptType: value }),
-  setSelectedCustomer: (value: CustomerEntity) => set({ selectedCustomer: value }),
   setIsAllowBookAnyway: (value: boolean) => set({ isAllowBookAnyway: value }),
 
   // --- ASYNC ACTIONS (GET DATA) ---
@@ -156,23 +149,20 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
     const result = await appointmentUsecase.getMenuItems();
     return result;
   },
-  getCustomerLookup: async (pageNumber: number = 1, pageSize: number = 10000, phoneNumber: string = '') => {
-    const payload: CustomerPayload = { pageNumber, pageSize, phoneNumber };
-    const result = await appointmentUsecase.customers(payload);
-    return result;
-  },
   initData: async (id?: string) => {
     try {
       set({ isLoading: true, error: null });
-      const [categoriesResponse, menuItemsResponse, apptResource, companyProfileResponse, customerListResponse] = await Promise.all([
+      const [categoriesResponse, menuItemsResponse, apptResource, companyProfileResponse] = await Promise.all([
         get().getListCategories(),
         get().getListItemMenu(),
         get().getApptResource(),
         get().getCompanyProfile(),
-        get().getCustomerLookup(),
       ]);
 
-      if (isSuccess(categoriesResponse) && isSuccess(menuItemsResponse) && isSuccess(apptResource) && isSuccess(companyProfileResponse) && isSuccess(customerListResponse)) {
+      if (isSuccess(categoriesResponse) 
+        && isSuccess(menuItemsResponse) 
+        && isSuccess(apptResource) 
+        && isSuccess(companyProfileResponse)) {
         // Appt Resource & Employee on Work
         const listEmployee: EmployeeEntity[] = useEmployeeStore.getState().employees;
         const listApptResourceData = apptResource.value as ApptRes[];
@@ -195,9 +185,6 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
             listApptType[4].bgColor = companyProfile.data.posTheme.walkinBackColor;
             listApptType[5].bgColor = companyProfile.data.posTheme.onlineBackColor;
         }
-
-        const customerList = customerListResponse.value.dataSource;
-
         // Appt Details (for Edit mode)
         let apptDetails: ApptDetail | null = null;
         let listBookingServices: BookingServiceEntity[] = [];
@@ -234,17 +221,16 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
             listCategories: listCategories,
             listItemMenu: listItemMenu,
             companyProfile: companyProfile,
-            customerList: customerList,
             listApptType: listApptType,
             listBookingServices: listBookingServices.length > 0 ? listBookingServices : get().listBookingServices,
             selectedDate: apptDetails?.apptDate ? new Date(apptDetails.apptDate) : new Date(),
             isConfirmOnline: apptDetails?.isOnlineConfirm ?? false,
             isGroupAppointment: apptDetails?.isGroupAppt ?? false,
-            selectedCustomer: apptDetails?.customer ?? null,
             apptDetails: apptDetails,
             selectedApptType: { label: apptType?.name ?? "", value: apptType },
             isLoading: false,
         });
+        useCustomerStore.setState({selectedCustomer: apptDetails?.customer})
       } else {
         set({ isLoading: false, error: "Failed to initialize data." });
       }
@@ -258,6 +244,7 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
   saveAppointment: async () => {
     set({ isLoading: true, error: null });
     const state : AppointmentFormState = get();
+    const customerState = useCustomerStore.getState()
     if (!validBookings(state, (msg) => set({ error: msg, isLoading: false }))) {
       return failure(new Error(state.error || "Validation failed"));
     }
@@ -288,7 +275,7 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
             duration: combo.service?.duration || 0,
             startTime: startTimeEntity, 
             price: combo.service?.regularPrice || 0, employeeId: combo.technician?.id || "",
-            note: state.selectedCustomer?.notes??'',
+            note: customerState.selectedCustomer?.notes??"",
             apptServicePackageId: item?.service?.id??"", // Thêm
             apptServicePackageName: item?.service?.name??"", // Thêm
             position: 1
@@ -328,12 +315,13 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
       apptServiceItems: apptServiceItems,
       apptServicePackages: apptServicePackages,
       customer: {
-        id: state.selectedCustomer?.id || "",
-        firstName: state.selectedCustomer?.firstName || "", lastName: state.selectedCustomer?.lastName || "",
-        fullName: state.selectedCustomer?.firstName+" "+ state.selectedCustomer?.lastName|| "", email: state.selectedCustomer?.email || "",
-        cellPhone: state.selectedCustomer?.cellPhone || "",
+        id: customerState.selectedCustomer?.id || "",
+        firstName: customerState.selectedCustomer?.firstName || "", lastName: customerState.selectedCustomer?.lastName || "",
+        fullName: customerState.selectedCustomer?.firstName+" "+ customerState.selectedCustomer?.lastName|| "", 
+        email: customerState.selectedCustomer?.email || "",
+        cellPhone: customerState.selectedCustomer?.cellPhone || "",
       },
-      customerNote: state.selectedCustomer?.notes || "",
+      customerNote: customerState.selectedCustomer?.notes || "",
       allowBookAnyway: state.isAllowBookAnyway,
     };
 
@@ -416,7 +404,6 @@ export const createAppointmentSelectors = {
   state: (state: AppointmentFormState) => state,
   isLoading: (state: AppointmentFormState) => state.isLoading,
   error: (state: AppointmentFormState) => state.error,
-  selectedCustomer: (state: AppointmentFormState) => state.selectedCustomer,
   listBookingServices: (state: AppointmentFormState) => state.listBookingServices,
   listCategories:(state: AppointmentFormState) => state.listCategories,
   listItemMenu: (state: AppointmentFormState) => state.listItemMenu,
@@ -433,7 +420,7 @@ export const createAppointmentSelectors = {
 
 // --- HELPER FUNCTIONS ---
 function validBookings(state: AppointmentFormState, setAlertMessage: (msg: string) => void): boolean {
-  if (!state.selectedCustomer) {
+  if (!useCustomerStore.getState().selectedCustomer) {
     setAlertMessage("Please select a customer");
     return false;
   }

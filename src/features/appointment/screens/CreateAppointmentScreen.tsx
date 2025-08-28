@@ -30,6 +30,7 @@ import { DatePickerField, TimePickerField } from "../components/DateTimePickerFi
 // --- IMPORT CÁC STORE MỚI ---
 import { useCreateAppointmentStore } from "../stores/createAppointmentStore";
 import { useAppointmentUIStore } from "../stores/createAppointmentUIStore";
+import { useCustomerStore } from "../stores/customerStore";
 
 
 // --- Helper Functions (Không thay đổi) ---
@@ -64,7 +65,7 @@ export default function CreateAppointmentScreen() {
 
     // --- LẤY STATE & ACTIONS TỪ FORM STORE ---
     const { 
-        selectedCustomer, selectedApptType, listApptType, 
+        selectedApptType, listApptType, 
         isLoading, listServices, selectedDate,
         isConfirmOnline, isGroupAppt, error, listEmployeeOnWork,
         apptDetails,
@@ -74,7 +75,6 @@ export default function CreateAppointmentScreen() {
         updateBookingService, removeBookingService,
     } = useCreateAppointmentStore(
         useShallow((s) => ({
-            selectedCustomer: s.selectedCustomer,
             selectedApptType: s.selectedApptType,
             listApptType: s.listApptType,
             isLoading: s.isLoading,
@@ -117,6 +117,11 @@ export default function CreateAppointmentScreen() {
         }))
     );
     
+    const {selectedCustomer, resetCustomerState} = 
+    useCustomerStore(
+        useShallow(
+        (state)=> ({selectedCustomer: state.selectedCustomer, resetCustomerState: state.reset})
+    ))
     // Các hook khác không thay đổi
     const { getAppointmentList } = useAppointmentStore(
         useShallow((s) => ({ getAppointmentList: s.getAppointmentList }))
@@ -131,6 +136,7 @@ export default function CreateAppointmentScreen() {
         // Clean up store khi unmount
         return () => {
             reset();
+            resetCustomerState();
         }
     }, [apptId, initData, reset]);
 

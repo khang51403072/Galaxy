@@ -11,56 +11,59 @@ import { ROUTES } from '@/app/routes';
 import { useTheme, Theme } from '@/shared/theme';
 
 // --- IMPORT STORE MỚI ---
-import { useCreateAppointmentStore } from '../stores/createAppointmentStore';
 import { useAppointmentStore } from '../stores/appointmentStore'; // Giữ lại để lấy config
+import { useCustomerStore } from '../stores/customerStore';
 
 export default function SelectCustomerScreen() {
   const theme = useTheme();
   const styles = createStyles(theme);
-  
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // --- SỬ DỤNG STORE MỚI: useAppointmentFormStore ---
-  const { customerList, getCustomerLookup, setSelectedCustomer } = useCreateAppointmentStore(
+  const { 
+    searchCustomer, 
+    isLoading, 
+    cachedCustomerList, 
+    customerList, 
+    getCustomerLookup, 
+    setSelectedCustomer, 
+    setSearchString, 
+    searchString, 
+  } = useCustomerStore(
     useShallow((state) => ({
       customerList: state.customerList,
+      isLoading: state.isLoading,
+      searchString: state.searchString,
       getCustomerLookup: state.getCustomerLookup,
       setSelectedCustomer: state.setSelectedCustomer,
+      setSearchString: state.setSearchString,
+      setIsLoading: state.setIsLoading,
+      searchCustomer: state.searchCustomer,
+      cachedCustomerList: state.cachedCustomerList,
     }))
   );
-  
+
   // Lấy config isShowPhone từ store chung của feature Appointment
   const isShowPhone = useAppointmentStore(state => state.json?.isShowPhone);
 
-  const fetchData = useCallback(async (currentPage: number, searchTerm: string) => {
-    setIsLoading(true);
-    await getCustomerLookup(currentPage, 20, searchTerm); // Tăng pageSize để có nhiều kết quả hơn
-    setIsLoading(false);
-  }, [getCustomerLookup]);
-
   // useEffect để tải danh sách ban đầu
   useEffect(() => {
-    fetchData(1, '');
-  }, [fetchData]);
+    if (cachedCustomerList.length == 0) getCustomerLookup()
+  }, [cachedCustomerList]);
+
 
   const handleSearch = (text: string) => {
-    setSearch(text);
+    setSearchString(text);
     if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
+      clearTimeout(debounceRef.current);
     }
     debounceRef.current = setTimeout(() => {
-        setPage(1); // Reset page khi tìm kiếm mới
-        fetchData(1, text);
-    }, 500); // 500ms debounce
+      searchCustomer(text)
+    }, 850); // 500ms debounce
   };
 
   const handleClearSearch = () => {
-    setSearch('');
-    setPage(1);
-    fetchData(1, '');
+    setSearchString('');
   }
 
   const handleSelectCustomer = (item: CustomerEntity) => {
@@ -79,10 +82,10 @@ export default function SelectCustomerScreen() {
   );
 
   return (
-    <XScreen 
-      loading={isLoading} 
-      title="Select Customer" 
-      dismissKeyboard={true} 
+    <XScreen
+      loading={isLoading}
+      title="Select Customer"
+      dismissKeyboard={true}
       rightIcon={
         <TouchableOpacity onPress={() => navigate(ROUTES.CREATE_CUSTOMER as never)}>
           <XIcon name="userPlus" width={24} height={24} color={theme.colors.primaryMain} />
@@ -92,20 +95,20 @@ export default function SelectCustomerScreen() {
       <View style={styles.container}>
         <XInput
           placeholder="Search by name or phone number..."
-          value={search}
+          value={searchString}
           onChangeText={handleSearch}
           iconLeft="search"
           keyboardType="default"
-          iconRight={search ? <XIcon name="x" width={12} height={12} /> : undefined}
+          iconRight={searchString ? <XIcon name="x" width={12} height={12} /> : undefined}
           onIconRightPress={handleClearSearch}
         />
         <FlatList
           data={customerList}
-          keyExtractor={item => item.id?.toString() || item.cellPhone}
+          keyExtractor={item => item.id?.toString() + item.cellPhone}
           renderItem={renderCustomerItem}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
-          // Có thể thêm onEndReached để làm pagination sau này
+        // Có thể thêm onEndReached để làm pagination sau này
         />
       </View>
     </XScreen>
@@ -113,9 +116,9 @@ export default function SelectCustomerScreen() {
 }
 
 const createStyles = (theme: Theme) => StyleSheet.create({
-  container: { 
-    paddingTop: theme.spacing.sm, 
-    flex: 1 
+  container: {
+    paddingTop: theme.spacing.sm,
+    flex: 1
   },
   itemContainer: {
     paddingVertical: theme.spacing.md,
