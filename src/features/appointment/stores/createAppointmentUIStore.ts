@@ -12,6 +12,7 @@ export type AppointmentUIState = {
   // --- ACTIONS ---
   setShowServiceSheet: (value: boolean) => void;
   openServiceSheet: (serviceIndex: number) => void;
+  closeServiceSheet: () => void;
   setEmployeeForAvailable: (employees: EmployeeEntity[]) => void;
   setServiceIndex: (index: number) => void;
   setComboIndex: (index: number) => void;
@@ -36,7 +37,7 @@ export const useAppointmentUIStore = create<AppointmentUIState>((set) => ({
   // --- SETTERS AND ACTIONS ---
   setShowServiceSheet: (value: boolean) => set({ showServiceSheet: value }),
   openServiceSheet: (serviceIndex: number) => set({ showServiceSheet: true, serviceIndex }),
-
+  closeServiceSheet: () => set({ showServiceSheet: false }),
   setEmployeeForAvailable: (employees: EmployeeEntity[]) => set({ employeeForAvailable: employees }),
   
   setServiceIndex: (index: number) => set({ serviceIndex: index }),
@@ -68,6 +69,7 @@ export const appointmentUISelectors = {
   actions: (state: AppointmentUIState) => ({
     setShowServiceSheet: state.setShowServiceSheet,
     openServiceSheet: state.openServiceSheet,
+    closeServiceSheet: state.closeServiceSheet,
     setEmployeeForAvailable: state.setEmployeeForAvailable,
     openTechnicianSheet: state.openTechnicianSheet,
     closeTechnicianSheet: state.closeTechnicianSheet,

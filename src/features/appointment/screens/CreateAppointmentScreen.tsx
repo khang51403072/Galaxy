@@ -111,7 +111,7 @@ export default function CreateAppointmentScreen() {
             comboIndex: s.comboIndex,
             isShowTechnician: s.isShowTechnician,
             openServiceSheet: s.openServiceSheet,
-            closeServiceSheet: () => s.setShowServiceSheet(false), // Có thể tạo action riêng nếu muốn
+            closeServiceSheet: s.closeServiceSheet, 
             openTechnicianSheet: s.openTechnicianSheet,
             closeTechnicianSheet: s.closeTechnicianSheet,
         }))

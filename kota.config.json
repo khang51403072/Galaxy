@@ -1,7 +1,14 @@
 {
-  "outputDir": "ota_builds", 
-  "workerUrl": "https://galaxyme-worker.khang51403072.workers.dev", 
-  "version": "1.1.5", 
-  "versionCode": "101", 
-  "type": "apk"
+  "outputDir": "ota_builds",
+  "workerUrl": "https://galaxyme-worker.khang51403072.workers.dev",
+  "android": {
+    "flavor": "production",
+    "version": "1.1.5",
+    "versionCode": "101"
+  },
+  "ios": {
+    "flavor": "production",
+    "version": "1.0.8",
+    "buildNumber": "26" 
+  }
 }
