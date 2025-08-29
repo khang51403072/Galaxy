@@ -143,7 +143,7 @@ export default function LoginScreen() {
             username: json?.userName,
             password: '',
           });
-        setFullName(json?.firstName + ' ' + json?.lastName);
+        setFullName(json.fullNameDefault);
         setAvatarUri(json?.avatarUri || null);
 
         timeout = setTimeout(() => {
@@ -214,7 +214,7 @@ const useAnotherUser =
 
   const appName = 
   <XText variant="h1" style={{ textAlign: 'center', marginBottom: 20 }}>
-    GALAXY MEE
+    GALAXY ME
   </XText>
 
   const loginForm = 

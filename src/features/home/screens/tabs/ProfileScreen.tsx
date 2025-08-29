@@ -68,7 +68,7 @@ export default function ProfileScreen() {
       useUserStore.setState({ profile: profile.value });
       useAvatarStore.setState({ avatarUri: profile.value.image });
       const json = await appConfig.getUser();
-      if(json) {
+      if(json && json.selectedStore == null) {
         json.avatarUri = profile.value.image;
         await appConfig.saveUser(json);
       }

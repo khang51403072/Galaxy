@@ -14,6 +14,8 @@ import XAvatar from '@/shared/components/XAvatar';
 import XText from '@/shared/components/XText';
 import { appConfig } from '@/shared/utils/appConfig';
 import { StoreItemEntity } from '@/features/auth/usecase/AuthUsecase';
+import { useAuthStore } from '@/features/auth/stores/authStore';
+import { useShallow } from 'zustand/react/shallow';
 
 
 
@@ -22,7 +24,11 @@ import { StoreItemEntity } from '@/features/auth/usecase/AuthUsecase';
 const SwitchStoreScreen = () => {
   const theme =  useTheme() ;
   const [stores, setStores] = useState<StoreItemEntity[]>();
-  const { selectedStore, setSelectedStore, json } = useHomeStore();
+  const {switchStore,isLoading} = useAuthStore( 
+    useShallow((state) => ({switchStore: state.switchStore, isLoading: state.isLoading})),
+  )
+
+  const initData = useHomeStore(useShallow((state)=>state.initData))
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.colors.background},
     header: { fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
@@ -54,8 +60,10 @@ const SwitchStoreScreen = () => {
   }, []);
 
   const handlePress = async (item: StoreItemEntity) => {
-    setSelectedStore(item);
+    await switchStore(item)
+    
     navigate(ROUTES.HOME);
+    initData()
   };
 
   const renderItem = ({ item }: { item: StoreItemEntity }) => (
@@ -74,7 +82,7 @@ const SwitchStoreScreen = () => {
   const [isShowAlert, setShowAlert] = useState(false)
 
   return (
-    <XScreen title='Switch Stores' style={styles.container} paddingHorizontal={0}>
+    <XScreen loading={isLoading} title='Switch Stores' style={styles.container} paddingHorizontal={0}>
       <FlatList
         data={stores}
         keyExtractor={item => item.masterStoreId+item.storeId}

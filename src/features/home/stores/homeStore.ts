@@ -2,7 +2,7 @@ import { StateCreator } from "zustand/vanilla";
 import { ChartEntity, HomeEntity } from "../types/HomeResponse"
 import { HomeError } from "../types/HomeError";
 import { isSuccess, Result, success } from "../../../shared/types/Result";
-import { keychainHelper, KeychainObject } from "../../../shared/utils/keychainHelper";
+import { KeychainObject } from "../../../shared/utils/keychainHelper";
 import { HomeUseCase } from "../usecase/HomeUseCase";
 import { create } from "zustand";
 
@@ -27,7 +27,8 @@ export type homeState = {
     setChartDisplayData: (data: ChartDisplayData[]) => void;
     setSelectedStore: (store: StoreItemEntity) => void;
     setNotificationCount: (count: number) => void;
-    getCompanyProfile:()=>  Promise<Result<CompanyProfileResponse, Error>> 
+    getCompanyProfile:() => Promise<Result<CompanyProfileResponse, Error>>,
+    initData: () => void
 }
 
 // ===== Selector =====
@@ -47,7 +48,8 @@ export const homeSelectors = {
     selectNotificationCount: (state: homeState) => state.notificationCount,
     selectSetNotificationCount: (state: homeState) => state.setNotificationCount,
     selectGetCompanyProfile: (state: homeState) => state.getCompanyProfile,
-    selectCompanyProfile: (state: homeState)=> state.companyProfile
+    selectCompanyProfile: (state: homeState)=> state.companyProfile,
+    selectInitData:(state: homeState)=> state.initData,
 }
 const appointmentRepository = new AppointmentRepositoryImplement();
 const appointmentUsecase = new AppointmentUsecase(appointmentRepository);
@@ -123,7 +125,13 @@ export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeStat
             set({companyProfile: response.value})    
         }
         return response;
-      },
+    },
+    initData: async () => {
+        useEmployeeStore.getState().fetchEmployees();
+        get().getCompanyProfile();
+        await get().getHomeData();
+        get().getChartData();
+    }
 });
 
 // Khởi tạo real usecase ở production
@@ -133,6 +141,8 @@ import { appConfig } from "@/shared/utils/appConfig";
 import { CompanyProfileResponse } from "@/features/appointment/types/CompanyProfileResponse";
 import { AppointmentRepositoryImplement } from "@/features/appointment/repositories/AppointmentRepositoryImplement";
 import { AppointmentUsecase } from "@/features/appointment/usecases/AppointmentUsecase";
-import { StoreItemEntity } from "@/features/auth/usecase/AuthUsecase";
+import { LoginResult, StoreItemEntity } from "@/features/auth/usecase/AuthUsecase";
+import { AuthError } from "@/features/auth/types/AuthErrors";
+import { useEmployeeStore } from "@/shared/stores/employeeStore";
 const realHomeUseCase = new HomeUseCase(new ApiHomeRepository(HomeAPI));
 export const useHomeStore = create<homeState>()(createHomeStore(realHomeUseCase));

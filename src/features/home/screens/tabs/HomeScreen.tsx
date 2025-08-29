@@ -19,6 +19,7 @@ import BellWithBadge from '../../components/BellWithBadge';
 import { getNotifications } from '@/shared/services/FirebaseNotificationService';
 import XDropdown, { DropdownOption } from '@/shared/components/XDropdown';
 import XInput from '@/shared/components/XInput';
+import { LoginResult } from '@/features/auth/usecase/AuthUsecase';
 
 export default function HomeScreen() {
   const { homeData, 
@@ -33,7 +34,8 @@ export default function HomeScreen() {
     selectedStore, 
     notificationCount, 
     setNotificationCount,
-    getCompanyProfile
+    getCompanyProfile,
+    initData
    } = useHomeStore(
     useShallow((state) => ({
       homeData: homeSelectors.selectHomeData(state),
@@ -49,40 +51,26 @@ export default function HomeScreen() {
       selectedStore: homeSelectors.selectSelectedStore(state),
       notificationCount: homeSelectors.selectNotificationCount(state),
       setNotificationCount: homeSelectors.selectSetNotificationCount(state),
-      getCompanyProfile: homeSelectors.selectGetCompanyProfile(state)
+      getCompanyProfile: homeSelectors.selectGetCompanyProfile(state),
+      initData: homeSelectors.selectInitData(state)
     }))
   );
-  const fetchEmployees = useEmployeeStore(employeeSelectors.selectFetchEmployees);
   const theme = useTheme();  
   
 
   useEffect(() => {
-    loadData();
-    
+    initData();
     getNotifications().then((list) => {
       setNotificationCount(list.filter((e)=>!e.read).length);
     });
-  }, []);
+  }, [json]);
   
   useEffect(() => {
     if(json==null) return
-    getChartData().then((result) => {
-      if(isSuccess(result)) {
-        // Data đã được convert tự động trong store, không cần loadData2Chart nữa
-      }
-    });
+    getChartData()
   }, [toggleSwitch]);
   
-  const loadData = async () => {
-    fetchEmployees();
-    getCompanyProfile();
-    await getHomeData();
-    getChartData().then((result) => {
-      if(isSuccess(result)) {
-        // Data đã được convert tự động trong store, không cần loadData2Chart nữa
-      }
-    });
-  };
+  
 
 
   const buildColorNote = (text: string, color: string)=>{
@@ -303,7 +291,7 @@ const totalRevenue =
       paddingHorizontal={theme.spacing.md}
       skeleton={<HomeSkeleton/>}
       backgroundColor={theme.colors.background}
-      onRefresh={loadData}
+      onRefresh={initData}
       haveBottomTabBar={true}
     >
       {header}
@@ -337,7 +325,7 @@ const totalRevenue =
               Store:
             </XText>
             <XText variant='titleMedium' style={{ color: theme.colors.gray700 }}>
-              {selectedStore?.name ?? "No Select Store"}
+              {selectedStore?.storeName ?? (json as LoginResult)?.merchantInfo.dbaName??""}
             </XText>
           </View>
           <TouchableOpacity onPress={()=>navigate(ROUTES.SWITCH_STORE)}>

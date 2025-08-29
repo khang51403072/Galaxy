@@ -94,10 +94,14 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
     if(json) {
       const userName = json.userName;
       const password = json.password;
-      const firstName = json.firstName;
-      const lastName = json.lastName;
+      const fullNameDefault = json.fullNameDefault;
       const avatarUri = json.avatarUri;
-      await appConfig.saveUser({userName: userName, password: password, firstName: firstName, lastName: lastName, avatarUri: avatarUri});
+      await appConfig.saveUser({
+        userName: userName, 
+        password: password, 
+        avatarUri: avatarUri,
+        fullNameDefault: fullNameDefault
+      });
       await appConfig.saveUseBiometric(get().isUseFaceId??false);
       await appConfig.clearAutoLogin();
     }
