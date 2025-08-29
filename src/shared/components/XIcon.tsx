@@ -44,6 +44,11 @@ import ProfileOutline from '../assets/icons/ProfileOutline.svg';
 import HomeFilled from '../assets/icons/HomeFilled.svg';
 import HomeOutline from '../assets/icons/HomeOutline.svg';
 import DowmArrowBlack from '../assets/icons/DownArrowBlack.svg'
+//ME
+import CaretRight from '../assets/icons/ME/CaretRight.svg'
+import Profile from '../assets/icons/ME/Profile.svg'
+import Swatches from '../assets/icons/ME/Swatches.svg'
+
 export const iconMap = {
   user: User,
   passwordCheck: PasswordCheck,
@@ -88,7 +93,10 @@ export const iconMap = {
   exclamationMark: ExclamationMark,
   userPlus: UserPlus,
   switchStore: SwitchStore,
-  downArrowBlack: DowmArrowBlack
+  downArrowBlack: DowmArrowBlack,
+  caretRight: CaretRight,
+  profile: Profile,
+  swatches: Swatches,
 };
 
  type XIconProps = {

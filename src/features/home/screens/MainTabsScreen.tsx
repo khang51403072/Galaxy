@@ -19,6 +19,7 @@ import ProfileScreen from './tabs/ProfileScreen';
 import { appConfig } from '@/shared/utils/appConfig';
 import { Alert } from 'react-native';
 import { useUserStore } from '../stores/profileStore';
+import ProfileScreenNew from './tabs/HomeScreenNew';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -40,7 +41,7 @@ export default function MainTabsScreen() {
     },
     {
       name: 'Profile',
-      component: ProfileScreen,
+      component: ProfileScreenNew,
       icon: 'profile',
       label: 'Profile',
     },
