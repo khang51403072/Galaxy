@@ -20,6 +20,8 @@ import { getNotifications } from '@/shared/services/FirebaseNotificationService'
 import XDropdown, { DropdownOption } from '@/shared/components/XDropdown';
 import XInput from '@/shared/components/XInput';
 import { LoginResult } from '@/features/auth/usecase/AuthUsecase';
+import { ToggleSwitch } from '../../components/home/TogleSwitch';
+import { ColorNote } from '../../components/home/ChartColorNote';
 
 export default function HomeScreen() {
   const { homeData, 
@@ -63,7 +65,7 @@ export default function HomeScreen() {
     getNotifications().then((list) => {
       setNotificationCount(list.filter((e)=>!e.read).length);
     });
-  }, [json]);
+  }, [selectedStore]);
   
   useEffect(() => {
     if(json==null) return
@@ -73,66 +75,8 @@ export default function HomeScreen() {
   
 
 
-  const buildColorNote = (text: string, color: string)=>{
-    return (
-      <View style={{  flexDirection: 'row', alignItems: 'center',backgroundColor: 'transparent', borderRadius: 50 }}>
-        <View style={{ width: 10, height: 10, backgroundColor: color, borderRadius: 50 }}>
-        </View>
-        <XText variant='captionLight' style={{ color: theme.colors.gray800, marginLeft: theme.spacing.xs }}>
-          {text}
-        </XText>
-      </View>
-    );
-  };
-  const ToggleSwitch = ({ value, onChange }: { value: 'week' | 'month', onChange: (val: 'week' | 'month') => void }) => {
-    return (
-      <View
-        style={{
-          flexDirection: 'row',
-          backgroundColor: theme.colors.blackOpacity10,
-          borderRadius: 8,
-          overflow: 'hidden',
-          width: "60%",
-          height: 32,
-          paddingHorizontal: theme.spacing.xs,
-          paddingVertical: theme.spacing.xs,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: value === 'week' ? theme.colors.white : 'transparent',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: theme.borderRadius.sm,
-            paddingHorizontal: theme.spacing.xs,
-            paddingVertical: theme.spacing.xs,
-          }}
-          onPress={() => onChange('week')}
-          activeOpacity={0.8}
-        >
-          <XText variant='captionRegular' style={{ color: theme.colors.gray700  }}>Week</XText>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: value === 'month' ? theme.colors.white : 'transparent',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: theme.borderRadius.sm,
-            paddingHorizontal: theme.spacing.xs,
-            paddingVertical: theme.spacing.xs,
-          }}
-          onPress={() => onChange('month')}
-          activeOpacity={0.8}
-        >
-          <XText variant='captionRegular' style={{ color: theme.colors.gray700 }}>Month</XText>
-        </TouchableOpacity>
-      </View>
-    );
-  };
+  
+  
 
   
   const window = useWindowDimensions();
@@ -260,8 +204,8 @@ const totalRevenue =
       alignItems: 'center',
       backgroundColor: 'transparent', borderRadius: 50, 
       marginTop: theme.spacing.xs }}>
-      {buildColorNote('Sales', theme.colors.primaryMain)}
-      {buildColorNote('Tips', theme.colors.secondary)}
+      <ColorNote text="Sales" color={theme.colors.primaryMain} />
+      <ColorNote text="Tips" color={theme.colors.secondary} />
     </View>
     {chartFilter()}
    
@@ -275,9 +219,12 @@ const totalRevenue =
       style={{ paddingTop: theme.spacing.md }}
     />
     <View style={{ width: '100%', alignItems: 'center', marginTop: theme.spacing.lg }}>
-      <ToggleSwitch value={toggleSwitch} onChange={(val) => {
-        useHomeStore.setState({ toggleSwitch: val });
-      }} />
+      <ToggleSwitch 
+          value={toggleSwitch} 
+          onChange={(val) => {
+            useHomeStore.setState({ toggleSwitch: val });
+          }} 
+        />
     </View>
   </View>
 

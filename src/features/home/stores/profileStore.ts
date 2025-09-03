@@ -50,7 +50,25 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
   getProfile: async (): Promise<Result<ProfileEntity, UserError>> => {
     set({ isLoading: true });
     const profileResult = await profileUseCase.getProfile();
-    set({ isLoading: false });
+    if(isSuccess(profileResult))
+    {
+      const avatarStore = useAvatarStore();
+      
+      set({ isLoading: false ,profile: profileResult.value  });
+      avatarStore.avatarUri = profileResult.value.image;
+      const json = await appConfig.getUser();
+      // truong hop switch sang store khac 
+      // (khong phai store master cua account thi 
+      // khong cap nhat avatar local hien thi khi login)
+      if(json && json.selectedStore == null) {
+        json.avatarUri = profileResult.value.image;
+        await appConfig.saveUser(json);
+      }
+      ////
+    }
+    else{
+      set({ isLoading: false, error: profileResult.error.message });
+    }
     return profileResult;
   },
   updateProfile: async (request: UpdateProfileRequest): Promise<Result<ProfileEntity, UserError>> => {
@@ -128,5 +146,6 @@ import { AuthApi } from '@/features/auth/services/AuthApi';
 import { LogoutMRequest } from '@/features/auth/types/AuthTypes';
 import { appConfig } from '@/shared/utils/appConfig';
 import { Asset } from 'react-native-image-picker';
+import { useAvatarStore } from './avatarStore';
 
 const realAuthUseCase = new AuthUseCase(new ApiAuthRepository(AuthApi));

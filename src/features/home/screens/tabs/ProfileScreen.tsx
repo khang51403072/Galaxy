@@ -59,28 +59,14 @@ export default function ProfileScreen() {
     }))
   );
 
-  const loadProfile = async () => {
-    const profile = await getProfile();
-    if(isFailure(profile)) {
-      useUserStore.setState({ error: profile.error.message });
-    }
-    else{
-      useUserStore.setState({ profile: profile.value });
-      useAvatarStore.setState({ avatarUri: profile.value.image });
-      const json = await appConfig.getUser();
-      if(json && json.selectedStore == null) {
-        json.avatarUri = profile.value.image;
-        await appConfig.saveUser(json);
-      }
-    }
-  }
+  
   // Load isUseFaceId from appConfig
   useEffect(() => {
     appConfig.getUseBiometric().then(isUseFaceId => {
       setIsUseFaceId(isUseFaceId??false);
     });
-    loadProfile();
-  }, []);
+    getProfile();
+  }, [getProfile]);
  
   const handlePickImage = async (type: 'camera' | 'library') => {
     try {
@@ -144,9 +130,7 @@ export default function ProfileScreen() {
       skeleton={<ProfileSkeleton />}
       paddingHorizontal={0}
       scrollable={true}
-      onRefresh={() => {
-        loadProfile();
-        }}
+      onRefresh={getProfile}
       haveBottomTabBar={true}
     >
       {/* Header with gradient background */}

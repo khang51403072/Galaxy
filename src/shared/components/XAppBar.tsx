@@ -69,7 +69,7 @@ export default function XAppBar({ title, showBack = true, onBackPress, rightIcon
       safeArea && { paddingTop: insets.top }
     ]}>
       {showBack ? (
-        <TouchableOpacity onPress={handleBack} style={styles.backBtn}>
+        <TouchableOpacity onPress={handleBack} style={styles.backBtn} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} >
           <XIcon name="backArrow" color={theme.colors.gray800} width={20} height={20} />
         </TouchableOpacity>
       ) : (

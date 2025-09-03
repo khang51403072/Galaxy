@@ -48,7 +48,11 @@ import DowmArrowBlack from '../assets/icons/DownArrowBlack.svg'
 import CaretRight from '../assets/icons/ME/CaretRight.svg'
 import Profile from '../assets/icons/ME/Profile.svg'
 import Swatches from '../assets/icons/ME/Swatches.svg'
-
+import Copyright from '../assets/icons/ME/Copyright.svg'
+import BuyCredits from '../assets/icons/ME/BuyCredits.svg'
+import Subscriptions from '../assets/icons/ME/Subscriptions.svg' 
+import Statements from '../assets/icons/ME/Statements.svg'  
+import Invoices from '../assets/icons/ME/Invoices.svg'   
 export const iconMap = {
   user: User,
   passwordCheck: PasswordCheck,
@@ -97,6 +101,11 @@ export const iconMap = {
   caretRight: CaretRight,
   profile: Profile,
   swatches: Swatches,
+  copyright: Copyright,
+  buyCredits: BuyCredits,
+  subscriptions: Subscriptions,
+  statements: Statements,
+  invoices: Invoices
 };
 
  type XIconProps = {
