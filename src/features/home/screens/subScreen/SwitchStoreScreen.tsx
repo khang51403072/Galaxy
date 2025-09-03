@@ -63,7 +63,7 @@ const SwitchStoreScreen = () => {
     await switchStore(item)
     
     navigate(ROUTES.HOME);
-    initData()
+    // initData()
   };
 
   const renderItem = ({ item }: { item: StoreItemEntity }) => (

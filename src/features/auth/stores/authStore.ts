@@ -47,17 +47,7 @@ export const createAuthStore = (authUseCase: AuthUseCase) => (set: any, get: any
       loginData.fullNameDefault = loginData.firstName + ' ' +loginData.lastName
       await get().storeLogin(loginData);
       //register fcm 
-      if (!firebase.messaging().isDeviceRegisteredForRemoteMessages) {
-        await firebase.messaging().registerDeviceForRemoteMessages();
-      }
-      const deviceId = await appConfig.getPersistentDeviceId();
-      const token = await getMessaging().getToken();
-      const rq: RegisterFCMRequest = {
-        deviceId: deviceId,
-        deviceToken: token??"",
-        platform: Platform.OS
-      };
-      await realAuthUseCase.registerFCM(rq);
+      await handleFcmTokenOnLogin(realAuthUseCase); 
       ////
     }
     set({ isLoading: false });
@@ -83,17 +73,7 @@ export const createAuthStore = (authUseCase: AuthUseCase) => (set: any, get: any
       await get().storeLogin(loginData);
       
       //register fcm 
-      if (!firebase.messaging().isDeviceRegisteredForRemoteMessages) {
-        await firebase.messaging().registerDeviceForRemoteMessages();
-      }
-      const deviceId = await appConfig.getPersistentDeviceId();
-      const token = await getMessaging().getToken();
-      const rq: RegisterFCMRequest = {
-        deviceId: deviceId,
-        deviceToken: token??"",
-        platform: Platform.OS
-      };
-      await realAuthUseCase.registerFCM(rq);
+      await handleFcmTokenOnLogin(realAuthUseCase); 
       ////
     }
     set({ isLoading: false });
@@ -107,5 +87,6 @@ import { AuthApi } from '../services/AuthApi';
 import { firebase, getMessaging } from '@react-native-firebase/messaging';
 import { LoginRequest, RegisterFCMRequest } from '../types/AuthTypes';
 import { Platform } from 'react-native';
-const realAuthUseCase = new AuthUseCase(new ApiAuthRepository(AuthApi));
+import { handleFcmTokenOnLogin } from '@/shared/services/FirebaseNotificationService';
+export const realAuthUseCase = new AuthUseCase(new ApiAuthRepository(AuthApi));
 export const useAuthStore = create<AuthState>()(createAuthStore(realAuthUseCase));

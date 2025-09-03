@@ -18,7 +18,7 @@ import NotificationListScreen from '@/features/home/screens/subScreen/Notificati
 import SelectServiceScreen from '@/features/appointment/components/SelectServiceScreen';
 import AddCustomerScreen from '@/features/appointment/components/AddCustomerScreen';
 import HomeScreen from '@/features/home/screens/tabs/HomeScreen';
-import ProfileScreen from '@/features/home/screens/tabs/ProfileScreen';
+import ProfileScreen from '@/features/home/screens/subScreen/ProfileScreen';
 import SwitchStoreScreen from '@/features/home/screens/subScreen/SwitchStoreScreen';
 import ChangeThemeScreen from '@/features/home/screens/subScreen/ChangeThemeScreen';
 

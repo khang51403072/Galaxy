@@ -33,7 +33,7 @@ const financeListActions = [
 export default function ProfileScreenNew(){
     const theme = useTheme();
     const { profile, 
-        isLoading: profileLoading, 
+        isLoading, 
         getProfile, 
         logout, 
         setIsUseFaceId, 
@@ -56,10 +56,10 @@ export default function ProfileScreenNew(){
         }))
       );
     
-    const { avatarUri, isLoading: avatarLoading } = useAvatarStore(
+    const { avatarUri, } = useAvatarStore(
         useShallow((state) => ({
           avatarUri: avatarSelectors.selectAvatarUri(state),
-          isLoading: avatarSelectors.selectIsLoading(state),
+          
         }))
       );
 
@@ -128,14 +128,14 @@ export default function ProfileScreenNew(){
 
 
     const versionText = useMemo(
-      ()=><XRow justify="center" align="center"> 
+      ()=><XRow justify="center" align="center" style={{marginBottom:theme.spacing.md}}> 
           <XIcon name="copyright" height={theme.spacing.md} width={theme.spacing.md}></XIcon>
           <XText variant="captionLight" style={{ textAlign: 'center', color: theme.colors.gray600}}>
             2025 XSoftware - {DeviceInfo.getVersion()}
           </XText>
         </XRow>,[theme]
     )
-    const isLoading = profileLoading ;
+    console.log("profileLoading", isLoading)
     return <XScreen padding={0} haveBottomTabBar={true} scrollable loading={isLoading}>
       <HeaderProfile avatarUri={avatarUri} profile={profile}></HeaderProfile>
       <XColumn style={{paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.md}} gap={theme.spacing.md}>

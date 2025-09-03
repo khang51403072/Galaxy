@@ -21,7 +21,7 @@ export const HeaderProfile = memo(
                     gap: theme.spacing.sm,
                     flexDirection: 'column',
                     width: '100%',
-                    height: '25%',
+                    height: '20%',
                     alignItems: 'center',
                     justifyContent: 'center'
                 }

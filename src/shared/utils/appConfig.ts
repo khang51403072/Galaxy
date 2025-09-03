@@ -25,6 +25,7 @@ const USER_KEY = 'user';
 const DEVICE_ID_KEY = 'GALAXYME_DEVICE_ID';
 const USE_BIOMETRIC_KEY = 'USE_BIOMETRIC';
 const AUTO_LOGIN_KEY = 'AUTO_LOGIN';
+const FCM_TOKEN_KEY = "FCM_TOKEN"
 class AppConfig {
   private static instance: AppConfig;
   private cachedDeviceId: string = '';
@@ -202,6 +203,36 @@ class AppConfig {
   async clearAutoLogin() {
     await AsyncStorage.removeItem(AUTO_LOGIN_KEY);
   }
+
+
+
+  /**
+   * Lưu fcm token vào AsyncStorage.
+   * @param token string
+   */
+  async saveFcmToken(token: string) {
+    await AsyncStorage.setItem(FCM_TOKEN_KEY, JSON.stringify({ token }));
+  }
+
+  /**
+   * Lấy fcm token từ AsyncStorage.
+   * @returns string hoặc null nếu chưa lưu
+   */
+  async getFcmToken(): Promise<string | null> {
+    const str = await AsyncStorage.getItem(FCM_TOKEN_KEY);
+    if (str) {
+      try {
+        const obj = JSON.parse(str);
+        return typeof obj.token === 'string' ? obj.token : null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
 }
+
+
+
 
 export const appConfig = AppConfig.getInstance(); 

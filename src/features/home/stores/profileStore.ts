@@ -1,5 +1,5 @@
 import { create } from 'zustand/react';
-import { Result, isSuccess, isFailure, failure } from '../../../shared/types/Result';
+import { Result, isSuccess, isFailure, failure, Failure } from '../../../shared/types/Result';
 import { ProfileEntity } from '../types/ProfileResponse';
 import { ChangePasswordRequest, UpdateProfileRequest } from '../types/ProfileRequest';
 import { UserError } from '../types/UserError';
@@ -47,29 +47,34 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
   error: null,
   isUseFaceId: false,
   showTooltip: false,
-  getProfile: async (): Promise<Result<ProfileEntity, UserError>> => {
+  getProfile: async () => {
     set({ isLoading: true });
     const profileResult = await profileUseCase.getProfile();
-    if(isSuccess(profileResult))
-    {
-      const avatarStore = useAvatarStore();
+    try {
       
-      set({ isLoading: false ,profile: profileResult.value  });
-      avatarStore.avatarUri = profileResult.value.image;
-      const json = await appConfig.getUser();
-      // truong hop switch sang store khac 
-      // (khong phai store master cua account thi 
-      // khong cap nhat avatar local hien thi khi login)
-      if(json && json.selectedStore == null) {
-        json.avatarUri = profileResult.value.image;
-        await appConfig.saveUser(json);
+      if (isSuccess(profileResult)) {
+        const newProfile = profileResult.value;
+        useAvatarStore.setState({ avatarUri: newProfile.image });
+
+        const json = await appConfig.getUser();
+        if (json && json.selectedStore == null) {
+          json.avatarUri = newProfile.image;
+          await appConfig.saveUser(json);
+        }
+        
+        set({ profile: newProfile, error: null }); // Chỉ set profile, isLoading sẽ được xử lý ở finally
+        return profileResult;
+      } else {
+        set({ error: profileResult.error.message });
+        return profileResult;
       }
-      ////
+    } catch (error) {
+      set({ error: "An unexpected error occurred." });
+    } finally {
+      // Luôn luôn chạy, đảm bảo isLoading được reset
+      set({ isLoading: false }); 
+      return profileResult;
     }
-    else{
-      set({ isLoading: false, error: profileResult.error.message });
-    }
-    return profileResult;
   },
   updateProfile: async (request: UpdateProfileRequest): Promise<Result<ProfileEntity, UserError>> => {
     set({ isUpdating: true });

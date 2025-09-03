@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import XButton from '../../../../shared/components/XButton';
 import XDivider from '../../../../shared/components/XDivider';
@@ -27,27 +27,17 @@ export default function ProfileScreen() {
   const route = useRoute<any>();
   const theme = useTheme();
   // User store for profile data with selectors
-  const { profile, 
+  const { 
+    profile, 
     isLoading: profileLoading, 
     getProfile, 
-    logout, 
-    setIsUseFaceId, 
-    isUseFaceId, 
     uploadAvatar,
-    setShowTooltip,
-    showTooltip
-     } = useUserStore(
+  } = useUserStore(
     useShallow((state) => ({
       profile: userSelectors.selectProfile(state),
       isLoading: userSelectors.selectIsLoading(state),
       getProfile: userSelectors.selectGetProfile(state),
-      changePassword: userSelectors.selectChangePassword(state),
-      logout: userSelectors.selectLogout(state),
-      setIsUseFaceId: userSelectors.selectSetIsUseFaceId(state),
-      isUseFaceId: userSelectors.selectIsUseFaceId(state),
       uploadAvatar: userSelectors.selectUploadAvatar(state),
-      setShowTooltip:userSelectors.selectSetShowTooltip(state),
-      showTooltip: userSelectors.selectShowTooltip(state),
     }))
   );
 
@@ -59,15 +49,6 @@ export default function ProfileScreen() {
     }))
   );
 
-  
-  // Load isUseFaceId from appConfig
-  useEffect(() => {
-    appConfig.getUseBiometric().then(isUseFaceId => {
-      setIsUseFaceId(isUseFaceId??false);
-    });
-    getProfile();
-  }, [getProfile]);
- 
   const handlePickImage = async (type: 'camera' | 'library') => {
     try {
       const granted = await checkPermission(type);
@@ -127,6 +108,7 @@ export default function ProfileScreen() {
   return (
     <XScreen
       loading={isLoading}
+      title="Profile"
       skeleton={<ProfileSkeleton />}
       paddingHorizontal={0}
       scrollable={true}
@@ -172,60 +154,10 @@ export default function ProfileScreen() {
           type="edit" 
         />
         <XDivider />
-
         <TitleGroup title="Work Details" onPress={() => {}} />
         <RowInfo titleLeft="Start Date" titleRight={ (profile?.startDate?.toDDMMYYYY("/") || '')} />
         <RowInfo titleLeft="Income" titleRight={getFormattedIncome() || ''} />
         <RowInfo titleLeft="Store" titleRight={profile?.storeName || ''} />
-        <XDivider />
-        <TitleGroup 
-          titleIcon="Change" 
-          title="Theme" 
-          icon="pen" 
-          onPress={() => {
-            navigate(ROUTES.CHANGE_THEME)}}
-          type="edit" 
-        />
-        <XDivider />
-        <TitleGroup isShowTooltip={showTooltip} onCloseTooltip={
-          () => setShowTooltip(false)} title="Sign In With Face ID" 
-          onPress={() => {}} 
-          type="switch" 
-          switchValue={isUseFaceId} 
-          onToggleChange={async () => {
-            try{
-            const  available = await checkBiometricAvailable();
-            if (!available) {
-             return;
-            }
-            const result = await simpleBiometricAuth();
-            if(result) {        
-              appConfig.saveUseBiometric(!isUseFaceId);
-              setIsUseFaceId(!isUseFaceId);
-            }
-            else{
-              setIsUseFaceId(false);
-            }
-            }catch(error){
-              setIsUseFaceId(false);
-              useUserStore.setState({ error: 'Authentication failed' });
-            }
-        }} />
-        
-        
-        <XButton
-          title="Log out"
-            onPress={async () => {
-              await logout();
-              reset([{ name: ROUTES.LOGIN }], 0);
-            }}
-          useGradient={false}
-          backgroundColor={theme.colors.primaryMain}
-          style={{ borderRadius: theme.borderRadius.md, marginTop: theme.spacing.md }}
-        />
-        <XText variant="captionLight" style={{ textAlign: 'center', marginTop: 16}}>
-          Version {DeviceInfo.getVersion()}
-        </XText>
       </View>
       
     </XScreen>

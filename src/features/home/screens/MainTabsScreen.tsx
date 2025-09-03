@@ -14,7 +14,7 @@ import XIcon from '../../../shared/components/XIcon';
 import HomeScreen from './tabs/HomeScreen';
 import { appConfig } from '@/shared/utils/appConfig';
 import { useUserStore } from '../stores/profileStore';
-import ProfileScreenNew from './tabs/HomeScreenNew';
+import ProfileScreenNew from './tabs/MEScreen';
 
 // --- TYPE DEFINITIONS ---
 interface MainTabsRoutesProps { 
@@ -107,7 +107,7 @@ export default function MainTabsScreen() {
 
   const routes: MainTabsRoutesProps[] = [
     { name: 'Dashboard', component: HomeScreen, icon: 'home', label: 'Dashboard' },
-    { name: 'Profile', component: ProfileScreenNew, icon: 'profile', label: 'Profile' },
+    { name: 'ME', component: ProfileScreenNew, icon: 'profile', label: 'ME' },
   ];
 
   const handleTabChange = useCallback((index: number) => {
@@ -143,7 +143,7 @@ export default function MainTabsScreen() {
             );
         }
     } catch (error) {
-        console.error("Failed to check biometric guide:", error);
+      console.error("Failed to check biometric guide:", error);
     }
   }, [handleTabChange]);
 
