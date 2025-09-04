@@ -2,6 +2,9 @@ import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { View, TouchableOpacity, StyleSheet, ScrollView, StyleProp, ViewStyle, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { useTheme } from '../theme/ThemeProvider';
 import XText from './XText';
+import { XRow } from './XRow';
+import XIcon from './XIcon';
+import { XDatePicker } from './XDatePicker';
 
 const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -113,9 +116,32 @@ export const XCalendarStrip: React.FC<XCalendarStripProps> = ({ value, onChange,
   return (
     <View style={[styles.container, style]}>
       {/* Month cố định */}
-      <XText variant="dateSelectorMonth" style={[{ color: theme.colors.primaryMain, marginBottom: 8 }]}> 
-        {getMonthName(displayMonth)}
-      </XText>
+      <XRow justify='center' align='center' style={{
+          backgroundColor: theme.colors.primaryOpacity5, 
+          width: "90%", 
+          borderRadius: theme.spacing.sm,
+          marginBottom: theme.spacing.md
+        }}>
+        <XDatePicker
+          containerStyle={{
+            backgroundColor: "transparent",
+            borderColor: "transparent",
+          }}
+          textInputStyle={{color: theme.colors.primaryMain, }}
+          textAlign="center"
+          style={{ width: "40%" }}
+          value={value}
+          onChange={(date:Date) => {
+            onChange(date);
+          }}
+          displayFormat="MMMM"
+          mode="date"
+        />
+        <XIcon color={theme.colors.primaryMain} height={20} width={12} name='downArrow'></XIcon>
+      </XRow>
+      
+
+      
       {/* Weekday cố định */}
       <View style={[styles.weekRow, { width: SCREEN_WIDTH }]}> 
         {WEEK_DAYS.map((wd, idx) => (

@@ -36,6 +36,7 @@ type Props = {
   displayFormat?: string; // Thêm parameter displayFormat
   textAlign?: 'left' | 'center' | 'right';
   containerStyle?: StyleProp<TextStyle>
+  textInputStyle?: StyleProp<TextStyle>
 };
 
 export function XDatePicker({
@@ -47,7 +48,8 @@ export function XDatePicker({
   maxDate,
   displayFormat,
   textAlign,
-  containerStyle
+  containerStyle,
+  textInputStyle
 }: Props) {
   const touchableRef = useRef<any>(null);
   const [show, setShow] = useState(false);
@@ -101,9 +103,9 @@ export function XDatePicker({
         onPress={openPopover}
         activeOpacity={0.7}
         style={style}
-        hitSlop={{ top:13, bottom: 22, left: 0, right: 0 }} 
+        hitSlop={{ top:13, bottom: 22, left: 0, right: 10 }} 
       >
-        <XInput containerStyle={containerStyle} textAlign='center' editable={false} value={display} label={label} />
+        <XInput textInputStyle={textInputStyle}  containerStyle={containerStyle} textAlign='center' editable={false} value={display} label={label} />
         
       </TouchableOpacity>
       
