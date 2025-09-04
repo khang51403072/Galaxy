@@ -3,7 +3,8 @@ import { HomeEntity, ChartEntity } from '../types/HomeResponse';
 import { HomeAPI } from '../services/HomeApi';
 import { Result, success, failure } from '../../../shared/types/Result';
 import { HomeError } from '../types/HomeError';
-import { HomeOwnerRequest, HomeChartRequest } from '../types/HomeRequest';
+import { HomeOwnerRequest, HomeChartRequest, SummaryRequest } from '../types/HomeRequest';
+import { ReportData } from '../types/SummaryResponse';
 
 export class ApiHomeRepository implements HomeRepository {
   constructor(private homeApi: typeof HomeAPI) {}
@@ -64,4 +65,23 @@ export class ApiHomeRepository implements HomeRepository {
       return failure(new HomeError(error.message, 'SERVER_ERROR'));
     }
   }
+
+
+  async getSummaryData(request: SummaryRequest): Promise<Result<ReportData, HomeError>> {
+    try {
+      const response = await this.homeApi.getSummaryData(request);
+      
+      if (!response.result || !response.dataSource ) {
+        return failure(new HomeError(
+          response.errorMsg, 
+          'RESULT_FALSE'
+        ));
+      }
+      return success(response.dataSource);
+    } catch (error: any) {
+      return failure(new HomeError(error.message, 'SERVER_ERROR'));
+    }
+  }
+
+  
 } 

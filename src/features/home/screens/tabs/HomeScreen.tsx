@@ -17,6 +17,8 @@ import { TotalRevenueChart } from '../../components/home/TotalRevenueChart';
 import { HomeHeader } from '../../components/home/HomeHeader';
 import { StoreSwitcherCard } from '../../components/home/StoreSwitcherCard';
 import { XRow } from '@/shared/components/XRow';
+import { HomeAPI } from '../../services/HomeApi';
+import { SummaryRequest } from '../../types/HomeRequest';
 
 export default function HomeScreen() {
   const { homeData, 
@@ -64,50 +66,26 @@ export default function HomeScreen() {
   
   const meEarningsToday = useMemo(
     ()=>{
-      return <XRow>
-        <XText variant='bodyRegular' style={{ color: theme.colors.gray800 }}>
-          ME Earnings Today
-        </XText>
-
-        
-      </XRow>
+      return (
+        <XRow justify='space-between' align='center'>
+          <XText variant='bodyRegular' style={{ color: theme.colors.gray800 }}>
+            ME Earnings Today
+          </XText>
+          <TouchableOpacity onPress={()=>{
+            navigate(ROUTES.SUMMARY)
+          }}>
+              <XRow style={{borderWidth:1, borderRadius: theme.spacing.sm, padding: theme.spacing.xs, borderColor: theme.colors.primaryOpacity25, backgroundColor: theme.colors.primaryOpacity5}}>
+                <XIcon name="chartBar" height={18}></XIcon>
+                <XText variant='bodyRegular'>Explore</XText>
+            </XRow>
+          </TouchableOpacity>
+          
+        </XRow>
+      )
       
     },[theme]
   )
-  // const dropdownOptions = [
-  //   "This week",
-  //   "Last week",
-  //   "This month",
-  //   "Last month",
-  // ]
-  // const chartFilter = ()=>
-  // <View style={{ 
-  //   position: 'absolute',
-  //   top:theme.spacing.md,
-  //   right: theme.spacing.sm,
-  //   width: "35%"
-  //   }}>
-  //   <XDropdown style={{width:'100%'}}
-  //     value={{label: "This week", value: "This week"}}
-  //     options={dropdownOptions.map((e)=>{return{label: e, value: e}})}
-  //     onSelect= {()=>{}}
-      
-  //     renderLabel={(value)=>{
-  //       return <XInput
-  //           value={value?.label}
-  //           onChangeText={() => {}}
-  //           iconRight="downArrowBlack"
-  //           editable={false}
-  //           pointerEvents="none"
-  //           containerStyle={{backgroundColor: theme.colors.white ,borderColor: theme.colors.blackOpacity10, borderRadius: 12}}
-  //           textInputStyle={{...theme.typography.captionLight, color: theme.colors.gray700, paddingVertical: theme.spacing.sm, paddingHorizontal: 0 }}
-            
-  //         />
-          
-  //     }}
-  //   >
-  //   </XDropdown>
-  // </View>
+  
   // 2. Tính toán storeName một lần bằng useMemo
   const currentStoreName = useMemo(() => {
     return selectedStore?.storeName ?? (json as LoginResult)?.merchantInfo.dbaName ?? "";
@@ -144,6 +122,7 @@ export default function HomeScreen() {
           chartDisplayData={chartDisplayData}
           isLoadingChart={isLoadingChart}
           toggleSwitchValue={toggleSwitch}
+          showToggle
         />
         <XText variant='titleRegular' style={{ color: theme.colors.gray800 }}>
           Category

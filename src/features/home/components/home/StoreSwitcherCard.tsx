@@ -40,7 +40,7 @@ export const StoreSwitcherCard = memo(({ storeName, onPressSwitch }: StoreSwitch
         </XText>
       </XColumn>
       <TouchableOpacity onPress={onPressSwitch} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}>
-        <XIcon name='switchStore' color={theme.colors.gray700} width={40} height={40} />
+        <XIcon name='switchStore' color={theme.colors.primaryMain} width={40} height={40} />
       </TouchableOpacity>
     </XRow>
   );

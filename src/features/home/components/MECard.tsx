@@ -36,7 +36,7 @@ export const  MECard = memo(
         () => listActions.map(
             (e, index) => <XRow key={index} align="center">
                 <XRow align="center" gap={theme.spacing.sm} style={{flex:1}}>
-                    <XIcon name={e.icon}></XIcon>
+                    <XIcon name={e.icon} color={theme.colors.primaryMain}></XIcon>
                     <XText color={theme.colors.gray800} variant="titleRegular">{e.title}</XText>
                 </XRow>
                 {e.onAction && <TouchableOpacity onPress={e.onAction} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} >

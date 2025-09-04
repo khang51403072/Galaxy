@@ -31,6 +31,7 @@ export const API_ENDPOINTS = {
     REPORT_TIME_SHEET: 'galaxy-me/attendances-close-out',
     REPORT_BATCH_HISTORY: 'galaxy-me/batch-history-owner',
     CLOSE_OUT: 'galaxy-me/close-out',
+    SUMMARY: 'galaxy-me/overview'
   },
   APPOINTMENT: {
     APPOINTMENT_LIST: 'galaxy-me/appointment',

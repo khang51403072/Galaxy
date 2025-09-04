@@ -54,7 +54,7 @@ export const homeSelectors = {
 const appointmentRepository = new AppointmentRepositoryImplement();
 const appointmentUsecase = new AppointmentUsecase(appointmentRepository);
 // ===== HomeStore DI Creator =====
-export const createHomeStore = (homeUsecase: HomeUseCase): StateCreator<homeState> => (set, get) => ({
+export const createHomeStore = (): StateCreator<homeState> => (set, get) => ({
     homeData: null,
     chartData: null,
     isOwner: null,
@@ -144,5 +144,5 @@ import { AppointmentUsecase } from "@/features/appointment/usecases/AppointmentU
 import { LoginResult, StoreItemEntity } from "@/features/auth/usecase/AuthUsecase";
 import { AuthError } from "@/features/auth/types/AuthErrors";
 import { useEmployeeStore } from "@/shared/stores/employeeStore";
-const realHomeUseCase = new HomeUseCase(new ApiHomeRepository(HomeAPI));
-export const useHomeStore = create<homeState>()(createHomeStore(realHomeUseCase));
+import { homeUsecase } from "@/app/dependencies";
+export const useHomeStore = create<homeState>()(createHomeStore());

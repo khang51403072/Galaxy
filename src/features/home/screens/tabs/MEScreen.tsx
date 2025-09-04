@@ -120,7 +120,7 @@ export default function ProfileScreenNew(){
             await logout();
             reset([{ name: ROUTES.LOGIN }], 0);
         }}>
-            <MECard listActions={[{ title: "Log Out", icon: "profile" }]}/>
+            <MECard listActions={[{ title: "Log Out", icon: "signOut" }]}/>
         </TouchableOpacity>
       ), 
       [logout] // Thêm dependency

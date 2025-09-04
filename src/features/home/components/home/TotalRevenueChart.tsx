@@ -13,12 +13,16 @@ interface TotalRevenueChartProps {
   chartDisplayData: any[]; // Cần định nghĩa type cụ thể hơn
   isLoadingChart: boolean;
   toggleSwitchValue: 'week' | 'month';
+  showToggle: boolean,
+  chartHeight?: number
 }
 
 export const TotalRevenueChart = memo(({
   chartDisplayData,
   isLoadingChart,
-  toggleSwitchValue
+  toggleSwitchValue,
+  showToggle = true,
+  chartHeight = 200
 }: TotalRevenueChartProps) => {
   const theme = useTheme();
   const window = useWindowDimensions();
@@ -56,20 +60,20 @@ export const TotalRevenueChart = memo(({
       <XChart
         data={chartDisplayData}
         width={CHART_WIDTH}
-        height={200}
+        height={chartHeight}
         isLoading={isLoadingChart || chartDisplayData.length === 0}
         barColors={[theme.colors.primaryMain, theme.colors.secondary]}
         labelColor="#333"
         style={style.chart}
       />
-      <View style={style.toggleSwitch}>
+      {showToggle&&<View style={style.toggleSwitch}>
         <ToggleSwitch
           value={toggleSwitchValue}
           onChange={(val) => {
             useHomeStore.setState({ toggleSwitch: val });
           }}
         />
-      </View>
+      </View>}
     </View>
   );
 })

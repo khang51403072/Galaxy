@@ -89,7 +89,7 @@ const CustomTabBar = ({ activeIndex, handleTabChange, routes, slideAnim }: Custo
             style={{
               ...theme.typography.captionRegular,
               marginTop: 4,
-              color: activeIndex === index ? theme.colors.primaryMain : theme.colors.gray700,
+              color: theme.colors.gray800,
             }}
           >
             {route.label}

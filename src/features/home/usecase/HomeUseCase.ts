@@ -1,9 +1,9 @@
 import { Result } from "../../../shared/types/Result";
-import { HomeOwnerRequest, HomeChartRequest } from "../types/HomeRequest";
+import { HomeOwnerRequest, HomeChartRequest, SummaryRequest } from "../types/HomeRequest";
 import { HomeEntity, ChartEntity } from "../types/HomeResponse";
 import { HomeError } from "../types/HomeError";
 import { HomeRepository } from "../repositories/HomeRepository";
-import xlog from '../../../core/utils/xlog';
+import { ReportData } from "../types/SummaryResponse";
 
 export class HomeUseCase {
   constructor(private homeRepository: HomeRepository) {}
@@ -23,4 +23,9 @@ export class HomeUseCase {
   async getChartDataOwner(request: HomeChartRequest): Promise<Result<ChartEntity[], HomeError>> {
     return await this.homeRepository.getChartDataOwner(request);
   }
+
+  async getSummaryData(request: SummaryRequest) : Promise<Result<ReportData, HomeError>> {
+    return await this.homeRepository.getSummaryData(request);
+  }
+
 }

@@ -8,7 +8,7 @@ import Logo from '../assets/icons/Logo.svg';
 import Pen from '../assets/icons/Pen.svg';
 import Camera from '../assets/icons/Camera.svg';
 import BackArrow from '../assets/icons/BackArrow.svg';
-import FaceID from '../assets/icons/FaceID.svg';
+
 import Bell from '../assets/icons/Bell.svg';
 import Ticket from '../assets/icons/Ticket.svg';
 import Appointment from '../assets/icons/Appointment.svg';
@@ -44,6 +44,7 @@ import ProfileOutline from '../assets/icons/ProfileOutline.svg';
 import HomeFilled from '../assets/icons/HomeFilled.svg';
 import HomeOutline from '../assets/icons/HomeOutline.svg';
 import DowmArrowBlack from '../assets/icons/DownArrowBlack.svg'
+import Cash from '../assets/icons/Cash.svg'
 //ME
 import CaretRight from '../assets/icons/ME/CaretRight.svg'
 import Profile from '../assets/icons/ME/Profile.svg'
@@ -53,6 +54,9 @@ import BuyCredits from '../assets/icons/ME/BuyCredits.svg'
 import Subscriptions from '../assets/icons/ME/Subscriptions.svg' 
 import Statements from '../assets/icons/ME/Statements.svg'  
 import Invoices from '../assets/icons/ME/Invoices.svg'   
+import ChartBar from '../assets/icons/ChartBar.svg'
+import FaceID from '../assets/icons/ME/FaceID.svg';
+import SignOut from '../assets/icons/ME/SignOut.svg';
 export const iconMap = {
   user: User,
   passwordCheck: PasswordCheck,
@@ -105,7 +109,10 @@ export const iconMap = {
   buyCredits: BuyCredits,
   subscriptions: Subscriptions,
   statements: Statements,
-  invoices: Invoices
+  invoices: Invoices,
+  chartBar: ChartBar,
+  cash: Cash,
+  signOut: SignOut
 };
 
  type XIconProps = {

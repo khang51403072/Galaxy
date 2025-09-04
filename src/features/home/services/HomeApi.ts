@@ -1,8 +1,9 @@
-import { httpClient } from '../../../core/network/HttpClient';
+import { httpClient, httpClientWithDeduplication } from '../../../core/network/HttpClient';
 import { ApiResponse } from '../../../core/network/ApiResponse';
 import { API_ENDPOINTS } from '../../../core/network/endpoints';
-import { HomeChartRequest, HomeOwnerRequest } from '../types/HomeRequest';
+import { HomeChartRequest, HomeOwnerRequest, SummaryRequest } from '../types/HomeRequest';
 import { ChartEntity, HomeEntity } from '../types/HomeResponse';
+import { ApiReportResponse, ReportData } from '../types/SummaryResponse';
 
 // ===== TYPES =====
 export interface DashboardStats {
@@ -17,7 +18,7 @@ export interface DashboardStats {
 // ===== API RESPONSES =====
 type HomeDataResponse = ApiResponse<HomeEntity>;
 type ChartDataResponse = ApiResponse<ChartEntity[]>;
-
+type SummaryDataResponse = ApiReportResponse<ReportData>;
 export const HomeAPI = {
   // Get dashboard statistics
   getHomeDataOwner: async (request: HomeOwnerRequest): Promise<HomeDataResponse> => {
@@ -53,6 +54,15 @@ export const HomeAPI = {
       return res.data;
     } catch (error: any) {
       throw error;
+    }
+  },
+  getSummaryData: async (request: SummaryRequest): Promise<SummaryDataResponse> => {
+    try {
+      const res = await httpClientWithDeduplication.post<SummaryDataResponse>(API_ENDPOINTS.REPORT.SUMMARY, request);
+      return res.data;
+    } catch (error: any) {
+      throw error;
+      
     }
   },
 
