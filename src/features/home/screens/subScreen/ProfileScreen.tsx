@@ -22,6 +22,7 @@ import { appConfig } from '@/shared/utils/appConfig';
 import { checkBiometricAvailable, simpleBiometricAuth } from '@/shared/services/BiometricService';
 import DeviceInfo from 'react-native-device-info';
 import { useHomeStore } from '../../stores/homeStore';
+import { LoginEntity } from '@/features/auth/types/AuthTypes';
 
 export default function ProfileScreen() {
   const route = useRoute<any>();
@@ -32,12 +33,14 @@ export default function ProfileScreen() {
     isLoading: profileLoading, 
     getProfile, 
     uploadAvatar,
+    
   } = useUserStore(
     useShallow((state) => ({
       profile: userSelectors.selectProfile(state),
       isLoading: userSelectors.selectIsLoading(state),
       getProfile: userSelectors.selectGetProfile(state),
       uploadAvatar: userSelectors.selectUploadAvatar(state),
+      
     }))
   );
 
@@ -48,6 +51,8 @@ export default function ProfileScreen() {
       isLoading: avatarSelectors.selectIsLoading(state),
     }))
   );
+
+  const {json, selectedStore} = useHomeStore(useShallow((state)=>({json: state.json, selectedStore: state.selectedStore})))
 
   const handlePickImage = async (type: 'camera' | 'library') => {
     try {
@@ -137,6 +142,10 @@ export default function ProfileScreen() {
       {/* Content Section */}
       <View style={{ width: '100%', paddingHorizontal: theme.spacing.md, gap: theme.spacing.sm, paddingTop: theme.spacing.md }}>
         <TitleGroup  titleIcon="Edit" title="Information" icon="pen" onPress={() => {
+          let data = json as LoginEntity;
+          let username = data.userName.split("@")[0]
+          console.log("UPDATE_PROFILE",selectedStore?.empUser,data.userName)
+          if(selectedStore && selectedStore?.empUser!=username) return
           navigate(ROUTES.UPDATE_PROFILE)
           }
         } type="edit"/>

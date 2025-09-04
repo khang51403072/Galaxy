@@ -145,4 +145,5 @@ import { LoginResult, StoreItemEntity } from "@/features/auth/usecase/AuthUsecas
 import { AuthError } from "@/features/auth/types/AuthErrors";
 import { useEmployeeStore } from "@/shared/stores/employeeStore";
 import { homeUsecase } from "@/app/dependencies";
+import { useUserStore } from "./profileStore";
 export const useHomeStore = create<homeState>()(createHomeStore());

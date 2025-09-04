@@ -9,13 +9,14 @@ import XDialog from '@/shared/components/XDialog';
 import XNoDataView from '@/shared/components/XNoDataView';
 import { useHomeStore } from '../../stores/homeStore';
 import { ROUTES } from '@/app/routes';
-import { navigate } from '@/app/NavigationService';
+import { goBack, navigate } from '@/app/NavigationService';
 import XAvatar from '@/shared/components/XAvatar';
 import XText from '@/shared/components/XText';
 import { appConfig } from '@/shared/utils/appConfig';
 import { StoreItemEntity } from '@/features/auth/usecase/AuthUsecase';
 import { useAuthStore } from '@/features/auth/stores/authStore';
 import { useShallow } from 'zustand/react/shallow';
+import { useUserStore } from '../../stores/profileStore';
 
 
 
@@ -60,10 +61,12 @@ const SwitchStoreScreen = () => {
   }, []);
 
   const handlePress = async (item: StoreItemEntity) => {
-    await switchStore(item)
     
-    navigate(ROUTES.HOME);
-    // initData()
+    await switchStore(item)
+    useHomeStore.setState({selectedStore: item})
+    goBack()
+    initData()
+    useUserStore.getState().getProfile()
   };
 
   const renderItem = ({ item }: { item: StoreItemEntity }) => (

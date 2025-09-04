@@ -19,6 +19,7 @@ import { StoreSwitcherCard } from '../../components/home/StoreSwitcherCard';
 import { XRow } from '@/shared/components/XRow';
 import { HomeAPI } from '../../services/HomeApi';
 import { SummaryRequest } from '../../types/HomeRequest';
+import { LoginEntity } from '@/features/auth/types/AuthTypes';
 
 export default function HomeScreen() {
   const { homeData, 
@@ -135,11 +136,14 @@ export default function HomeScreen() {
           <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.PAYROLL)}} title='Payroll' icon='payroll' color={theme.colors.category3Bg} textColor={theme.colors.white} />
           <CategoryCard style={{ width: '48%' }} onPress={() => {navigate(ROUTES.REPORT)}} title='Report' icon='report' color={theme.colors.category4Bg} textColor={theme.colors.white} /> 
         </View>
-
-       <StoreSwitcherCard 
-          storeName={currentStoreName}
-          onPressSwitch={handleSwitchStore}
-        />
+        {
+          (json as LoginEntity)?.switchableStores?.length>0 &&
+          <StoreSwitcherCard 
+            storeName={currentStoreName}
+            onPressSwitch={handleSwitchStore}
+          />
+        }
+       
       </View>
     </XScreen>
   );
