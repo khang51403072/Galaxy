@@ -11,6 +11,7 @@ import { CustomerResponse, CustomerPayload, CustomerSavePayload, CustomerSaveRes
 import { ApptPayload, ApptSaveResponse } from "../types/ApptSaveResponse";
 import { ApptDetailsResponse } from "../types/ApptDetailsResponse";
 import { CompanyProfileResponse } from "../types/CompanyProfileResponse";
+import { DeleteAppointmentRequest } from "../types/DeleteAppointmentRequest";
 
 
 type commonResponse = ApiResponse<string>;
@@ -66,6 +67,11 @@ export const AppointmentApi = {
 
     apptCompanyProfile: async (): Promise<CompanyProfileResponse> => {
         const response = await httpClientWithDeduplication.get(`${API_ENDPOINTS.APPOINTMENT.COMPANY_PROFILE}`);
+        return response.data;
+    },
+
+    deleteAppt: async (rq: DeleteAppointmentRequest): Promise<AppointmentResponse> => {
+        const response = await httpClientWithDeduplication.post(API_ENDPOINTS.APPOINTMENT.DELETE_APPOINTMENT,rq);
         return response.data;
     },
 } 

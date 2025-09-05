@@ -45,6 +45,7 @@ import HomeFilled from '../assets/icons/HomeFilled.svg';
 import HomeOutline from '../assets/icons/HomeOutline.svg';
 import DowmArrowBlack from '../assets/icons/DownArrowBlack.svg'
 import Cash from '../assets/icons/Cash.svg'
+import Trash from '../assets/icons/Trash.svg'
 //ME
 import CaretRight from '../assets/icons/ME/CaretRight.svg'
 import Profile from '../assets/icons/ME/Profile.svg'
@@ -112,7 +113,8 @@ export const iconMap = {
   invoices: Invoices,
   chartBar: ChartBar,
   cash: Cash,
-  signOut: SignOut
+  signOut: SignOut,
+  trash: Trash
 };
 
  type XIconProps = {

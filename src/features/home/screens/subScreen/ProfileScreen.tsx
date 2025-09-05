@@ -23,6 +23,7 @@ import { checkBiometricAvailable, simpleBiometricAuth } from '@/shared/services/
 import DeviceInfo from 'react-native-device-info';
 import { useHomeStore } from '../../stores/homeStore';
 import { LoginEntity } from '@/features/auth/types/AuthTypes';
+import { useXAlert } from '@/shared/components/XAlertContext';
 
 export default function ProfileScreen() {
   const route = useRoute<any>();
@@ -33,14 +34,14 @@ export default function ProfileScreen() {
     isLoading: profileLoading, 
     getProfile, 
     uploadAvatar,
-    
+    checkIsAllowEdit
   } = useUserStore(
     useShallow((state) => ({
       profile: userSelectors.selectProfile(state),
       isLoading: userSelectors.selectIsLoading(state),
       getProfile: userSelectors.selectGetProfile(state),
       uploadAvatar: userSelectors.selectUploadAvatar(state),
-      
+      checkIsAllowEdit: state.checkIsAllowEdit
     }))
   );
 
@@ -110,6 +111,7 @@ export default function ProfileScreen() {
 
   const isLoading = profileLoading || avatarLoading;
 
+  const alert = useXAlert()
   return (
     <XScreen
       loading={isLoading}
@@ -141,14 +143,15 @@ export default function ProfileScreen() {
       
       {/* Content Section */}
       <View style={{ width: '100%', paddingHorizontal: theme.spacing.md, gap: theme.spacing.sm, paddingTop: theme.spacing.md }}>
-        <TitleGroup  titleIcon="Edit" title="Information" icon="pen" onPress={() => {
-          let data = json as LoginEntity;
-          let username = data.userName.split("@")[0]
-          console.log("UPDATE_PROFILE",selectedStore?.empUser,data.userName)
-          if(selectedStore && selectedStore?.empUser!=username) return
-          navigate(ROUTES.UPDATE_PROFILE)
-          }
-        } type="edit"/>
+        <TitleGroup  titleIcon="Edit" title="Information" icon="pen" onPress={ async () => {
+            let mess = await checkIsAllowEdit()
+            if(mess.length>0) return alert.showAlert({
+                message: mess,
+                type: "error"
+            })
+            navigate(ROUTES.UPDATE_PROFILE)
+          }} 
+          type="edit"/>
         <RowInfo titleLeft="Name" titleRight={getDisplayName()} />
         <RowInfo titleLeft="Phone" titleRight={profile?.phone || ''} />
         <RowInfo titleLeft="Email" titleRight={profile?.email || ''} />
@@ -158,7 +161,12 @@ export default function ProfileScreen() {
           titleIcon="Change" 
           title="Password" 
           icon="pen" 
-          onPress={() => {
+          onPress={ async () => {
+            let mess = await checkIsAllowEdit()
+            if(mess.length>0) return alert.showAlert({
+                  message: mess,
+                  type: "error"
+            })
             navigate(ROUTES.CHANGE_PASSWORD)}}
           type="edit" 
         />

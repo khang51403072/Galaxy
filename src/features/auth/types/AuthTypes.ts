@@ -7,6 +7,7 @@ export enum Permissions {
   VIEW_HOME = 'VIEW_HOME',
   MAKE_APPOINTMENTS = "MAKE_APPOINTMENTS",
   MOVE_APPOINTMENT = "MOVE_APPOINTMENT",
+  DELETE_APPOINTMENT = "DELETE_APPOINTMENT"
 }
 export type LoginInput = {
     email: string;

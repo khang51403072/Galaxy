@@ -13,9 +13,12 @@ import { CompanyProfileResponse, dateFromTimeEntity, TimeRange } from '../types/
 import { ApptDetail} from '../types/ApptDetailsResponse';
 import { useEmployeeStore } from '@/shared/stores/employeeStore';
 import { DropdownOption } from '@/shared/components/XDropdown';
-import { Permissions } from '@/features/auth/types/AuthTypes';
+import { LoginEntity, Permissions } from '@/features/auth/types/AuthTypes';
 import { useHomeStore } from '@/features/home/stores/homeStore';
 import { useCustomerStore } from './customerStore';
+import { AppointmentResponse } from '../types/AppointmentResponse';
+import { DeleteAppointmentRequest } from '../types/DeleteAppointmentRequest';
+import { appConfig } from '@/shared/utils/appConfig';
 
 
 // --- TYPE DEFINITIONS ---
@@ -49,7 +52,7 @@ export type AppointmentFormState = {
   companyProfile: CompanyProfileResponse | null;
   listApptResource: ApptRes[];
   apptDetails: ApptDetail | null;
-
+  
   // --- ACTIONS ---
   reset: () => void;
   // GET Data
@@ -59,6 +62,7 @@ export type AppointmentFormState = {
   getCompanyProfile: () => Promise<Result<CompanyProfileResponse, Error>>;
   getApptDetails: (id: string) => Promise<Result<ApptDetail, Error>>;
   initData: (id?: string) => Promise<void>;
+  deleteAppt: () => Promise<Result<AppointmentResponse, Error>>;
   // SET Form Data
   setIsConfirmOnline: (value: boolean) => void;
   setIsGroupAppt: (value: boolean) => void;
@@ -70,6 +74,7 @@ export type AppointmentFormState = {
   updateBookingService: (params: UpdateBookingParams) => void;
   removeBookingService: (index: number) => void;
   getIsAllowEdit: () => boolean;
+  getIsAllowDelete: () => boolean
 };
 
 // --- INITIAL STATE ---
@@ -381,21 +386,59 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
     const { apptDetails } = get();
     if (apptDetails === null) return true;
     
+    const status = apptDetails.apptStatus.toLowerCase();
+    if (status === "checkout" || status === "cancel") {
+      return false;
+    }
+
     const roles = useHomeStore?.getState()?.json?.listRole || []; // Example auth store access
     if(roles.includes(Permissions.MOVE_APPOINTMENT)){
       return true;
     }
 
-    const status = apptDetails.apptStatus.toLowerCase();
-    if (status === "checkout" || status === "cancel") {
-      return false;
-    }
+    
     
     // Default should be true if not checked out or cancelled. 
     // The original logic returned false here, which seems like a potential bug.
     // If only checkout/cancel prevents editing, then others should be editable.
-    return true; 
+    return false; 
   },
+  getIsAllowDelete: () => {
+    const { apptDetails } = get();
+    let user:LoginEntity|null =  useHomeStore?.getState()?.json as LoginEntity
+    if (apptDetails === null) return false;
+    //check status first
+    const status = apptDetails.apptStatus.toLowerCase();
+    if (status === "checkin" || status === "checkout" || status === "completed") {
+      return false;
+    }
+    /// is owner
+    if(user.isOwner) return true;
+    
+    const roles = useHomeStore?.getState()?.json?.listRole || []; 
+    
+    if(roles.includes(Permissions.DELETE_APPOINTMENT)){
+      return true;
+    }
+
+    return false; 
+  },
+  deleteAppt: async () => {
+    set({isLoading: true})
+    let homeState = useHomeStore.getState()
+    let user:LoginEntity = await appConfig.getUser()
+    let selectedStore =homeState.selectedStore
+    let rq: DeleteAppointmentRequest = {
+      id: get().apptDetails?.id??'',
+      deletedBy: {
+        id: user.userId,
+        name:  selectedStore? selectedStore.empUser.split('@')[0]: user.userName
+      }
+    }
+    let result = await appointmentUsecase.deleteAppt(rq);
+    set({isLoading: false})
+    return result
+  }
 }));
 
 // --- SELECTORS ---

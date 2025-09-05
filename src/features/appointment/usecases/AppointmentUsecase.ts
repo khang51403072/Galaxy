@@ -9,6 +9,7 @@ import { CustomerResponse, CustomerPayload, CustomerSavePayload, CustomerSaveRes
 import { ApptPayload, ApptSaveResponse } from "../types/ApptSaveResponse";
 import { ApptDetail, ApptDetailsResponse } from "../types/ApptDetailsResponse";
 import { CompanyProfileResponse } from "../types/CompanyProfileResponse";
+import { DeleteAppointmentRequest } from "../types/DeleteAppointmentRequest";
 
 export class AppointmentUsecase {
     constructor(private repository: AppointmentRepository) {}
@@ -52,4 +53,8 @@ export class AppointmentUsecase {
     async apptCompanyProfile(): Promise<Result<CompanyProfileResponse, Error>> {
         return await this.repository.apptCompanyProfile();
     }
+    async deleteAppt(rq: DeleteAppointmentRequest): Promise<Result<AppointmentResponse, Error>> {
+        return await this.repository.deleteAppt(rq);
+    }
+    
 } 

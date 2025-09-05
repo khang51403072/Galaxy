@@ -3,12 +3,12 @@ import XScreen from "@/shared/components/XScreen";
 import XText from "@/shared/components/XText";
 import { useTheme, Theme } from "@/shared/theme/ThemeProvider";
 import React, { useCallback, useEffect, useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { useShallow } from "zustand/react/shallow";
 import { RootStackParamList, ROUTES } from "@/app/routes";
 import { goBack, navigate } from "@/app/NavigationService";
 import { useAppointmentStore } from "../stores/appointmentStore";
-import { isSuccess } from "@/shared/types/Result";
+import { isFailure, isSuccess } from "@/shared/types/Result";
 import SelectServiceScreen from "../components/SelectServiceScreen";
 import { MenuItemEntity } from "../types/MenuItemResponse";
 import XBottomSheetSearch from "@/shared/components/XBottomSheetSearch";
@@ -73,6 +73,8 @@ export default function CreateAppointmentScreen() {
         setIsConfirmOnline, setIsGroupAppt,
         reset, saveAppointment, initData, getIsAllowEdit,
         updateBookingService, removeBookingService,
+        getIsAllowDelete,
+        deleteAppt
     } = useCreateAppointmentStore(
         useShallow((s) => ({
             selectedApptType: s.selectedApptType,
@@ -95,6 +97,8 @@ export default function CreateAppointmentScreen() {
             getIsAllowEdit: s.getIsAllowEdit,
             updateBookingService: s.updateBookingService,
             removeBookingService: s.removeBookingService,
+            getIsAllowDelete: s.getIsAllowDelete,
+            deleteAppt: s.deleteAppt
         }))
     );
     
@@ -130,6 +134,7 @@ export default function CreateAppointmentScreen() {
     useBackHandler(navigation, reset);
 
     const isAllowEdit = useMemo(() => getIsAllowEdit(), [apptDetails, getIsAllowEdit]);
+    const isAllowDelete = useMemo(  () => getIsAllowDelete(), [apptDetails, getIsAllowDelete]);
 
     useEffect(() => {
         initData(apptId);
@@ -207,15 +212,41 @@ export default function CreateAppointmentScreen() {
         updateBookingService({ serviceIndex, e: item, type: 'technician', comboIndex });
         closeTechnicianSheet(); // Tự động đóng sau khi chọn
     }, [updateBookingService, serviceIndex, comboIndex, closeTechnicianSheet]);
-
-    // --- JSX (Gần như không thay đổi, chỉ truyền prop từ các biến mới) ---
+    const onDeleteAppointment = useCallback(
+        async ()  =>{
+           let result = await deleteAppt();
+           if(isSuccess(result) && result.value.result) {
+            const json = await appConfig.getUser();
+            getAppointmentList(json);
+            goBack()
+           }
+           else if (isSuccess(result)) {
+           
+            showAlert({message: result.value.errorMsg, type: 'error'})
+           }
+           else if(isFailure(result)) {
+            showAlert({message: result.error.message, type: 'error'})
+           }
+        },[]
+    )
+    const trashButton = useMemo(
+        ()=>{
+            return <TouchableOpacity onPress={
+                onDeleteAppointment
+            }> <XIcon name="trash"></XIcon></TouchableOpacity>
+            
+           
+        },
+        [isAllowEdit]
+    )
     return (
         <XScreen 
             title={apptId ? "Edit Appointment" : "Booking Appointment"}
             loading={isLoading} 
             error={error}
             scrollable={true}
-            footer={isAllowEdit && <XButton title="Save" onPress={handleSave} />}
+            footer={isAllowEdit && <XButton title="Save" onPress={handleSave}/>}
+            rightIcon= {isAllowDelete && trashButton}
         >   
             <View style={styles.container}>
                 {!isAllowEdit &&

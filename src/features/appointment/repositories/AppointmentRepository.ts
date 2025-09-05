@@ -8,6 +8,7 @@ import { CustomerResponse, CustomerPayload, CustomerSavePayload, CustomerSaveRes
 import { ApptPayload, ApptSaveResponse } from "../types/ApptSaveResponse";
 import { ApptDetail, ApptDetailsResponse } from "../types/ApptDetailsResponse";
 import { CompanyProfileResponse } from "../types/CompanyProfileResponse";
+import { DeleteAppointmentRequest } from "../types/DeleteAppointmentRequest";
 
 export interface AppointmentRepository {
     getAppointmentList(request: CommonRequest): Promise<Result<AppointmentEntity[], Error>>;
@@ -20,4 +21,5 @@ export interface AppointmentRepository {
     saveAppointment(payload: ApptPayload): Promise<Result<ApptSaveResponse, Error>>;
     apptDetails(id: string): Promise<Result<ApptDetail, Error>>;
     apptCompanyProfile(): Promise<Result<CompanyProfileResponse, Error>>;
+    deleteAppt(rq: DeleteAppointmentRequest): Promise<Result<AppointmentResponse, Error>>;
 } 

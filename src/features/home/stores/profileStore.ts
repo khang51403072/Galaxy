@@ -20,7 +20,8 @@ export type UserState = {
   changePassword: (request: ChangePasswordRequest) => Promise<Result<void, UserError>>;
   logout: () => Promise<void>;
   uploadAvatar: (imageData: Asset) => Promise<Result<string, UserError>>;
-  setShowTooltip: (value:boolean) => void
+  setShowTooltip: (value:boolean) => void;
+  checkIsAllowEdit: () => Promise<string>;
 };
 
 export const userSelectors = {
@@ -37,6 +38,7 @@ export const userSelectors = {
   selectUploadAvatar: (state: UserState) => state.uploadAvatar,
   selectShowTooltip: (state: UserState) => state.showTooltip,
   selectSetShowTooltip: (state: UserState) => state.setShowTooltip,
+  
 };
 
 // Refactor: nhận profileUseCase từ ngoài vào
@@ -136,7 +138,19 @@ export const createUserStore = (profileUseCase: ProfileUseCase) => (set: any, ge
     set({ isLoading: false });
     return uploadResult;
   },
-  setShowTooltip: (value: boolean) => set({showTooltip: value})
+  setShowTooltip: (value: boolean) => set({showTooltip: value}),
+  checkIsAllowEdit: async () => {
+    let data = await appConfig.getUser() ;
+    if(!data) return ''
+    let username = data.userName.split("@")[0]
+
+    let masterStore = data.switchableStores.find((e:StoreItemEntity)=> e.empUser.split("@")[0]==username)
+
+    let isNotAllow = useHomeStore.getState().selectedStore && useHomeStore.getState().selectedStore?.empUser.split("@")[0]!=username
+
+    if(isNotAllow) return `Feature unavailable. Please switch to your home store: ${masterStore?.storeName}`          
+    return '';
+  }
 });
 
 // Khởi tạo real usecase ở production
@@ -146,9 +160,9 @@ const realProfileUseCase = new ProfileUseCase(new ProfileRepositoryImplement(Pro
 export const useUserStore = create<UserState>()(createUserStore(realProfileUseCase)); 
 
 import { ApiAuthRepository } from '../../auth/repositories/ApiAuthRepository';
-import { AuthUseCase } from '@/features/auth/usecase/AuthUsecase';
+import { AuthUseCase, StoreItemEntity } from '@/features/auth/usecase/AuthUsecase';
 import { AuthApi } from '@/features/auth/services/AuthApi';
-import { LogoutMRequest } from '@/features/auth/types/AuthTypes';
+import { LoginEntity, LogoutMRequest } from '@/features/auth/types/AuthTypes';
 import { appConfig } from '@/shared/utils/appConfig';
 import { Asset } from 'react-native-image-picker';
 import { useAvatarStore } from './avatarStore';

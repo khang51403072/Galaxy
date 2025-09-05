@@ -97,7 +97,7 @@ export default function ProfileScreenNew(){
     },[setIsUseFaceId]) 
     
 
-    const actionButton = useMemo( // Dùng useMemo ở đây cũng tốt
+    const actionButton = useMemo(
       () => (
         <Tooltip
           isVisible={showTooltip}

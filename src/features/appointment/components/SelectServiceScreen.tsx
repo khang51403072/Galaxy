@@ -261,7 +261,9 @@ const createStyles = (theme: Theme) => StyleSheet.create({
   },
   searchContainer: {
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
+    marginHorizontal: theme.spacing.sm,
+    marginVertical: theme.spacing.sm
+    // paddingVertical: theme.spacing.sm,
   },
   contentContainer: {
     paddingBottom: 40,

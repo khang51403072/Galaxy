@@ -43,7 +43,8 @@ export const API_ENDPOINTS = {
     SAVE_CUSTOMER: 'galaxy-me/save-customer',
     SAVE_APPOINTMENT: 'galaxy-me/save-appointment',
     APPT_DETAILS: 'galaxy-me/appointment-details',
-    COMPANY_PROFILE: 'galaxy-me/get-company-profile'
+    COMPANY_PROFILE: 'galaxy-me/get-company-profile',
+    DELETE_APPOINTMENT: 'galaxy-me/delete-appointment'
   }
   
 } as const; 

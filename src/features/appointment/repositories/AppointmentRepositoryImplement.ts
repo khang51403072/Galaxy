@@ -10,6 +10,7 @@ import { CustomerResponse, CustomerPayload, CustomerSavePayload, CustomerSaveRes
 import { ApptPayload, ApptSaveResponse } from "../types/ApptSaveResponse";
 import { ApptDetail, ApptDetailsResponse } from "../types/ApptDetailsResponse";
 import { CompanyProfileResponse } from "../types/CompanyProfileResponse";
+import { DeleteAppointmentRequest } from "../types/DeleteAppointmentRequest";
 
 export class AppointmentRepositoryImplement implements AppointmentRepository {
     async getAppointmentList(request: CommonRequest): Promise<Result<AppointmentEntity[], Error>> {
@@ -96,6 +97,16 @@ export class AppointmentRepositoryImplement implements AppointmentRepository {
     async apptCompanyProfile(): Promise<Result<CompanyProfileResponse, Error>> {
         try {
             const response = await AppointmentApi.apptCompanyProfile();
+            return success(response);
+        } catch (error) {
+            return failure(error as Error);
+        }
+    }
+
+
+    async deleteAppt(rq: DeleteAppointmentRequest): Promise<Result<AppointmentResponse, Error>> {
+        try {
+            const response = await AppointmentApi.deleteAppt(rq);
             return success(response);
         } catch (error) {
             return failure(error as Error);
