@@ -283,7 +283,8 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
             note: customerState.selectedCustomer?.notes??"",
             apptServicePackageId: item?.service?.id??"", // Thêm
             apptServicePackageName: item?.service?.name??"", // Thêm
-            position: 1
+            position: 1,
+            isProxyBooking: false
           };
           if(state.isGroupAppointment) {
             startTime.setMinutes(startTime.getMinutes() + (combo.service?.duration || 0));
@@ -293,6 +294,7 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
         apptServicePackages.push({
             id: item.service.id, name: item.service.name, price: item.service.regularPrice, duration: item.service.duration,
             apptServicePackageFilter: "", apptServiceItems: apptServiceItemsTmp,
+            isProxyBooking: false
         });
       } else {
         apptServiceItems.push({
@@ -302,6 +304,7 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
                 apptServicePackageName: '', // Thêm
           id: item.service.id, name: item.service.name, duration: item.service.duration, startTime: startTimeEntity,
           price: item.service.regularPrice, employeeId: item.technician?.id || "",
+          isProxyBooking: false
         });
         if(state.isGroupAppointment){
           startTime.setMinutes(startTime.getMinutes() + (item.service.duration || 0));
@@ -354,24 +357,22 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
             return { ...item, technician: e as EmployeeEntity };
         });
     } else { // type === 'service'
-        const service = e as MenuItemEntity;
-        const technician = listBookingServices[serviceIndex]?.technician;
-        let comboItems: BookingServiceEntity[] = [];
-        if (service.menuItemType === 'ServicePackage') {
-            const mapIds = new Set(service.servicePackageMaps.map(map => map.mapMenuItemId));
-            comboItems = listItemMenu.filter((item: MenuItemEntity) => mapIds.has(item.id))
-                                      .map((item: MenuItemEntity) => ({ service: item, technician: null }));
-        }
-
-        const newItem: BookingServiceEntity = { service, technician, comboItems };
-        
-        // Replace existing item or the last placeholder item
-        const isReplacingPlaceholder = serviceIndex === listBookingServices.length - 1 && !listBookingServices[serviceIndex].service;
-        if (isReplacingPlaceholder) {
-            newList = [...listBookingServices.slice(0, -1), newItem, { service: null, technician: null }];
-        } else {
-            newList = listBookingServices.map((item, i) => i === serviceIndex ? newItem : item);
-        }
+      const service = e as MenuItemEntity;
+      const technician = listBookingServices[serviceIndex]?.technician;
+      let comboItems: BookingServiceEntity[] = [];
+      if (service.menuItemType === 'ServicePackage') {
+          const mapIds = new Set(service.servicePackageMaps.map(map => map.mapMenuItemId));
+          comboItems = listItemMenu.filter((item: MenuItemEntity) => mapIds.has(item.id))
+                                    .map((item: MenuItemEntity) => ({ service: item, technician: null }));
+      }
+      const newItem: BookingServiceEntity = { service, technician, comboItems };
+      // Replace existing item or the last placeholder item
+      const isReplacingPlaceholder = serviceIndex === listBookingServices.length - 1 && !listBookingServices[serviceIndex].service;
+      if (isReplacingPlaceholder) {
+          newList = [...listBookingServices.slice(0, -1), newItem, { service: null, technician: null }];
+      } else {
+          newList = listBookingServices.map((item, i) => i === serviceIndex ? newItem : item);
+      }
     }
     set({ listBookingServices: newList });
   },
@@ -396,11 +397,6 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
       return true;
     }
 
-    
-    
-    // Default should be true if not checked out or cancelled. 
-    // The original logic returned false here, which seems like a potential bug.
-    // If only checkout/cancel prevents editing, then others should be editable.
     return false; 
   },
   getIsAllowDelete: () => {

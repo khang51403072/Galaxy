@@ -28,6 +28,7 @@ export interface ApptServiceItem {
   position: number;
   foreColor?: string;
   backColor?: string;
+  isProxyBooking: boolean
 }
 
 export interface StartTime {
@@ -53,6 +54,7 @@ export interface ApptPackageItem {
   price: number;
   duration: number;
   apptServiceItems: ApptServiceItem[];
+  isProxyBooking: false
 }
 ///////////////////////////RESPONSE
 export interface ApptSaveResponse {

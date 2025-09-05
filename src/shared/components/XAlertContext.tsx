@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import XAlert from './XAlert';
+import XConfirmDialog from './XConfirmDialog';
 
 export type XAlertOptions = {
   title?: string;
@@ -8,39 +9,83 @@ export type XAlertOptions = {
   onClose?: () => void;
 };
 
-export type XAlertContextType = {
-  showAlert: (options: XAlertOptions) => void;
+// Type mới cho Confirm Dialog
+export type XConfirmOptions = {
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm: () => void;
+  onCancel?: () => void;
+  children?: React.ReactNode;
 };
 
-const XAlertContext = createContext<XAlertContextType | undefined>(undefined);
+
+export type XAlertContextType = {
+  showAlert: (options: XAlertOptions) => void;
+  showConfirm: (options: XConfirmOptions) => void;
+};
+
+const XDialogContext = createContext<XAlertContextType | undefined>(undefined);
 
 export function useXAlert() {
-  const ctx = useContext(XAlertContext);
+  const ctx = useContext(XDialogContext);
   if (!ctx) throw new Error('useXAlert must be used within XAlertProvider');
   return ctx;
 }
 
-export function XAlertProvider({ children }: { children: ReactNode }) {
+export function XDialogProvider({ children }: { children: ReactNode }) {
   const [alert, setAlert] = useState<XAlertOptions | null>(null);
+  const [confirm, setConfirm] = useState<XConfirmOptions | null>(null);
+  const showAlert = useCallback((options: XAlertOptions) => setAlert(options), []);
+  
+  const showConfirm = useCallback((options: XConfirmOptions) => setConfirm(options), []);
+  
 
-  const showAlert = (options: XAlertOptions) => setAlert(options);
-
-  const handleClose = () => {
+  const handleCloseAlert = () => {
+    // Gọi callback onClose của alert trước khi set state
+    alert?.onClose?.(); 
     setAlert(null);
-    alert?.onClose?.();
+  };
+  
+  const handleConfirm = () => {
+    // Gọi callback onConfirm của dialog
+    confirm?.onConfirm();
+    setConfirm(null);
+  };
+
+  const handleCancel = () => {
+    // Gọi callback onCancel (nếu có)
+    confirm?.onCancel?.();
+    setConfirm(null);
   };
 
   return (
-    <XAlertContext.Provider value={{ showAlert }}>
+    <XDialogContext.Provider value={{ showAlert, showConfirm }}>
       {children}
+      {/* Render Alert */}
       {alert && (
         <XAlert
           title={alert.title}
           message={alert.message}
           type={alert.type}
-          onClose={handleClose}
+          onClose={handleCloseAlert}
         />
       )}
-    </XAlertContext.Provider>
+      
+      {/* 4. Render Confirm Dialog */}
+      {confirm && (
+        <XConfirmDialog
+          visible={true}
+          title={confirm.title}
+          message={confirm.message}
+          confirmText={confirm.confirmText}
+          cancelText={confirm.cancelText}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+          children={children}
+        />
+      )}
+    </XDialogContext.Provider>
   );
 } 

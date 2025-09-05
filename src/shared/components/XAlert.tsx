@@ -84,10 +84,10 @@ export default function XAlert({
               justifyContent: 'flex-start',
               gap: 8 }}>
               <XIcon name="exclamationMark" height={24} width={24} color={typeColors[type].main} />
-              <XText variant="h4" style={styles.title}>{title || typeTitles[type]}</XText>
+              <XText variant="titleMedium" style={styles.title}>{title || typeTitles[type]}</XText>
             </View>
             
-            <XText variant="content300" style={styles.message}>{message}</XText>
+            <XText variant="bodyLight" style={styles.message}>{message}</XText>
           </View>
           <TouchableOpacity onPress={handleClose} style={styles.closeBtn}>
             <XIcon name="x" height={10} width={10} color={theme.colors.text} />

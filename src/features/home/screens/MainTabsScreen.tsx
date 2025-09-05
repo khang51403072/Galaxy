@@ -158,7 +158,7 @@ export default function MainTabsScreen() {
       setActiveIndex(newIndex);
     }
   }, [activeIndex]);
-
+  console.log("Mainscreen render")
   return (
     <View style={{ flex: 1 }}>
       <PagerView

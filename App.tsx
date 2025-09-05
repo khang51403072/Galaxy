@@ -21,7 +21,7 @@ import CustomBottomNotification from '@/shared/components/CustomBottomNotificati
 import { initFirebaseNotificationService, removeFirebaseNotificationListener } from './src/shared/services/FirebaseNotificationService';
 import { navigate } from '@/app/NavigationService';
 import { ROUTES } from '@/app/routes';
-import { XAlertProvider } from '@/shared/components/XAlertContext';
+import { XDialogProvider } from '@/shared/components/XAlertContext';
 import { SignalRService } from '@/core/network';
 import useSignalRStore from '@/shared/stores/signalRStore';
 import { initOTA } from '@kang/kota';
@@ -62,7 +62,7 @@ function App() {
     <GestureHandlerRootView>
       <BottomSheetModalProvider>
         <ThemeProvider>
-          <XAlertProvider>
+          <XDialogProvider>
             <View style={styles.container}>
               <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
               <ActionSheetProvider>
@@ -82,7 +82,7 @@ function App() {
                 />
               )}
             </View>
-          </XAlertProvider>
+          </XDialogProvider>
         </ThemeProvider>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>

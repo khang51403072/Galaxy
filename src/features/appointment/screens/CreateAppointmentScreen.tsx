@@ -31,6 +31,8 @@ import { DatePickerField, TimePickerField } from "../components/DateTimePickerFi
 import { useCreateAppointmentStore } from "../stores/createAppointmentStore";
 import { useAppointmentUIStore } from "../stores/createAppointmentUIStore";
 import { useCustomerStore } from "../stores/customerStore";
+import { XColumn } from "@/shared/components/XColumn";
+import { XRow } from "@/shared/components/XRow";
 
 
 // --- Helper Functions (Không thay đổi) ---
@@ -59,7 +61,7 @@ export default function CreateAppointmentScreen() {
     
     const theme = useTheme();
     const styles = useMemo(() => createStyles(theme), [theme]);
-    const { showAlert } = useXAlert();
+    const { showAlert, showConfirm } = useXAlert();
     const { sendMessage } = useSignalR();
     const navigation = useNavigation();
 
@@ -214,25 +216,44 @@ export default function CreateAppointmentScreen() {
     }, [updateBookingService, serviceIndex, comboIndex, closeTechnicianSheet]);
     const onDeleteAppointment = useCallback(
         async ()  =>{
-           let result = await deleteAppt();
-           if(isSuccess(result) && result.value.result) {
-            const json = await appConfig.getUser();
-            getAppointmentList(json);
-            goBack()
-           }
-           else if (isSuccess(result)) {
-           
-            showAlert({message: result.value.errorMsg, type: 'error'})
-           }
-           else if(isFailure(result)) {
-            showAlert({message: result.error.message, type: 'error'})
-           }
+            
+            let result = await deleteAppt();
+            if(isSuccess(result) && result.value.result) {
+                const json = await appConfig.getUser();
+                getAppointmentList(json);
+                goBack()
+            }
+            else if (isSuccess(result)) {
+            
+                showAlert({message: result.value.errorMsg, type: 'error'})
+            }
+            else if(isFailure(result)) {
+                showAlert({message: result.error.message, type: 'error'})
+            }
         },[]
     )
     const trashButton = useMemo(
         ()=>{
             return <TouchableOpacity onPress={
-                onDeleteAppointment
+                ()=>{showConfirm({
+                    title: 'Delete Appointment',
+                    message: 'Are you sure you want to delete this appointment?',
+                    confirmText: 'Delete',
+                    cancelText: 'Cancel',
+                    onConfirm: onDeleteAppointment,
+                    onCancel: ()=>{},
+                    children: <XColumn style={{width: 100, height: 100, backgroundColor: theme.colors.primaryOpacity5}}>
+                        <XRow >
+                            <XText>Customer:</XText>
+                            <XText>{apptDetails?.customer.firstName+' '+apptDetails?.customer.firstName}</XText>
+                        </XRow>
+                        <XRow>
+                            <XText>Date & Time:</XText>
+                            <XText>{apptDetails?.apptDate}</XText>
+                        </XRow>
+                    </XColumn>
+                })}
+                
             }> <XIcon name="trash"></XIcon></TouchableOpacity>
             
            

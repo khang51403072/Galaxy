@@ -69,7 +69,7 @@ const useSignalRStore = create<SignalRState>()(
         };
 
         // Check connection status periodically
-        const interval = setInterval(checkConnection, 5000);
+        // const interval = setInterval(checkConnection, 10000);
         
         set({ isInitialized: true });
         xlog.info('SignalR store initialized', { tag: 'SIGNALR_STORE' });
