@@ -69,13 +69,13 @@ const NotificationListScreen = () => {
             <XText variant='titleMedium' color={theme.colors.gray800}>{item.title}</XText>
           
           </View>
-          <XText variant='captionLight' color={theme.colors.gray700}>{new Date(item.receivedAt).toMMDD()}</XText>
+          <XText variant='captionLight' color={theme.colors.gray700}>{item.receivedAt.toString().toDate()?.format('MM/dd')}</XText>
         </View>
         <XText variant='bodyRegular'>
           {listMess[0]} <XText variant='bodyLight'> just booked a service!</XText>
         </XText>
         <XText variant='bodyRegular'>
-          {listServiceData[0]} <XText variant='bodyLight'>{' at '+listServiceData[1]+' on '+new Date(item.receivedAt).toMMDD()}</XText>
+          {listServiceData[0]} <XText variant='bodyLight'>{' at '+listServiceData[1]+' on '+item.receivedAt.toString().toDate()?.format('MM/dd')}</XText>
         </XText>
       </TouchableOpacity>
     );

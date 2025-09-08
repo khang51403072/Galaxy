@@ -172,7 +172,7 @@ export default function ProfileScreen() {
         />
         <XDivider />
         <TitleGroup title="Work Details" onPress={() => {}} />
-        <RowInfo titleLeft="Start Date" titleRight={ (profile?.startDate?.toDDMMYYYY("/") || '')} />
+        <RowInfo titleLeft="Start Date" titleRight={ (profile?.startDate?.toDate()?.format('dd/MM/yyyy') || '')} />
         <RowInfo titleLeft="Income" titleRight={getFormattedIncome() || ''} />
         <RowInfo titleLeft="Store" titleRight={profile?.storeName || ''} />
       </View>

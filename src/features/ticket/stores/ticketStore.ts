@@ -61,8 +61,8 @@ export const createTicketStore = (ticketUsecase: TicketUsecase): StateCreator<Ti
         }
         const result = await ticketUsecase.getWorkOrders({
             employeeId: get().selectedEmployee?.id??json?.employeeId??'',
-            dateStart: get().startDate.toYYYYMMDD('-'),
-            dateEnd: get().endDate.toYYYYMMDD('-'),
+            dateStart: get().startDate.format("yyyy-MM-dd"),
+            dateEnd: get().endDate.format("yyyy-MM-dd"),
         });
         if(isSuccess(result)) {
             const workOrders = await Promise.all(result.value.map(async (item)=>{
@@ -88,8 +88,8 @@ export const createTicketStore = (ticketUsecase: TicketUsecase): StateCreator<Ti
         }
         const result = await ticketUsecase.getWorkOrderOwner({
             employeeId: employeeId,
-            dateStart: get().startDate.toYYYYMMDD('-'),
-            dateEnd: get().endDate.toYYYYMMDD('-'),
+            dateStart: get().startDate.format("yyyy-MM-dd"),
+            dateEnd: get().endDate.format("yyyy-MM-dd"),
         });
         if(isSuccess(result)) {
             const workOrders = await Promise.all(result.value.map(async (item)=>{

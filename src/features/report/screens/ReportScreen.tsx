@@ -115,7 +115,7 @@ export default function  TicketScreen() {
               renderItem={({ item }) => {
                 return (
                   <View style={{ flexDirection: 'row', alignItems: 'center', padding: theme.spacing.md, ...theme.shadows.sm }}>
-                    <XText variant="bodyLight" style={{flex: 3}}>{parseISODate(item.batchDate).toMMDDYYYYHHMM('/')}</XText>
+                    <XText variant="bodyLight" style={{flex: 3}}>{item.batchDate.toDate()?.format('MM/dd/yyyy HH:mm')}</XText>
                     <XText variant="bodyLight" style={{flex: 1}}>{item.batchNumber}</XText>
                     <XText variant="bodyLight" style={{flex: 1}}>{item.transactionReports.transactionsCount}</XText>
                   </View>

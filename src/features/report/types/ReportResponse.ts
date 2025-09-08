@@ -30,7 +30,7 @@ export const getClockOut = (entity: TimeSheetEntity): string =>
 function formatTime(dateTime: string): string {
   try {
     const date = new Date(dateTime);
-    return date.toHHMMDDMMYYYY('/');
+    return date.format('HH:mm, dd/MM/yyyy')('/');
   } catch (error) {
     return "Invalid time";
   }
@@ -91,7 +91,7 @@ export const getBatchDisplayName = (entity: BatchEntity): string =>
 export const getBatchDate = (entity: BatchEntity): string => {
   try {
     const date = new Date(entity.batchDate);
-    return date.toDDMMYYYY('/');
+    return date.format('dd/MM/yyyy') ;
   } catch (error) {
     return entity.batchDate;
   }
@@ -100,7 +100,7 @@ export const getBatchDate = (entity: BatchEntity): string => {
 export const getBatchTime = (entity: BatchEntity): string => {
   try {
     const date = new Date(entity.batchTime);
-    return date.toHHMMDDMMYYYY();
+    return date.format('HH:mm, dd/MM/yyyy');
   } catch (error) {
     return entity.batchTime;
   }
@@ -137,13 +137,13 @@ export const formatISODate = (isoString: string, format: 'date' | 'time' | 'date
     
     switch (format) {
       case 'date':
-        return date.toDDMMYYYY('/');
+        return date.format('dd/MM/yyyy') ;
       case 'time':
-        return date.toHHMMDDMMYYYY();
+        return date.format('HH:mm, dd/MM/yyyy');
       case 'datetime':
-        return `${date.toDDMMYYYY('/')} ${date.toHHMMDDMMYYYY()}`;
+        return `${date.format('dd/MM/yyyy') } ${date.format('HH:mm, dd/MM/yyyy')}`;
       default:
-        return date.toDDMMYYYY('/');
+        return date.format('dd/MM/yyyy') ;
     }
   } catch (error) {
     console.error('Error formatting ISO date:', isoString, error);

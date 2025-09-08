@@ -1,239 +1,130 @@
 /**
- * dateExtension.ts - Optimized Date formatting for React Native
- * 
- * 🚀 PERFORMANCE OPTIMIZED:
- * - Template literals thay vì array.join() (40% faster)
- * - Divider caching để tránh tạo lại string
- * - Shared formatting logic giảm code duplication
- * - Error handling cho invalid dates
- * 
- * 📊 BENCHMARK: 100,000 operations trong ~15ms
- * 
- * 🎯 USAGE EXAMPLES:
- *   const date = new Date(2024, 0, 15);
- *   date.toYYYYMMDD('-')     // '2024-01-15'
- *   date.toDDMMYYYY('/')     // '15/01/2024'
- *   date.toMMDDYYYY('-')     // '01-15-2024'
- *   date.toYYYYDDMM('/')     // '2024/15/01'
- * 
- * ⚠️ ERROR HANDLING:
- *   - Validate dates trước khi sử dụng
- *   - Handle invalid date errors
- *   - Use try-catch cho production code
- * 
- * 🔧 BEST PRACTICES:
- *   ✅ date.toYYYYMMDD('-')  // Consistent divider
- *   ❌ date.toYYYYMMDD()     // Inconsistent (uses default)
- *   ✅ if (date instanceof Date) // Validate first
- *   ❌ date.toYYYYMMDD('-')  // No validation
+ * date.extensions.ts - Modern, flexible Date formatting for React Native
+ *
+ * Single `format` method inspired by libraries like date-fns.
+ *
+ * =================================================================
+ *                        SUPPORTED FORMATS
+ * =================================================================
+ * Year:
+ *   yyyy: 2025
+ *   yy:   25
+ *
+ * Month:
+ *   MMMM: September (Long name, locale-aware)
+ *   MMM:  Sep (Short name, locale-aware)
+ *   MM:   09 (2-digit number)
+ *   M:    9 (Number)
+ *
+ * Day:
+ *   dd:   06 (2-digit number)
+ *   d:    6 (Number)
+ *
+ * Hour (12 & 24):
+ *   HH:   09, 21 (24-hour, 2-digit)
+ *   H:    9, 21 (24-hour)
+ *   hh:   09, 09 (12-hour, 2-digit)
+ *   h:    9, 9 (12-hour)
+ *
+ * Minute:
+ *   mm:   05 (2-digit)
+ *   m:    5
+ *
+ * Second:
+ *   ss:   07 (2-digit)
+ *   s:    7
+ *
+ * AM/PM:
+ *   a:    am/pm
+ *   A:    AM/PM
+ *
+ * =================================================================
+ * USAGE EXAMPLES:
+ *   const date = new Date('2025-09-06T21:05:07');
+ *   date.format('MM/dd/yyyy')       // '09/06/2025'
+ *   date.format('dd-MM-yyyy HH:mm') // '06-09-2025 21:05'
+ *   date.format('hh:mm a, MMM d')   // '09:05 PM, Sep 6'
+ *   date.format('MMMM yyyy', 'vi-VN') // 'Tháng Chín 2025'
  */
 
 declare global {
   interface Date {
     /**
-     * Format date as DD/MM/YYYY
-     * @param divider - Separator character ('/', '-', '', etc.)
-     * @returns Formatted date string
-     * @example new Date(2024, 0, 15).toDDMMYYYY('/') // '15/01/2024'
+     * Formats the date according to the given format string.
+     * @param formatString - The string of tokens.
+     * @param locale - Optional locale for month names (e.g., 'vi-VN').
+     * @returns The formatted date string.
      */
-    toDDMMYYYY(divider?: string): string;
-    
-    /**
-     * Format date as MM/DD/YYYY
-     * @param divider - Separator character ('/', '-', '', etc.)
-     * @returns Formatted date string
-     * @example new Date(2024, 0, 15).toMMDDYYYY('-') // '01-15-2024'
-     */
-    toMMDDYYYY(divider?: string): string;
-    
-    /**
-     * Format date as YYYY/MM/DD (ISO format)
-     * @param divider - Separator character ('/', '-', '', etc.)
-     * @returns Formatted date string
-     * @example new Date(2024, 0, 15).toYYYYMMDD('-') // '2024-01-15'
-     */
-    toYYYYMMDD(divider?: string): string;
-    
-    /**
-     * Format date as YYYY/DD/MM
-     * @param divider - Separator character ('/', '-', '', etc.)
-     * @returns Formatted date string
-     * @example new Date(2024, 0, 15).toYYYYDDMM('/') // '2024/15/01'
-     */
-    toYYYYDDMM(divider?: string): string;
-
-
-    /**
-     * Format date as 09:09 AM, 09:09 PM
-     * @param divider - Separator character ('/', '-', '', etc.)
-     * @returns Formatted date string
-     * @example new Date(2024, 11, 11, 9, 9).toHHMMYYMMDD() // '09:09 AM, 11/11/2024'
-     */
-    toHHMMDDMMYYYY(divider?: string): string;
-
-    /**
-     * Format date as 11/11/2024 09:09
-     * @param divider - Separator character ('/', '-', '', etc.)
-     * @returns Formatted date string
-     * @example new Date(2024, 11, 11, 9, 9).toMMDDYYYYHHMM() // '11/11/2024 09:09'
-     */
-    toMMDDYYYYHHMM(divider?: string): string;
-
-    toMMDD(divider?: string): string;
+    format(formatString: string, locale?: string): string;
   }
 }
 
 /**
- * Cache cho divider values để tối ưu performance
- * Tránh tạo lại string cho cùng một divider
+ * Validates the date object before formatting.
+ * @param date - The Date object to validate.
  */
-const DIVIDER_CACHE = new Map<string, string>();
-
-/**
- * Get divider from cache hoặc tạo mới
- * @param divider - Divider string
- * @returns Cached divider string
- */
-const getDivider = (divider: string = ''): string => {
-  if (DIVIDER_CACHE.has(divider)) {
-    return DIVIDER_CACHE.get(divider)!;
-  }
-  DIVIDER_CACHE.set(divider, divider);
-  return divider;
-};
-
-/**
- * Validate date object trước khi format
- * @param date - Date object to validate
- * @throws Error nếu date không hợp lệ
- */
-const validateDate = (date: Date): void => {
+function validateDate(date: Date): void {
   if (!(date instanceof Date) || isNaN(date.getTime())) {
-    throw new Error('Invalid date object - Date extension requires valid Date instance');
+    throw new Error('Invalid date object provided to format function.');
   }
-};
+}
 
-/**
- * Optimized date formatting - sử dụng template literals thay vì array.join()
- * Performance: ~40% faster than array.join() approach
- * 
- * @param date - Date object to format
- * @param divider - Divider string (cached for performance)
- * @returns Array of [dd, mm, yyyy] strings
- */
-const formatDate = (date: Date, divider: string): [string, string, string] => {
-  validateDate(date);
+Date.prototype.format = function(formatString: string, locale: string = 'en-US'): string {
+  validateDate(this);
+
+  const date = this;
   
+  // --- Getters for all date parts ---
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
+  const hours24 = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = date.getSeconds();
   
-  // Sử dụng template literals thay vì String().padStart() - 30% faster
-  const mm = month < 10 ? `0${month}` : `${month}`;
-  const dd = day < 10 ? `0${day}` : `${day}`;
-  const yyyy = `${year}`;
-  
-  return [dd, mm, yyyy];
+  let hours12 = hours24 % 12;
+  hours12 = hours12 ? hours12 : 12; // Hour '0' should be '12'
+
+  // --- Map of tokens to their values ---
+  const tokens: { [key: string]: () => string | number } = {
+    // Year
+    yyyy: () => year,
+    yy: () => String(year).slice(-2),
+    
+    // Month
+    MMMM: () => new Intl.DateTimeFormat(locale, { month: 'long' }).format(date),
+    MMM: () => new Intl.DateTimeFormat(locale, { month: 'short' }).format(date),
+    MM: () => String(month).padStart(2, '0'),
+    M: () => month,
+    
+    // Day
+    dd: () => String(day).padStart(2, '0'),
+    d: () => day,
+
+    // Hour
+    HH: () => String(hours24).padStart(2, '0'),
+    H: () => hours24,
+    hh: () => String(hours12).padStart(2, '0'),
+    h: () => hours12,
+
+    // Minute
+    mm: () => String(minutes).padStart(2, '0'),
+    m: () => minutes,
+
+    // Second
+    ss: () => String(seconds).padStart(2, '0'),
+    s: () => seconds,
+
+    // AM/PM
+    A: () => (hours24 < 12 ? 'AM' : 'PM'),
+    a: () => (hours24 < 12 ? 'am' : 'pm'),
+  };
+
+  // Create a regex from all supported tokens
+  const regex = new RegExp(Object.keys(tokens).join('|'), 'g');
+
+  // Replace each token in the format string with its corresponding value
+  return formatString.replace(regex, (match) => String(tokens[match]()));
 };
 
-/**
- * Format date as DD/MM/YYYY
- * Performance: ~15ms for 100,000 operations
- * 
- * @param divider - Separator character (default: '')
- * @returns Formatted date string
- * 
- * @example
- * const date = new Date(2024, 0, 15);
- * date.toDDMMYYYY('/')  // '15/01/2024'
- * date.toDDMMYYYY('-')  // '15-01-2024'
- * date.toDDMMYYYY('')   // '15012024'
- */
-Date.prototype.toDDMMYYYY = function (divider: string = ''): string {
-  const d = getDivider(divider);
-  const [dd, mm, yyyy] = formatDate(this, d);
-  return `${dd}${d}${mm}${d}${yyyy}`;
-};
-
-/**
- * Format date as MM/DD/YYYY
- * Performance: ~15ms for 100,000 operations
- * 
- * @param divider - Separator character (default: '')
- * @returns Formatted date string
- * 
- * @example
- * const date = new Date(2024, 0, 15);
- * date.toMMDDYYYY('-')  // '01-15-2024'
- * date.toMMDDYYYY('/')  // '01/15/2024'
- * date.toMMDDYYYY('')   // '01152024'
- */
-Date.prototype.toMMDDYYYY = function (divider: string = ''): string {
-  const d = getDivider(divider);
-  const [dd, mm, yyyy] = formatDate(this, d);
-  return `${mm}${d}${dd}${d}${yyyy}`;
-};
-
-/**
- * Format date as YYYY/MM/DD (ISO format)
- * Performance: ~15ms for 100,000 operations
- * 
- * @param divider - Separator character (default: '')
- * @returns Formatted date string
- * 
- * @example
- * const date = new Date(2024, 0, 15);
- * date.toYYYYMMDD('-')  // '2024-01-15' (API format)
- * date.toYYYYMMDD('/')  // '2024/01/15'
- * date.toYYYYMMDD('')   // '20240115' (file naming)
- */
-Date.prototype.toYYYYMMDD = function (divider: string = ''): string {
-  const d = getDivider(divider);
-  const [dd, mm, yyyy] = formatDate(this, d);
-  return `${yyyy}${d}${mm}${d}${dd}`;
-};
-
-/**
- * Format date as YYYY/DD/MM
- * Performance: ~15ms for 100,000 operations
- * 
- * @param divider - Separator character (default: '')
- * @returns Formatted date string
- * 
- * @example
- * const date = new Date(2024, 0, 15);
- * date.toYYYYDDMM('/')  // '2024/15/01'
- * date.toYYYYDDMM('-')  // '2024-15-01'
- * date.toYYYYDDMM('')   // '20241501'
- */
-Date.prototype.toYYYYDDMM = function (divider: string = ''): string {
-  const d = getDivider(divider);
-  const [dd, mm, yyyy] = formatDate(this, d);
-  return `${yyyy}${d}${dd}${d}${mm}`;
-};
-
-Date.prototype.toHHMMDDMMYYYY = function (divider: string = ''): string {
-  const d = getDivider(divider);
-  const ampm = this.getHours() < 12 ? 'AM' : 'PM';
-  const hh = this.getHours() < 10 ? `0${this.getHours()}` : this.getHours();
-  const mm = this.getMinutes() < 10 ? `0${this.getMinutes()}` : this.getMinutes();
-  const [dd, MM, yyyy] = formatDate(this, d);
-  return `${hh}:${mm} ${ampm}, ${dd}${d}${MM}${d}${yyyy}`;
-};
-
-Date.prototype.toMMDDYYYYHHMM = function (divider: string = ''): string {
-  const d = getDivider(divider);
-  const [dd, MM, yyyy] = formatDate(this, d);
-  const ampm = this.getHours() < 12 ? 'AM' : 'PM';
-  const hh = this.getHours() < 10 ? `0${this.getHours()}` : this.getHours();
-  const mm = this.getMinutes() < 10 ? `0${this.getMinutes()}` : this.getMinutes();
-  return `${dd}${d}${MM}${d}${yyyy} ${hh}:${mm} ${ampm}`;
-};
-
-Date.prototype.toMMDD = function (divider: string = '/'):string{
-  const d = getDivider(divider);
-  const [dd, MM, yyyy] = formatDate(this, d);
-  return `${MM}/${dd}`;
-}
-
-export {}; 
+export {};

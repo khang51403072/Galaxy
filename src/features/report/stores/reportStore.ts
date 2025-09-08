@@ -57,8 +57,8 @@ export const createReportStore = (usecase: ReportUsecase): StateCreator<ReportSt
     getReportTechnician: async ():Promise<Result<string, Error>> => {
         set({ isLoading: true });
         const request: CommonRequest = {
-            dateStart: get().startDate?.toYYYYMMDD('-'),
-            dateEnd: get().endDate?.toYYYYMMDD('-'),
+            dateStart: get().startDate?.format("yyyy-MM-dd"),
+            dateEnd: get().endDate?.format("yyyy-MM-dd"),
             employeeId: get().json?.employeeId??"",
         }
         const response = await usecase.getReportTechnician(request);
@@ -72,8 +72,8 @@ export const createReportStore = (usecase: ReportUsecase): StateCreator<ReportSt
     getReportSales: async ():Promise<Result<string, Error>> => {
         set({ isLoading: true });
         const request: CommonRequest = {
-            dateStart: get().startDate?.toYYYYMMDD('-'),
-            dateEnd: get().endDate?.toYYYYMMDD('-'),
+            dateStart: get().startDate?.format("yyyy-MM-dd"),
+            dateEnd: get().endDate?.format("yyyy-MM-dd"),
             employeeId: get().json?.employeeId??"",
         }
         const response = await usecase.getReportSales(request);
@@ -87,8 +87,8 @@ export const createReportStore = (usecase: ReportUsecase): StateCreator<ReportSt
     getReportTimeSheet: async ():Promise<Result<TimeSheetEntity[], Error>> => {
         set({ isLoading: true });
         const request: CommonRequest = {
-            dateStart: get().startDate?.toYYYYMMDD('-'),
-            dateEnd: get().endDate?.toYYYYMMDD('-'),
+            dateStart: get().startDate?.format("yyyy-MM-dd"),
+            dateEnd: get().endDate?.format("yyyy-MM-dd"),
             employeeId: get().json?.employeeId??"",
         }
         const response = await usecase.getReportTimeSheet(request);
@@ -102,8 +102,8 @@ export const createReportStore = (usecase: ReportUsecase): StateCreator<ReportSt
     getReportBatchHistory: async ():Promise<Result<BatchEntity[], Error>> => {
         set({ isLoading: true });
         const request: CommonRequest = {
-            dateStart: get().startDate?.toYYYYMMDD('-'),
-            dateEnd: get().endDate?.toYYYYMMDD('-'),
+            dateStart: get().startDate?.format("yyyy-MM-dd"),
+            dateEnd: get().endDate?.format("yyyy-MM-dd"),
             employeeId: get().json?.employeeId??"",
         }
         const response = await usecase.getReportBatchHistory(request);
@@ -118,8 +118,8 @@ export const createReportStore = (usecase: ReportUsecase): StateCreator<ReportSt
         set({ isLoading: true });
         const employeeId = get().json?.employeeId??"";
         const request: CommonRequest = {
-            dateStart: get().startDate?.toYYYYMMDD('-'),
-            dateEnd: get().endDate?.toYYYYMMDD('-'),
+            dateStart: get().startDate?.format("yyyy-MM-dd"),
+            dateEnd: get().endDate?.format("yyyy-MM-dd"),
             employeeId: employeeId,
         }
         const response = await usecase.getCloseOut(request);

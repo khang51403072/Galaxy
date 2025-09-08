@@ -37,9 +37,9 @@ export function useXAlert() {
 export function XDialogProvider({ children }: { children: ReactNode }) {
   const [alert, setAlert] = useState<XAlertOptions | null>(null);
   const [confirm, setConfirm] = useState<XConfirmOptions | null>(null);
-  const showAlert = useCallback((options: XAlertOptions) => setAlert(options), []);
+  const showAlert = useCallback((options: XAlertOptions) => setAlert(options), [alert]);
   
-  const showConfirm = useCallback((options: XConfirmOptions) => setConfirm(options), []);
+  const showConfirm = useCallback((options: XConfirmOptions) => setConfirm(options), [confirm]);
   
 
   const handleCloseAlert = () => {
@@ -83,7 +83,7 @@ export function XDialogProvider({ children }: { children: ReactNode }) {
           cancelText={confirm.cancelText}
           onConfirm={handleConfirm}
           onCancel={handleCancel}
-          children={children}
+          children={confirm.children}
         />
       )}
     </XDialogContext.Provider>

@@ -33,50 +33,63 @@ import { useAppointmentUIStore } from "../stores/createAppointmentUIStore";
 import { useCustomerStore } from "../stores/customerStore";
 import { XColumn } from "@/shared/components/XColumn";
 import { XRow } from "@/shared/components/XRow";
-
-
-// --- Helper Functions (Không thay đổi) ---
-interface ApptMessage {
-    message: string;
-    date: string;
-    actionType: string;
-    apptId: string;
-    customerId: string;
-}
-
-function createApptMessage(data: DataAppt): ApptMessage {
-    return {
-        message: "appointment-booking",
-        date: data.apptDate,
-        actionType: "save-apt",
-        apptId: data.id,
-        customerId: data.customer.id,
-    };
-}
-
+import { toDate } from "date-fns";
+import { createApptMessage } from "../types/AppointmentMessage";
+import XDivider from "@/shared/components/XDivider";
 // --- Component ---
 export default function CreateAppointmentScreen() {
     const route = useRoute<RouteProp<RootStackParamList, 'CreateAppointment'>>();
     const { apptId } = route.params || {};
     
     const theme = useTheme();
-    const styles = useMemo(() => createStyles(theme), [theme]);
+    const styles = useMemo(
+        () => StyleSheet.create({
+            container: {
+                gap: theme.spacing.md,
+                paddingTop: theme.spacing.md,
+                flex: 1,
+            },
+            customerDetailsContainer: {
+                gap: 4,
+                flexDirection: 'row',
+                alignItems: 'center',
+            },
+            divider: {
+                height: 1,
+                backgroundColor: theme.colors.gray200,
+            },
+            menuHeader: {
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 10,
+            },
+            mask: {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.7)', // Thêm độ trong suốt
+                zIndex: 10,
+            },
+            deleteApptChildren: { 
+                backgroundColor: theme.colors.primaryOpacity5, 
+                paddingVertical: theme.spacing.xs, 
+                paddingHorizontal: theme.spacing.xs
+            },
+
+        }), [theme]);
     const { showAlert, showConfirm } = useXAlert();
     const { sendMessage } = useSignalR();
     const navigation = useNavigation();
 
     // --- LẤY STATE & ACTIONS TỪ FORM STORE ---
     const { 
-        selectedApptType, listApptType, 
-        isLoading, listServices, selectedDate,
-        isConfirmOnline, isGroupAppt, error, listEmployeeOnWork,
-        apptDetails,
-        setSelectedApptType, setSelectedDate,
-        setIsConfirmOnline, setIsGroupAppt,
+        selectedApptType, listApptType, isLoading, listServices, selectedDate,
+        isConfirmOnline, isGroupAppt, error, listEmployeeOnWork, apptDetails,
+        setSelectedApptType, setSelectedDate, setIsConfirmOnline, setIsGroupAppt,
         reset, saveAppointment, initData, getIsAllowEdit,
-        updateBookingService, removeBookingService,
-        getIsAllowDelete,
-        deleteAppt
+        updateBookingService, removeBookingService, getIsAllowDelete, deleteAppt
     } = useCreateAppointmentStore(
         useShallow((s) => ({
             selectedApptType: s.selectedApptType,
@@ -214,9 +227,9 @@ export default function CreateAppointmentScreen() {
         updateBookingService({ serviceIndex, e: item, type: 'technician', comboIndex });
         closeTechnicianSheet(); // Tự động đóng sau khi chọn
     }, [updateBookingService, serviceIndex, comboIndex, closeTechnicianSheet]);
+
     const onDeleteAppointment = useCallback(
         async ()  =>{
-            
             let result = await deleteAppt();
             if(isSuccess(result) && result.value.result) {
                 const json = await appConfig.getUser();
@@ -224,39 +237,41 @@ export default function CreateAppointmentScreen() {
                 goBack()
             }
             else if (isSuccess(result)) {
-            
                 showAlert({message: result.value.errorMsg, type: 'error'})
             }
             else if(isFailure(result)) {
                 showAlert({message: result.error.message, type: 'error'})
             }
-        },[]
+        },[deleteAppt, showAlert,getAppointmentList]
     )
-    const trashButton = useMemo(
-        ()=>{
-            return <TouchableOpacity onPress={
-                ()=>{showConfirm({
+    
+    const onTrashButtonClick = useCallback(
+        async ()  =>{
+            showConfirm({
                     title: 'Delete Appointment',
                     message: 'Are you sure you want to delete this appointment?',
                     confirmText: 'Delete',
                     cancelText: 'Cancel',
                     onConfirm: onDeleteAppointment,
                     onCancel: ()=>{},
-                    children: <XColumn style={{width: 100, height: 100, backgroundColor: theme.colors.primaryOpacity5}}>
-                        <XRow >
-                            <XText>Customer:</XText>
-                            <XText>{apptDetails?.customer.firstName+' '+apptDetails?.customer.firstName}</XText>
+                    children: <XColumn style={styles.deleteApptChildren}>
+                        <XRow justify="center">
+                            <XText variant="titleMedium">Customer: </XText>
+                            <XText variant="titleRegular">{apptDetails?.customer.firstName+' '+apptDetails?.customer.lastName}</XText>
                         </XRow>
-                        <XRow>
-                            <XText>Date & Time:</XText>
-                            <XText>{apptDetails?.apptDate}</XText>
+                        <XRow justify="center">
+                            <XText variant="titleMedium">Date & Time: </XText>
+                            <XText variant="titleRegular">{apptDetails?.apptDate.toDate()?.format('MMM dd, HH:mm AM')}</XText>
                         </XRow>
                     </XColumn>
-                })}
-                
+                })
+        },[apptDetails]);
+
+    const trashButton = useMemo(
+        ()=>{
+            return <TouchableOpacity onPress={
+                onTrashButtonClick
             }> <XIcon name="trash"></XIcon></TouchableOpacity>
-            
-           
         },
         [isAllowEdit]
     )
@@ -281,13 +296,10 @@ export default function CreateAppointmentScreen() {
                 />
                 <ConfirmOnlineToggle value={isConfirmOnline} onChange={setIsConfirmOnline} />
                 <GroupApptToggle value={isGroupAppt} onChange={setIsGroupAppt} />
-                
-                <View style={styles.divider} />
-                
+                <XDivider/>
                 <DatePickerField value={selectedDate} onChange={handleDateChange} />
                 <TimePickerField value={selectedDate} onChange={handleTimeChange} />
-                
-                <View style={styles.divider} />
+                <XDivider/>
                 
                 <View style={styles.menuHeader}>
                     <XIcon name="menu" width={16} height={16} color={theme.colors.primaryMain} />
@@ -321,34 +333,3 @@ export default function CreateAppointmentScreen() {
     );
 }   
 
-// --- Styles (Không thay đổi) ---
-const createStyles = (theme: Theme) => StyleSheet.create({
-    container: {
-        gap: theme.spacing.md,
-        paddingTop: theme.spacing.md,
-        flex: 1,
-    },
-    customerDetailsContainer: {
-        gap: 4,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    divider: {
-        height: 1,
-        backgroundColor: theme.colors.gray200,
-    },
-    menuHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    mask: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(255, 255, 255, 0.7)', // Thêm độ trong suốt
-        zIndex: 10,
-    },
-});

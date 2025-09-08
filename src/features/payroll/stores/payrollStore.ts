@@ -53,8 +53,8 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase
       set({ isLoading: true, error: null });
       const json = await appConfig.getUser();
       let commonRequest: CommonRequest = {
-          dateStart: get().startDate?.toYYYYMMDD('-'),
-          dateEnd: get().endDate?.toYYYYMMDD('-'),
+          dateStart: get().startDate?.format("yyyy-MM-dd"),
+          dateEnd: get().endDate?.format("yyyy-MM-dd"),
           employeeId: employeeId ?? json?.employeeId,
       }
       const result = await payrollUsecase.getPayroll(commonRequest);
@@ -69,8 +69,8 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase
       set({ isLoading: true, error: null });
       const json = await appConfig.getUser();
       let commonRequest: CommonRequest = {
-          dateStart: get().startDate?.toYYYYMMDD('-'),
-          dateEnd: get().endDate?.toYYYYMMDD('-'),
+          dateStart: get().startDate?.format("yyyy-MM-dd"),
+          dateEnd: get().endDate?.format("yyyy-MM-dd"),
           employeeId: '',
       }
       const result = await payrollUsecase.getPayrollOwner(commonRequest);

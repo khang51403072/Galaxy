@@ -97,7 +97,7 @@ export const createHomeStore = (): StateCreator<homeState> => (set, get) => ({
                     return {
                         label: get().toggleSwitch === 'week' 
                             ? item.dayOfWeek.substring(0, 3)
-                            : item.weekStartDate?.dateOfMonth() + "-" + item.weekEndDate?.dateOfMonth(),
+                            : item.weekStartDate?.toDate()?.format('dd') + "-" + item.weekEndDate?.toDate()?.format('dd') ,
                         value: [item.saleAmount, item.nonCashTipAmount]
                     }
                 });

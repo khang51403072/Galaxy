@@ -52,8 +52,8 @@ export const createAppointmentStore = (usecase: AppointmentUsecase): StateCreato
     getAppointmentList: async (json: KeychainObject): Promise<Result<AppointmentEntity[], Error>> => {
         set({ isLoading: true, json: json });
         const request: CommonRequest = {
-            dateStart: get().selectedDate?.toYYYYMMDD('-'),
-            dateEnd: get().selectedDate?.toYYYYMMDD('-'),
+            dateStart: get().selectedDate?.format("yyyy-MM-dd"),
+            dateEnd: get().selectedDate?.format("yyyy-MM-dd"),
             employeeId: json?.isOwner
                 ? get().selectedEmployee?.id ?? "" 
                 : json?.employeeId ?? "",

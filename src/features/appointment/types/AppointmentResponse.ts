@@ -84,7 +84,7 @@ export const getAppointmentDateTime = (entity: AppointmentEntity): string => {
   try {
     const date = new Date(entity.apptDate);
     const timeStr = `${entity.startTime.hours.toString().padStart(2, '0')}:${entity.startTime.minutes.toString().padStart(2, '0')}`;
-    return date.toDDMMYYYY('/') + ' ' + timeStr;
+    return date.format('dd/MM/yyyy') + ' ' + timeStr;
   } catch (error) {
     return `${entity.apptDate} ${entity.startTime.hours}:${entity.startTime.minutes}`;
   }
@@ -93,7 +93,7 @@ export const getAppointmentDateTime = (entity: AppointmentEntity): string => {
 export const getAppointmentDate = (entity: AppointmentEntity): string => {
   try {
     const date = new Date(entity.apptDate);
-    return date.toDDMMYYYY('/');
+    return date.format('dd/MM/yyyy') ;
   } catch (error) {
     return entity.apptDate;
   }
@@ -169,13 +169,13 @@ export const formatISODate = (isoString: string, format: 'date' | 'time' | 'date
     
     switch (format) {
       case 'date':
-        return date.toDDMMYYYY('/');
+        return date.format('dd/MM/yyyy') ;
       case 'time':
-        return date.toHHMMDDMMYYYY();
+        return date.format('HH:mm, dd/MM/yyyy');
       case 'datetime':
-        return `${date.toDDMMYYYY('/')} ${date.toHHMMDDMMYYYY()}`;
+        return `${date.format('dd/MM/yyyy') } ${date.format('HH:mm, dd/MM/yyyy')}`;
       default:
-        return date.toDDMMYYYY('/');
+        return date.format('dd/MM/yyyy') ;
     }
   } catch (error) {
     console.error('Error formatting ISO date:', isoString, error);
