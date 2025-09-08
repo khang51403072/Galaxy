@@ -93,4 +93,4 @@ ios/DerivedData/
 *.log
 
 # Env
-.env
+.env.*

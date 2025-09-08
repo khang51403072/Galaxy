@@ -1,1 +1,1 @@
-export { default as ENV } from './environments'; 
+export { default as ENV } from './environments/index';

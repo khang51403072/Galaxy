@@ -1,37 +1,21 @@
-export const development = {
-  // API Configuration
-  API_BASE_URL: 'https://dev-api.galaxyme.com',
-  API_TIMEOUT: 10000,
+import Config from 'react-native-config';
+
+export const production = {
+  API_BASE_URL: Config.API_BASE_URL,
+  SIGNALR_URL: Config.SIGNALR_URL,
   
-  // App Configuration
-  APP_NAME: 'GalaxyMe2 Dev',
-  APP_VERSION: '1.1.5-dev',
+  API_TIMEOUT: 20000,
+  APP_NAME: 'GalaxyMe2',
   ENVIRONMENT: 'development',
+  LOG_LEVEL: 'error',
+  ENABLE_CONSOLE_LOG: false,
   
-  // Logging
-  LOG_LEVEL: 'debug',
-  ENABLE_CONSOLE_LOG: true,
-  
-  // Features
   FEATURES: {
-    ANALYTICS: false,
+    ANALYTICS: true,
     PUSH_NOTIFICATIONS: true,
     BIOMETRIC: true,
-    DEBUG_MENU: true,
-    MOCK_DATA: true,
+    DEBUG_MENU: false,
+    MOCK_DATA: false,
   },
   
-  // SignalR Configuration
-  SIGNALR_URL: 'https://dev-signalr.galaxyme.com',
-  
-  // Firebase Configuration
-  FIREBASE_CONFIG: {
-    projectId: 'galaxyme-dev',
-    messagingSenderId: '123456789',
-  },
-  
-  // Other Configs
-  SESSION_TIMEOUT: 30 * 60 * 1000, // 30 minutes
-  MAX_RETRY_ATTEMPTS: 3,
-  CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
-}; 
+};
