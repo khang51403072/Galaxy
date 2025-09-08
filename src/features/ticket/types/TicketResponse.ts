@@ -37,7 +37,8 @@ export interface WorkOrderEntity {
   serviceStartTime: string;
   serviceEndTime: string;
 }
-export function getDisplayName(employee: EmployeeEntity): string {
+export function getDisplayName(employee?: EmployeeEntity): string {
+  if (!employee) return ""
   if (!employee.nickName || employee.nickName.trim() === "") {
     return `${employee.firstName} ${employee.lastName}`;
   } else {

@@ -4,7 +4,7 @@ import { EmployeeEntity, WorkOrderEntity } from "../types/TicketResponse";
 import { TicketError } from "../types/TicketError";
 import { failure, isSuccess, Result } from "../../../shared/types/Result";
 import { StateCreator } from "zustand/vanilla";
-import { keychainHelper, KeychainObject } from "../../../shared/utils/keychainHelper";
+import { KeychainObject } from "../../../shared/utils/keychainHelper";
 
 export type TicketState = {
     workOrders: WorkOrderEntity[];
@@ -12,28 +12,27 @@ export type TicketState = {
     isLoading: boolean;
     startDate: Date;
     endDate: Date;
-    selectedEmployee: EmployeeEntity | null;
+    selectedEmployee?: EmployeeEntity;
     error: string | null;
     visible: boolean;
     json: KeychainObject | null; // Thêm dòng này để fix linter
+    htmlContent: string;
     getWorkOrders: () => Promise<Result<WorkOrderEntity[], TicketError>>;
-    getWorkOrderOwners: (employeeId: string) => Promise<Result<WorkOrderEntity[], TicketError>>;
     reset: () => void;
-    setJson: (json: KeychainObject) => void;
+    setStartDate: (date: Date) => void
+    setEndDate: (date: Date) => void
+    setSelectedEmployee: (emp: EmployeeEntity) => void
+    setVisible: (v: boolean) => void
 }
 
 export const ticketSelectors = {
     selectWorkOrders: (state: TicketState) => state.workOrders,
-    selectWorkOrderOwners: (state: TicketState) => state.workOrderOwners,
     selectIsLoading: (state : TicketState) => state.isLoading,
     selectError: (state: TicketState) => state.error,
-    selectGetWorkOrders: (state: TicketState) => state.getWorkOrders,
-    selectGetWorkOrderOwners: (state: TicketState) => state.getWorkOrderOwners,
     selectVisible: (state: TicketState) => state.visible,
     selectStartDate: (state: TicketState) => state.startDate,
     selectEndDate: (state: TicketState) => state.endDate,
     selectSelectedEmployee: (state: TicketState) => state.selectedEmployee,
-    selectSetJson:(state: TicketState) => state.setJson
 }
 
 const initialTicketState = {
@@ -44,219 +43,128 @@ const initialTicketState = {
     visible: false,
     startDate: new Date(Date.now()),
     endDate: new Date(Date.now()),
-    selectedEmployee: null,
-    json: null, // Không lấy từ useHomeStore.getState().json nữa
+    selectedEmployee: ALL_EMPLOYEES_OPTION,
+    htmlContent: "",
+    json: null
 };
 
 export const createTicketStore = (ticketUsecase: TicketUsecase): StateCreator<TicketState> => (set, get) => ({
     ...initialTicketState,
     getWorkOrders: async () : Promise<Result<WorkOrderEntity[], TicketError>> => {
         set({ isLoading: true });
-        // json nên truyền từ ngoài vào hoặc lấy từ store qua selector
         const json = get().json;
         if(json==null) {
-            set({ error: 'User not found' });
-            set({ isLoading: false });
+            set({ error: 'User not found', isLoading: false });
             return failure(new TicketError('User not found', 'USER_NOT_FOUND'));
         }
-        const result = await ticketUsecase.getWorkOrders({
-            employeeId: get().selectedEmployee?.id??json?.employeeId??'',
+        var result;
+        if (json.isOwner)
+          result = await ticketUsecase.getWorkOrderOwner({
+              employeeId: get().selectedEmployee?.id??"",
+              dateStart: get().startDate.format("yyyy-MM-dd"),
+              dateEnd: get().endDate.format("yyyy-MM-dd"),
+          });
+        else{
+          result = await ticketUsecase.getWorkOrders({
+            employeeId: json.employeeId,
             dateStart: get().startDate.format("yyyy-MM-dd"),
             dateEnd: get().endDate.format("yyyy-MM-dd"),
         });
-        if(isSuccess(result)) {
-            const workOrders = await Promise.all(result.value.map(async (item)=>{
-                const json = await parseHtmlToJson(item.detail);
-                item.detail = json;
-                return item;
-              }))
-            
-            set({ workOrders: workOrders });
-        } else {
-            set({ error: result.error });
         }
-        set({ isLoading: false });
+        if(isSuccess(result)) {
+            set({ isLoading: false, htmlContent: combineAllTicketDetails(result.value)});
+        } else {
+            set({ error: result.error, isLoading: false });
+        }
         return result;
     },
-    getWorkOrderOwners: async (employeeId: string) : Promise<Result<WorkOrderEntity[], TicketError>> => {
-        set({ isLoading: true });
-        const json = get().json;
-        if(json==null) {
-            set({ error: 'User not found' });
-            set({ isLoading: false });
-            return failure(new TicketError('User not found', 'USER_NOT_FOUND'));
-        }
-        const result = await ticketUsecase.getWorkOrderOwner({
-            employeeId: employeeId,
-            dateStart: get().startDate.format("yyyy-MM-dd"),
-            dateEnd: get().endDate.format("yyyy-MM-dd"),
-        });
-        if(isSuccess(result)) {
-            const workOrders = await Promise.all(result.value.map(async (item)=>{
-                const json = await parseHtmlToJson(item.detail);
-                item.detail = json;
-                return item;
-              }))
-            
-            set({ workOrderOwners: workOrders });
-        } else {
-            set({ error: result.error });
-        }
-        set({ isLoading: false });
-        return result;
+    
+    reset: async () => {
+      let user = await appConfig.getUser()
+      const defaultEmployee = user?.isOwner ? ALL_EMPLOYEES_OPTION : undefined;
+      set({ 
+        ...initialTicketState, 
+        json: user, 
+        selectedEmployee: defaultEmployee 
+      });
     },
-    setJson: (json: KeychainObject) => set({ json }), // Action để nhận json từ ngoài vào
-    reset: () => {
-        set({ ...initialTicketState });
-        // reset json về null hoặc lấy lại từ ngoài nếu cần
-    },
+    setStartDate: (date: Date) => set({startDate: date}),
+    setEndDate: (date: Date) => set({endDate:date}),
+    setSelectedEmployee: (emp: EmployeeEntity) => set({selectedEmployee: emp}),
+    setVisible: (v: boolean) => set({visible: v})
 });
 
 // Khởi tạo real usecase ở production
 import { TicketRepositoryImplement } from "../repositories/TicketRepositoryImplement";
 import { TicketApi } from "../services/TicketApi";
-import { useHomeStore } from "@/features/home/stores/homeStore";
 const realTicketUsecase = new TicketUsecase(new TicketRepositoryImplement(TicketApi));
 export const useTicketStore = create<TicketState>()(createTicketStore(realTicketUsecase));
 
-import { Parser } from 'htmlparser2';
+import { ALL_EMPLOYEES_OPTION } from "@/shared/stores/employeeStore";
+import { appConfig } from "@/shared/utils/appConfig";
 
-interface Service {
-  qtyLeft?: string;
-  columnRight?: string;
-  name?: string;
+
+
+/**
+ * Định nghĩa type cho mỗi object trong mảng JSON của bạn để code an toàn hơn.
+ */
+interface TicketDetail {
+  nickName: string;
+  ticketNumber: number;
+  detail: string;
+  ticketDate: string;
+  serviceStartTime: string;
+  serviceEndTime: string;
 }
 
-// Hàm chuyển đổi HTML sang JSON
-const parseHtmlToJson = (htmlString: string) => {
-  return new Promise((resolve, reject) => {
-    const jsonResult = {
-      title: '',
-      time: '',
-      services: [] as Service[],
-      ServiceDeductions: '',
-      NonCashTip: '',
-      Total: '',
-    };
+/**
+ * Trích xuất nội dung bên trong một tag HTML từ một chuỗi.
+ * @param htmlString Chuỗi HTML đầy đủ.
+ * @param tagName Tên của tag (ví dụ: 'body', 'style').
+ * @returns Nội dung bên trong tag hoặc chuỗi rỗng nếu không tìm thấy.
+ */
+function extractTagContent(htmlString: string, tagName: string): string {
+  // Regex để tìm nội dung giữa <tagName> và </tagName>
+  // [\s\S]*? dùng để khớp với mọi ký tự, bao gồm cả dấu xuống dòng
+  const regex = new RegExp(`<${tagName}>([\\s\\S]*?)<\\/${tagName}>`);
+  const match = htmlString.match(regex);
+  return match ? match[1] : '';
+}
 
-    let currentService: Service = {};
-    let currentSummary: Service = {};
-    let isInServicesTable = false;
-    let isInSummaryTable = false;
-    let countTable = 0;
-    const parser = new Parser({
-      onopentag(name, attribs) {
-        if (name === 'div' && attribs.class === 'ticket-name') {
-          parser.ontext = (text) => {
-            jsonResult.title += " "+text.trim();
-          };
-        }
-        if (name === 'div' && attribs.class === 'time') {
-          parser.ontext = (text) => {
-            jsonResult.time += ' '+text.trim();
-          };
-        }
-        if (name === 'table' && attribs.class === 'table-work-order') {
-          countTable++;
-          if (!isInServicesTable&& countTable == 1) {
-            isInServicesTable = true;
-          } else if (!isInSummaryTable&& countTable == 2) {
-            isInSummaryTable = true;
-          }
-        }
-        if (countTable == 1 && isInServicesTable && name === 'tr') {
-          currentService = {};
-        }
-        if (countTable == 1 && isInServicesTable && name === 'td') {
-          if (attribs.class === 'qty-left') {
-            parser.ontext = (text) => {
-              currentService.qtyLeft += text.trim();
-            };
-          } 
-          else if (attribs.class === 'column-right') {
-            parser.ontext = (text) => {
-              currentService.columnRight = (currentService.columnRight??'')+ text.trim();
-            };
-          }
-          else if (!attribs.class) {
-            parser.ontext = (text) => {
-              currentService.name = (currentService.name??'')+ text.trim();
-            };
-          } 
-        }
+/**
+ * Gom nhiều chi tiết ticket (dạng chuỗi HTML) thành một tài liệu HTML duy nhất.
+ * @param tickets Mảng các object ticket.
+ * @returns Một chuỗi HTML duy nhất chứa tất cả các chi tiết ticket.
+ */
+export function combineAllTicketDetails(tickets: TicketDetail[]): string {
+  if (!tickets || tickets.length === 0) {
+    // Trả về một trang trống nếu không có dữ liệu
+    return '<html><head><title>No Tickets</title></head><body><p>No ticket details available.</p></body></html>';
+  }
 
-        if (countTable == 2 && isInSummaryTable && name === 'tr') {
-          currentSummary = {};
-        }
-        if (countTable == 2 && isInSummaryTable && name === 'td') {
-          if (attribs.class === 'qty-left') {
-            parser.ontext = (text) => {
-              currentSummary.qtyLeft += text.trim();
-            };
-          } 
-          else if (attribs.class === 'column-right') {
-            parser.ontext = (text) => {
-              currentSummary.columnRight = (currentSummary.columnRight??'')+ text.trim();
-            };
-          }
-          else if (!attribs.class) {
-            parser.ontext = (text) => {
-              currentSummary.name = (currentSummary.name??'')+ text.trim();
-            };
-          } 
-          
-        }
-        // if (isInSummaryTable && name === 'tr') {
-        //   let summaryKey = '';
-        //   parser.ontext = (text) => {
-        //     const trimmedText = text.trim();
-        //     if (trimmedText) {
-        //       if (!summaryKey) {
-        //         summaryKey = trimmedText.replace(/\s/g, '');
-        //       } else {
-        //         jsonResult[summaryKey as keyof typeof jsonResult] = trimmedText as never;
-        //         summaryKey = '';
-        //       }
-        //     }
-        //   };
-        // }
-      },
-      onclosetag(name) {
-        if (isInServicesTable && name === 'tr') {
-          if (currentService.qtyLeft && currentService.name && currentService.columnRight) {
-            jsonResult.services.push(currentService as never);
-          }
-          
-        }
-        if (isInSummaryTable && name === 'tr' && currentSummary.name && currentSummary.columnRight) {
-          if(currentSummary.name.includes('Deductions')){
-            jsonResult.ServiceDeductions = currentSummary.columnRight;
-          }
-          else if(currentSummary.name.includes('Tip')){
-            jsonResult.NonCashTip = currentSummary.columnRight;
-          }
-          else if(currentSummary.name.includes('Total')){
-            jsonResult.Total = currentSummary.columnRight;
-          }
-        }
-        if (name === 'table') {
-          if (isInServicesTable) {
-            isInServicesTable = false;
-          } else if (isInSummaryTable) {
-            isInSummaryTable = false;
-          }
-        }
-      },
-      onend() {
-        resolve(jsonResult);
-      },
-      onerror(error) {
-        reject(error);
-      },
-    });
+  // 1. Lấy style từ ticket đầu tiên (vì tất cả đều giống nhau)
+  const styleContent = extractTagContent(tickets[0].detail, 'style');
 
-    parser.write(htmlString);
-    parser.end();
-  });
-};
+  // 2. Trích xuất và nối tất cả nội dung <body> của mỗi ticket
+  const allBodyContents = tickets
+    .map(ticket => extractTagContent(ticket.detail, 'body'))
+    .join(''); // Nối tất cả các chuỗi body lại với nhau
 
+  // 3. Xây dựng lại tài liệu HTML cuối cùng
+  const finalHtml = `
+    <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Ticket Details</title>
+        <style>
+          ${styleContent}
+        </style>
+      </head>
+      <body>
+        ${allBodyContents}
+      </body>
+    </html>
+  `;
+
+  return finalHtml;
+}

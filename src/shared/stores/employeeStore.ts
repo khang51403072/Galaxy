@@ -2,6 +2,19 @@ import { create } from 'zustand';
 import { EmployeeEntity } from '@/features/ticket/types/TicketResponse';
 import { TicketApi } from '@/features/ticket/services/TicketApi';
 
+// Tạo một object "All" tĩnh để tái sử dụng
+export const ALL_EMPLOYEES_OPTION: EmployeeEntity = {
+  __type: 'employee',
+  id: '',
+  firstName: "All",
+  lastName: "",
+  nickName: "",
+  image: "",
+  avatar: "",
+  isUnassigned: false,
+};
+
+
 export type EmployeeStoreState = {
   employees: EmployeeEntity[];
   isLoading: boolean;

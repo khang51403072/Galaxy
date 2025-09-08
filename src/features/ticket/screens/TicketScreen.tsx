@@ -1,32 +1,41 @@
 import XScreen from "../../../shared/components/XScreen";
 import XText from "../../../shared/components/XText";
 import XBottomSheetSearch from "../../../shared/components/XBottomSheetSearch";
-import React, { useEffect, useState } from "react";
-import { FlatList, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { FlatList, StyleSheet, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import XInput from "../../../shared/components/XInput";
 import { TicketState, useTicketStore } from "../stores/ticketStore";
 import { useShallow } from "zustand/react/shallow";
-import { getDisplayName, WorkOrderEntity } from "../types/TicketResponse";
+import { EmployeeEntity, getDisplayName, WorkOrderEntity } from "../types/TicketResponse";
 import { useTheme } from "../../../shared/theme/ThemeProvider";
-import { useEmployeeStore, employeeSelectors } from '@/shared/stores/employeeStore';
+import { useEmployeeStore, employeeSelectors, ALL_EMPLOYEES_OPTION } from '@/shared/stores/employeeStore';
 import XNoDataView from "@/shared/components/XNoDataView";
-import XRenderHTML from "@/shared/components/XRenderHTML";
 import XDateRangerSearch from "@/shared/components/XDateRangerSearch";
 import { appConfig } from "@/shared/utils/appConfig";
-import { WebView } from "react-native-webview";
-import { XSkeleton } from '../../../shared/components/XSkeleton';
 import TicketSkeleton from '../components/TicketSkeleton';
+import WebView from "react-native-webview";
 
 export default function  TicketScreen() {
-  const {width} = useWindowDimensions();
   const theme = useTheme();
 
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
-  const {setJson, json,isLoading, error, visible, getWorkOrders, getWorkOrderOwners, workOrderOwners, workOrders, startDate, endDate, selectedEmployee} = useTicketStore(useShallow(
+  const style = useMemo(
+    ()=> StyleSheet.create({
+      container: { 
+        flexDirection: 'column', 
+        paddingTop: theme.spacing.md, 
+        borderBottomWidth: 1, 
+        borderBottomColor: theme.colors.border, 
+        paddingBottom: theme.spacing.md,
+      }
+    }),[]
+  ) 
+  const {
+    json, isLoading, error, visible, 
+    startDate, endDate, selectedEmployee,htmlContent,
+  } = useTicketStore(useShallow(
       (state: TicketState) => ({
           json: state.json,
-          getWorkOrderOwners: state.getWorkOrderOwners,
-          getWorkOrders: state.getWorkOrders,
+          htmlContent: state.htmlContent,
           isLoading: state.isLoading,
           error: state.error,
           visible: state.visible,
@@ -34,116 +43,80 @@ export default function  TicketScreen() {
           endDate: state.endDate,
           selectedEmployee: state.selectedEmployee,
           workOrderOwners: state.workOrderOwners,
-          workOrders: state.workOrders,
-          setJson: state.setJson
+          workOrders: state.workOrders
       })
+  ));
+
+  const {
+    getWorkOrders, setSelectedEmployee,
+    setStartDate, setEndDate, reset,
+    setVisible
+  } = useTicketStore(useShallow(
+    (state: TicketState) => ({
+
+      getWorkOrders: state.getWorkOrders,
+      setStartDate: state.setStartDate,
+      setEndDate: state.setEndDate,
+      setSelectedEmployee: state.setSelectedEmployee,
+      reset: state.reset,
+      setVisible: state.setVisible
+    })
   ));
   // Dùng EmployeeStore dùng chung
   const employees = useEmployeeStore(employeeSelectors.selectEmployees);
+
+  const employeeAll: EmployeeEntity[] = useMemo(
+    () => [ALL_EMPLOYEES_OPTION, ...employees]
+    ,[employees]
+  )
+
   const fetchEmployees = useEmployeeStore(employeeSelectors.selectFetchEmployees);
     
-  useEffect(() => {
-    useTicketStore.getState().reset();
-    appConfig.getUser().then((user) => {
-      setJson(user);
-    });
+  useEffect( () => {
+    reset();
   }, []);
-  const Dashed = () => (
-    <View
-      style={{
-        flexDirection: 'row',
-        borderWidth: 1,
-        borderColor: theme.colors.gray600,
-        borderStyle: 'dashed',
-        marginVertical: 16,
-        width: '100%',
-        // height: 1,
-      }}
-    />
-  );
-
-  // Hàm renderItem nhận đầu vào là html
-  const renderItem =  ({ item }: { item: WorkOrderEntity }) =>
-    {
-      const view = <View 
-      style={{backgroundColor: theme.colors.white, 
-      padding: theme.spacing.md, borderRadius: theme.spacing.md, ...theme.shadows.sm}}>
-        <XText variant="bodyMedium">{(item.detail as any).title}</XText>
-        <XText variant="bodyRegular">{item.detail.time}</XText>
-        <Dashed />
-        <View style={{flexDirection: 'column', justifyContent: 'space-between'}}>
-          {item.detail.services.map((service: any) => (
-            <View key={service.id} style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <XText numberOfLines={2} variant="bodyMedium" style={{width: '80%'}}>{service.name}</XText>
-              <XText numberOfLines={1} variant="bodyMedium">{service.columnRight}</XText>
-            </View>
-          ))}
-        </View>
-        <Dashed />
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <XText variant="captionRegular">Service Deductions</XText>
-          <XText variant="captionRegular">{item.detail.ServiceDeductions}</XText>
-        </View>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <XText variant="captionRegular">Non Cash Tip</XText>
-          <XText variant="captionRegular">{item.detail.NonCashTip}</XText>
-        </View>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <XText variant="captionRegular">Total</XText>
-          <XText variant="captionRegular">{item.detail.Total}</XText>
-        </View>
-      </View>
-      return (view) 
-      
-    } ;
-
+  
+  const onEmployeePickerClick = useCallback( async ()=>{
+    await fetchEmployees()
+    setVisible(true)
+  },[fetchEmployees, setVisible])
+  const employeePicker = useMemo(
+    ()=><TouchableOpacity 
+        style={{marginBottom: theme.spacing.md}} 
+        onPress={onEmployeePickerClick}>
+        <XInput 
+          value={getDisplayName(selectedEmployee)} 
+          editable={false} placeholder="Choose Technician"  
+          label="Technician" pointerEvents="none"/>
+    </TouchableOpacity>,
+    [theme,selectedEmployee,onEmployeePickerClick]
+  )
+  
   return (
     <XScreen title="Tickets" loading={false} error={error} style={{ flex: 1 }}> 
-      {/* View header */}
-      <View style={{ flexDirection: 'column', paddingTop: theme.spacing.md, 
-        borderBottomWidth: 1, borderBottomColor: theme.colors.border, paddingBottom: theme.spacing.md,}}>
-      {json?.isOwner ? 
-        <TouchableOpacity style={{marginBottom: theme.spacing.md}} onPress={async () => {
-          useTicketStore.setState({visible: true});
-          await fetchEmployees();
-        }}>
-          <XInput value={selectedEmployee != null ? getDisplayName(selectedEmployee) : ""} editable={false} placeholder="Choose Technician"  label="Technician" pointerEvents="none"/>
-        </TouchableOpacity>:null}
+      {/* Search box */}
+      <View style={style.container}>
+        {json?.isOwner && employeePicker}
         <XDateRangerSearch
           fromDate={startDate}
           toDate={endDate}
-          onFromChange={(date) => useTicketStore.setState({startDate: date})}
-          onToChange={(date) => useTicketStore.setState({endDate: date})}
-          onSearch={() => {
-            setIsFirstLoad(false);
-            if(json?.isOwner){
-              getWorkOrderOwners(selectedEmployee?.id??"");
-            }else{
-              getWorkOrders();
-            }
-          }}
+          onFromChange={setStartDate}
+          onToChange={setEndDate}
+          onSearch={getWorkOrders}
         />
       </View>
-      {isLoading ? (
-        <TicketSkeleton />
-      ) : (
-        <FlatList
-          data={json?.isOwner ? workOrderOwners : workOrders}
-          keyExtractor={(item, idx) => item.ticketNumber?.toString()+ idx.toString()}
-          renderItem={renderItem}
-          contentContainerStyle={{ padding: 16, gap: 16 }}
-          ListEmptyComponent={isFirstLoad ? null : <XNoDataView />}
-        />
-      )}
+      {/*End Search box */}
+      {
+        isLoading ? 
+        <TicketSkeleton />:
+        (htmlContent.length>0 && !htmlContent.includes("No Tickets") ? <WebView source={{ html: htmlContent }}/>:<XNoDataView />)
+      }
+
       <XBottomSheetSearch
         visible={visible}
-        onClose={() => {
-          useTicketStore.setState({visible: false});
-        }}
-        data={employees}
-        onSelect={(item) => {
-          useTicketStore.setState({selectedEmployee: item});
-        }}
+        onClose={() => setVisible(false)}
+        data={employeeAll}
+        onSelect={setSelectedEmployee}
         placeholder="Search..."
         title="Technician "
       /> 
