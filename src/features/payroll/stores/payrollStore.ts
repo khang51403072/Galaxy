@@ -5,7 +5,7 @@ import { EmployeeEntity } from '../../ticket/types/TicketResponse';
 import { failure, isSuccess, Result } from '../../../shared/types/Result';
 import { TicketError } from '../../ticket/types/TicketError';
 import { CommonRequest } from '../../../types/CommonRequest';
-import { keychainHelper, KeychainObject } from '../../../shared/utils/keychainHelper';
+import { KeychainObject } from '../../../shared/utils/keychainHelper';
 import { appConfig } from '@/shared/utils/appConfig';
 
 export type PayrollState = {
@@ -14,12 +14,17 @@ export type PayrollState = {
   isLoading: boolean;
   error: string | null;
   visible: boolean;
-  selectedEmployee: EmployeeEntity | null;
+  selectedEmployee: EmployeeEntity;
   startDate: Date ;
   endDate: Date ;
-  getPayroll: (employeeId: string) => Promise<Result<string, TicketError>>;
-  getPayrollOwner: (employeeId: string) => Promise<Result<string, TicketError>>;
+  json?: KeychainObject;
+  getPayroll: () => Promise<Result<string, TicketError>>;
+  getPayrollOwner: () => Promise<Result<string, TicketError>>;
   reset: () => void;
+  setStartDate: (date: Date) => void
+  setEndDate: (date: Date) => void
+  setSelectedEmployee: (emp: EmployeeEntity) => void
+  setVisible: (v: boolean) => void
 };
 
 export const payrollSelectors = {
@@ -41,21 +46,22 @@ const initialState = {
   isLoading: false,
   error: null,
   visible: false,
-  selectedEmployee: null,
+  selectedEmployee: ALL_EMPLOYEES_OPTION,
   startDate: new Date(),
   endDate: new Date(),
+  json: undefined
 };
 
 // Refactor: nhận payrollUsecase, ticketUsecase từ ngoài vào
-export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase: TicketUsecase) => (set: any, get: any) => ({
+export const createPayrollStore = (payrollUsecase: PayrollUsecase) => (set: any, get: any) => ({
   ...initialState,
-  getPayroll: async (employeeId: string) => {
+  getPayroll: async () => {
       set({ isLoading: true, error: null });
       const json = await appConfig.getUser();
       let commonRequest: CommonRequest = {
           dateStart: get().startDate?.format("yyyy-MM-dd"),
           dateEnd: get().endDate?.format("yyyy-MM-dd"),
-          employeeId: employeeId ?? json?.employeeId,
+          employeeId: json?.employeeId,
       }
       const result = await payrollUsecase.getPayroll(commonRequest);
       if(isSuccess(result)) {
@@ -65,13 +71,13 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase
       }
       return result;
   },
-  getPayrollOwner: async (employeeId: string) => {
+  getPayrollOwner: async () => {
       set({ isLoading: true, error: null });
       const json = await appConfig.getUser();
       let commonRequest: CommonRequest = {
           dateStart: get().startDate?.format("yyyy-MM-dd"),
           dateEnd: get().endDate?.format("yyyy-MM-dd"),
-          employeeId: '',
+          employeeId: get().selectedEmployee.id??"",
       }
       const result = await payrollUsecase.getPayrollOwner(commonRequest);
       if(isSuccess(result)) {
@@ -81,16 +87,20 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase, ticketUsecase
       }
       return result;
   },
-  reset: () => {
-      set({ ...initialState });
+  reset: async () => {
+      const user = await appConfig.getUser()
+      set({ ...initialState, json: user });
       // Không lấy lại json từ keychainHelper nữa, json sẽ được truyền từ ngoài vào
   },
+  setStartDate: (date: Date) => set({startDate: date}),
+  setEndDate: (date: Date) => set({endDate:date}),
+  setSelectedEmployee: (emp: EmployeeEntity) => set({selectedEmployee: emp}),
+  setVisible: (v: boolean) => set({visible: v})
 });
 
 // Khởi tạo real usecase ở production
 import { PayrollRepositoryImplement } from '../repositories/PayrollRepositoryImplement';
-import { TicketRepositoryImplement } from '../../ticket/repositories/TicketRepositoryImplement';
-import { TicketApi } from '../../ticket/services/TicketApi';
+import { ALL_EMPLOYEES_OPTION } from '@/shared/stores/employeeStore';
+
 const realPayrollUsecase = new PayrollUsecase(new PayrollRepositoryImplement());
-const realTicketUsecase = new TicketUsecase(new TicketRepositoryImplement(TicketApi));
-export const usePayrollStore = create<PayrollState>()(createPayrollStore(realPayrollUsecase, realTicketUsecase)); 
+export const usePayrollStore = create<PayrollState>()(createPayrollStore(realPayrollUsecase)); 
