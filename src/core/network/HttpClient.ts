@@ -12,6 +12,7 @@ class HttpClient {
   private static ongoingRequests = new Map<string, Promise<any>>();
 
   public static getInstance(): AxiosInstance {
+    
     if (!HttpClient.instance) {
       HttpClient.instance = axios.create({
         baseURL: ENV.API_BASE_URL,
@@ -22,7 +23,7 @@ class HttpClient {
         xsrfCookieName: undefined,
         xsrfHeaderName: undefined,
       });
-
+      console.log(ENV.API_BASE_URL)
       // Gắn interceptor auth
       HttpClient.instance.interceptors.request.use(async (config) => {
         const token = await getToken();

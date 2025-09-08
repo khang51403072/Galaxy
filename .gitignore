@@ -94,3 +94,4 @@ ios/DerivedData/
 
 # Env
 .env.*
+.env

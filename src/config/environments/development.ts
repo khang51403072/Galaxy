@@ -1,6 +1,6 @@
 import Config from 'react-native-config';
 
-export const production = {
+export const development = {
   API_BASE_URL: Config.API_BASE_URL,
   SIGNALR_URL: Config.SIGNALR_URL,
   
