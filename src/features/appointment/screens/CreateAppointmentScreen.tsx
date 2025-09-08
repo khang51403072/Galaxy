@@ -248,23 +248,23 @@ export default function CreateAppointmentScreen() {
     const onTrashButtonClick = useCallback(
         async ()  =>{
             showConfirm({
-                    title: 'Delete Appointment',
-                    message: 'Are you sure you want to delete this appointment?',
-                    confirmText: 'Delete',
-                    cancelText: 'Cancel',
-                    onConfirm: onDeleteAppointment,
-                    onCancel: ()=>{},
-                    children: <XColumn style={styles.deleteApptChildren}>
-                        <XRow justify="center">
-                            <XText variant="titleMedium">Customer: </XText>
-                            <XText variant="titleRegular">{apptDetails?.customer.firstName+' '+apptDetails?.customer.lastName}</XText>
-                        </XRow>
-                        <XRow justify="center">
-                            <XText variant="titleMedium">Date & Time: </XText>
-                            <XText variant="titleRegular">{apptDetails?.apptDate.toDate()?.format('MMM dd, HH:mm AM')}</XText>
-                        </XRow>
-                    </XColumn>
-                })
+                title: 'Delete Appointment',
+                message: 'Are you sure you want to delete this appointment?',
+                confirmText: 'Delete',
+                cancelText: 'Cancel',
+                onConfirm: onDeleteAppointment,
+                onCancel: ()=>{},
+                children: <XColumn style={styles.deleteApptChildren}>
+                    <XRow justify="center">
+                        <XText variant="titleMedium">Customer: </XText>
+                        <XText variant="titleRegular">{apptDetails?.customer.firstName+' '+apptDetails?.customer.lastName}</XText>
+                    </XRow>
+                    <XRow justify="center">
+                        <XText variant="titleMedium">Date & Time: </XText>
+                        <XText variant="titleRegular">{apptDetails?.apptDate.toDate()?.format('MMM dd, HH:mm AM')}</XText>
+                    </XRow>
+                </XColumn>
+            })
         },[apptDetails]);
 
     const trashButton = useMemo(

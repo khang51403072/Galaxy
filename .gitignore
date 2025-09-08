@@ -82,7 +82,7 @@ ios/Pods/
 ios/DerivedData/
 *.keystore
 *.jks
-
+/android/app/google-services.json
 # MacOS / IDEs
 .DS_Store
 *.iml
