@@ -8,7 +8,7 @@ type Props = {
   spacing?: number;
 };
 
-export default function XDivider({ color = '#E0E0E0', thickness = 1, spacing = 12 }: Props) {
+export const XDivider =({ color = '#E0E0E0', thickness = 1, spacing = 12 }: Props) =>{
   return (
     <View
       style={{

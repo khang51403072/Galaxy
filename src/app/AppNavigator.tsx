@@ -22,6 +22,7 @@ import ProfileScreen from '@/features/home/screens/subScreen/ProfileScreen';
 import SwitchStoreScreen from '@/features/home/screens/subScreen/SwitchStoreScreen';
 import ChangeThemeScreen from '@/features/home/screens/subScreen/ChangeThemeScreen';
 import { ExloreChartScreen } from '@/features/home/screens/subScreen/ExploreChartScreen';
+import { ReviewScreen } from '@/features/review/screens/ReviewScreen';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -49,6 +50,7 @@ export default function AppNavigator() {
         <Stack.Screen name={ROUTES.SWITCH_STORE} component={SwitchStoreScreen} />
         <Stack.Screen name={ROUTES.CHANGE_THEME} component={ChangeThemeScreen} />
         <Stack.Screen name={ROUTES.SUMMARY} component={ExloreChartScreen} />
+        <Stack.Screen name={ROUTES.REVIEW} component={ReviewScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

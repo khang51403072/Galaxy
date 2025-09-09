@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import XButton from '../../../../shared/components/XButton';
-import XDivider from '../../../../shared/components/XDivider';
+import {XDivider} from '../../../../shared/components/XDivider';
 import XText from '../../../../shared/components/XText';
 import TitleGroup from '../../components/TitleGroup';
 import RowInfo from '../../components/RowInfo';

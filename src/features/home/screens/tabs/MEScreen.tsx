@@ -25,7 +25,7 @@ const accountListActions = [
 ]
 
 const financeListActions = [
-  {title: "Buy Credits", icon: "buyCredits", onAction:()=>{navigate(ROUTES.PROFILE)}} as MECardItemProps,
+  {title: "Buy Credits", icon: "buyCredits", onAction:()=>{navigate(ROUTES.REVIEW)}} as MECardItemProps,
   {title: "Subscriptions", icon: "subscriptions", onAction:()=>{navigate(ROUTES.CHANGE_THEME)}} as MECardItemProps,
   {title: "Invoices", icon: "invoices", onAction:()=>{navigate(ROUTES.CHANGE_THEME)}} as MECardItemProps,
   {title: "Statements", icon: "statements", onAction:()=>{navigate(ROUTES.CHANGE_THEME)}} as MECardItemProps,

@@ -46,6 +46,11 @@ import HomeOutline from '../assets/icons/HomeOutline.svg';
 import DowmArrowBlack from '../assets/icons/DownArrowBlack.svg'
 import Cash from '../assets/icons/Cash.svg'
 import Trash from '../assets/icons/Trash.svg'
+import StarOutline from '../assets/icons/StarOutline.svg'
+
+import StarFilled from '../assets/icons/StarFilled.svg'
+import Load from '../assets/icons/Load.svg'
+
 //ME
 import CaretRight from '../assets/icons/ME/CaretRight.svg'
 import Profile from '../assets/icons/ME/Profile.svg'
@@ -58,6 +63,7 @@ import Invoices from '../assets/icons/ME/Invoices.svg'
 import ChartBar from '../assets/icons/ChartBar.svg'
 import FaceID from '../assets/icons/ME/FaceID.svg';
 import SignOut from '../assets/icons/ME/SignOut.svg';
+
 export const iconMap = {
   user: User,
   passwordCheck: PasswordCheck,
@@ -114,7 +120,10 @@ export const iconMap = {
   chartBar: ChartBar,
   cash: Cash,
   signOut: SignOut,
-  trash: Trash
+  trash: Trash,
+  starOutline: StarOutline,
+  starFilled: StarFilled,
+  load: Load
 };
 
  type XIconProps = {

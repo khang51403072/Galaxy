@@ -87,9 +87,7 @@ const XDropdown: React.FC<XDropdownProps> = ({
   }, [isOpen, options.length]);
 
   const styles = StyleSheet.create({
-    container: {
-      marginBottom: 16,
-    },
+  
     label: {
       color: theme.colors.text,
       marginBottom: 4,

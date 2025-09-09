@@ -12,9 +12,10 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../theme';
 import XText from './XText';
+import { XRow } from './XRow';
 
 type Props = {
-  title: string;
+  title?: string;
   onPress: () => void;
   disabled?: boolean;
   style?: ViewStyle;
@@ -24,6 +25,7 @@ type Props = {
   loading?: boolean;
   useGradient?: boolean;
   radius?: number | keyof ReturnType<typeof useTheme>['borderRadius'];
+  icon?: React.ReactNode
 };
 
 export default function XButton({
@@ -37,6 +39,7 @@ export default function XButton({
   loading = false,
   useGradient = false,
   radius,
+  icon
 }: Props) {
   const theme = useTheme();
 
@@ -57,7 +60,7 @@ export default function XButton({
   const content = loading ? (
     <ActivityIndicator color={textColor} />
   ) : (
-    <XText variant='titleMedium' style={[styles.text, { color: textColor }, textStyle]}>{title.toUpperCase()}</XText>
+    <XText variant='titleMedium' style={[styles.text, { color: textColor }, textStyle]}>{title?.toUpperCase()}</XText>
   );
 
   return (
@@ -86,9 +89,10 @@ export default function XButton({
           style={StyleSheet.absoluteFill}
         />
       ) : null}
-      <View style={[styles.content, { backgroundColor: 'transparent' }]}> 
+      <XRow style={[styles.content, { backgroundColor: 'transparent' }]}> 
         {content}
-      </View>
+        {icon}
+      </XRow>
     </TouchableOpacity>
   );
 }

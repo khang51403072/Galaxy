@@ -20,7 +20,8 @@ export const ROUTES = {
     DASHBOARD: 'Dashboard',
     SWITCH_STORE: 'SwitchStore',
     CHANGE_THEME: 'ChangeTheme',
-    SUMMARY: 'Summary'
+    SUMMARY: 'Summary',
+    REVIEW: 'Review'
     // Thêm các route khác ở đây
   } as const;
   
@@ -47,6 +48,7 @@ export const ROUTES = {
     [ROUTES.SWITCH_STORE]: undefined;
     [ROUTES.CHANGE_THEME]: undefined;
     [ROUTES.SUMMARY]: undefined;
+    [ROUTES.REVIEW]: undefined;
     // Thêm params cho các route khác nếu cần
   };
   

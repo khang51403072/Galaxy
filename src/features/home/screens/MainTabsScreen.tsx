@@ -15,6 +15,7 @@ import HomeScreen from './tabs/HomeScreen';
 import { appConfig } from '@/shared/utils/appConfig';
 import { useUserStore } from '../stores/profileStore';
 import ProfileScreenNew from './tabs/MEScreen';
+import { ReviewScreen } from '@/features/review/screens/ReviewScreen';
 
 // --- TYPE DEFINITIONS ---
 interface MainTabsRoutesProps { 
@@ -83,7 +84,7 @@ const CustomTabBar = ({ activeIndex, handleTabChange, routes, slideAnim }: Custo
             name={activeIndex === index ? `${route.icon}Filled` as any : `${route.icon}Outline` as any}
             width={24}
             height={24}
-            color={activeIndex === index ? theme.colors.primaryMain : theme.colors.textInputPlaceholder}
+            color={activeIndex === index ? theme.colors.primaryMain : theme.colors.gray700}
           />
           <Animated.Text
             style={{
@@ -107,6 +108,7 @@ export default function MainTabsScreen() {
 
   const routes: MainTabsRoutesProps[] = [
     { name: 'Dashboard', component: HomeScreen, icon: 'home', label: 'Dashboard' },
+    { name: 'Reviews', component: ReviewScreen, icon: 'star', label: 'Reviews' },
     { name: 'ME', component: ProfileScreenNew, icon: 'profile', label: 'ME' },
   ];
 

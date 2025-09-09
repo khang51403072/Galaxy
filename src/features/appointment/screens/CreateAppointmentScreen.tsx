@@ -17,7 +17,6 @@ import XButton from "@/shared/components/XButton";
 import { useXAlert } from "@/shared/components/XAlertContext";
 import { appConfig } from "@/shared/utils/appConfig";
 import useSignalR from "@/shared/hooks/useSignalR";
-import { DataAppt } from "../types/ApptSaveResponse";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import { useBackHandler } from "@/shared/hooks/useBackHandler";
@@ -35,7 +34,7 @@ import { XColumn } from "@/shared/components/XColumn";
 import { XRow } from "@/shared/components/XRow";
 import { toDate } from "date-fns";
 import { createApptMessage } from "../types/AppointmentMessage";
-import XDivider from "@/shared/components/XDivider";
+import {XDivider} from "@/shared/components/XDivider";
 // --- Component ---
 export default function CreateAppointmentScreen() {
     const route = useRoute<RouteProp<RootStackParamList, 'CreateAppointment'>>();

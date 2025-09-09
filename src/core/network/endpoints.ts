@@ -45,6 +45,10 @@ export const API_ENDPOINTS = {
     APPT_DETAILS: 'galaxy-me/appointment-details',
     COMPANY_PROFILE: 'galaxy-me/get-company-profile',
     DELETE_APPOINTMENT: 'galaxy-me/delete-appointment'
+  },
+  REVIEW: {
+    GET_SERVEY_DATE_RANGE: 'galaxy-me/get-servey-date-range'
   }
+  ,
   
 } as const; 

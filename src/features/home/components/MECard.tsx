@@ -1,5 +1,5 @@
 import { XColumn } from "@/shared/components/XColumn";
-import XDivider from "@/shared/components/XDivider";
+import {XDivider} from "@/shared/components/XDivider";
 import XIcon, { iconMap } from "@/shared/components/XIcon";
 import { XRow } from "@/shared/components/XRow";
 import XText from "@/shared/components/XText";
