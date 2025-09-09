@@ -12,8 +12,8 @@ import { useShallow } from "zustand/react/shallow";
 import { useNavigation } from "@react-navigation/native";
 import { useBackHandler } from "@/shared/hooks/useBackHandler";
 import { goBack } from "@/app/NavigationService";
-import { createAppointmentStore } from "../stores/appointmentStore";
-import { useCreateAppointmentStore } from "../stores/createAppointmentStore";
+import { useAppointmentUIStore } from "../stores/createAppointmentUIStore";
+import { useCustomerStore } from "../stores/customerStore";
 
 export default function AddCustomerScreen() {
     const { showAlert } = useXAlert();
@@ -89,7 +89,7 @@ export default function AddCustomerScreen() {
                 message: "Customer created successfully",
                 type: "success",
                 onClose: async () => {
-                    await useCreateAppointmentStore.getState().getCustomerLookup();
+                    await useCustomerStore.getState().getCustomerLookup();
                     goBack();
                 }
             });

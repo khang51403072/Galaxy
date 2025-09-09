@@ -14,6 +14,7 @@ import XDateRangerSearch from "@/shared/components/XDateRangerSearch";
 import XNoDataView from "@/shared/components/XNoDataView";
 import { XSkeleton } from '../../../shared/components/XSkeleton';
 import React from "react";
+import { useXAlert, XAlertOptions } from "@/shared/components/XAlertContext";
 
 export default function  PayRollScreen() {
     useEffect(() => {
@@ -21,6 +22,7 @@ export default function  PayRollScreen() {
     }, []);
     const layout = useWindowDimensions();
     const theme = useTheme();
+    const {showAlert} = useXAlert();
     const styles = React.useMemo(() => StyleSheet.create({
       header: {
         flexDirection: 'column',
@@ -171,9 +173,18 @@ export default function  PayRollScreen() {
     const onSearchClicked = useCallback(
       () => {
             setIsFirstLoad(false);
-            if(json?.isOwner){
+            //if user is owner, in tabScreen Owner: 
+            if(json?.isOwner && index==0){
               getPayrollOwner();
-            }else{
+            }
+            else if(selectedEmployee.id.length==0) return showAlert({
+                message: "Please select an employee", 
+                type: "error", 
+                title: "Error", onClose: ()=>{}
+              });
+            else{
+              //if user is owner, in tabScreen Technical: 
+              //if user is technical, only getPayroll
               getPayroll();
             }
           },[getPayroll,getPayrollOwner,json]

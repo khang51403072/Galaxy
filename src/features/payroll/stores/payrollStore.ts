@@ -61,13 +61,13 @@ export const createPayrollStore = (payrollUsecase: PayrollUsecase) => (set: any,
       let commonRequest: CommonRequest = {
           dateStart: get().startDate?.format("yyyy-MM-dd"),
           dateEnd: get().endDate?.format("yyyy-MM-dd"),
-          employeeId: json?.employeeId,
+          employeeId: json.isOwner? get().selectedEmployeel.id :json?.employeeId,
       }
       const result = await payrollUsecase.getPayroll(commonRequest);
       if(isSuccess(result)) {
-          set({ payrolls: result.value as string, isLoading: false });
+        set({ payrolls: result.value as string, isLoading: false });
       } else {
-          set({ error: result.error.message, isLoading: false });
+        set({ error: result.error.message, isLoading: false });
       }
       return result;
   },
