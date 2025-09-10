@@ -19,26 +19,25 @@ interface Props {
   options: SurveyItem[]
 }
 
-const COMMON_HEIGHT = 44
 export default function ReviewList({
   options
 }: Props) {
   const theme = useTheme();
   
   const renderItem =(item : SurveyItem) => {
-        return <XColumn gap={8} style={{paddingVertical: theme.spacing.md}}>
-            <XRow justify="space-between" align="center">
-                <XText color={theme.colors.gray800} variant="titleRegular" >{item.customerInfo.firstName} {item.customerInfo.lastName}</XText>
-                <XText color={theme.colors.gray600} variant="captionLight">#{item.ticketNum}</XText>
-            </XRow>
-            {item.customerInfo.phone&&<XText color={theme.colors.gray500} variant="captionLight">{item.customerInfo.phone}</XText>}
-            <XRow justify="space-between" align="center">
-                <StaringBar score={item.rating}/>
-                <XText color={theme.colors.gray600} variant="captionLight">{item.createdAt.toDate()?.format('dd/MM/yyyy')} at {item.createdAt.toDate()?.format('HH:mm a')}</XText>
-            </XRow>
-            {item.comment&& <XText color={theme.colors.gray700} variant="titleLight">{item.comment}</XText>}
-        </XColumn>;
-    }
+    return <XColumn gap={8} style={{paddingVertical: theme.spacing.md}}>
+        <XRow justify="space-between" align="center">
+            <XText color={theme.colors.gray800} variant="titleRegular" >{item.customerInfo.firstName} {item.customerInfo.lastName}</XText>
+            <XText color={theme.colors.gray600} variant="captionLight">#{item.ticketNum}</XText>
+        </XRow>
+        {item.customerInfo.phone&&<XText color={theme.colors.gray500} variant="captionLight">{item.customerInfo.phone}</XText>}
+        <XRow justify="space-between" align="center">
+            <StaringBar score={item.rating}/>
+            <XText color={theme.colors.gray600} variant="captionLight">{item.createdAt.toDate()?.format('dd/MM/yyyy')} at {item.createdAt.toDate()?.format('HH:mm a')}</XText>
+        </XRow>
+        {item.comment&& <XText maxLines={10} color={theme.colors.gray700} variant="titleLight">{item.comment}</XText>}
+    </XColumn>;
+  }
 
   
 

@@ -71,13 +71,13 @@ const SwitchStoreScreen = () => {
 
   const renderItem = ({ item }: { item: StoreItemEntity }) => (
     <TouchableOpacity
-      style={[styles.item]}
+      style={[styles.item,]}
       onPress={() => handlePress(item)}
     > 
       <XAvatar uri={item.storeLogo} size={50} />
-      <View style={{flexDirection:"column", justifyContent:"space-between", gap: theme.spacing.sm}}>
+      <View style={{flex:1,flexDirection:"column", justifyContent:"space-between", gap: theme.spacing.sm, }}>
         <XText variant="titleRegular" style={{color: theme.colors.gray800}}>{item.storeName}</XText>
-        <XText variant="bodyLight" style={{color: theme.colors.gray600}}>{item.address}</XText>
+        <XText maxLines={2} variant="bodyLight" style={{color: theme.colors.gray600}}>{item.address} {item.address}</XText>
       </View>
       
     </TouchableOpacity>
@@ -88,7 +88,7 @@ const SwitchStoreScreen = () => {
     <XScreen loading={isLoading} title='Switch Stores' style={styles.container} paddingHorizontal={0}>
       <FlatList
         data={stores}
-        keyExtractor={item => item.masterStoreId+item.storeId}
+        keyExtractor={item => item.empUser+item.storeId}
         renderItem={renderItem}
         contentContainerStyle={{gap: theme.spacing.sm, paddingHorizontal: theme.spacing.sm,
             paddingVertical: theme.spacing.sm}}

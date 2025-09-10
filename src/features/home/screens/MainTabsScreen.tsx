@@ -1,5 +1,5 @@
 // src/features/home/screens/MainTabsScreen.tsx
-import React, { useState, useRef, useEffect, useCallback, ComponentType } from 'react';
+import React, { useState, useRef, useEffect, useCallback, ComponentType, useMemo } from 'react';
 import { View, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import Animated, { 
   useSharedValue, 
@@ -16,6 +16,8 @@ import { appConfig } from '@/shared/utils/appConfig';
 import { useUserStore } from '../stores/profileStore';
 import ProfileScreenNew from './tabs/MEScreen';
 import { ReviewScreen } from '@/features/review/screens/ReviewScreen';
+import { useHomeStore } from '../stores/homeStore';
+import { useShallow } from 'zustand/react/shallow';
 
 // --- TYPE DEFINITIONS ---
 interface MainTabsRoutesProps { 
@@ -106,11 +108,19 @@ export default function MainTabsScreen() {
   const pagerRef = useRef<PagerView>(null);
   const slideAnim = useSharedValue(0);
 
-  const routes: MainTabsRoutesProps[] = [
-    { name: 'Dashboard', component: HomeScreen, icon: 'home', label: 'Dashboard' },
-    { name: 'Reviews', component: ReviewScreen, icon: 'star', label: 'Reviews' },
-    { name: 'ME', component: ProfileScreenNew, icon: 'profile', label: 'ME' },
-  ];
+  const json = useHomeStore(useShallow(state=> state.json))
+  const routes: MainTabsRoutesProps[] = useMemo(
+    ()=>{
+      return json?.isOwner ? [
+        { name: 'Dashboard', component: HomeScreen, icon: 'home', label: 'Dashboard' },
+        { name: 'Reviews', component: ReviewScreen, icon: 'star', label: 'Reviews' },
+        { name: 'ME', component: ProfileScreenNew, icon: 'profile', label: 'ME' },
+      ]:[
+        { name: 'Dashboard', component: HomeScreen, icon: 'home', label: 'Dashboard' },
+        { name: 'ME', component: ProfileScreenNew, icon: 'profile', label: 'ME' },
+      ]
+    },[json]
+  ) ;
 
   const handleTabChange = useCallback((index: number) => {
     if (index === activeIndex) return;
