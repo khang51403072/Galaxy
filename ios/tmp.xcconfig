@@ -1,3 +1,0 @@
-ENVIRONMENT=development
-API_BASE_URL=https:/$()/xsalonapi.prod.galaxyaccess.us/
-SIGNALR_URL=https:/$()/xsalonapi.prod.galaxyaccess.us/hubs/

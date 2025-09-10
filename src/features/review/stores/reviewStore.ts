@@ -22,6 +22,8 @@ export function countCommentsByRating(surveys: SurveyItem[]): any {
     star4: 0,
     star5: 0,
     total: 0,
+    countSurveyHasStar:0,
+    countingStar: 0
   };
 
   // Xử lý trường hợp đầu vào không hợp lệ
@@ -36,7 +38,12 @@ export function countCommentsByRating(surveys: SurveyItem[]): any {
       
       // Tăng tổng số comment hợp lệ
       counts.total++;
-
+      //tang tong so comment co star
+      if(survey.rating > 0) 
+        {
+          counts.countSurveyHasStar++
+          counts.countingStar += survey.rating
+        }
       // 4. Dùng switch-case để tăng biến đếm tương ứng với rating
       switch (survey.rating) {
         case 1:
@@ -118,13 +125,13 @@ export const createReviewStore = () => (set: any, get: any) => ({
     if(isSuccess(result))
     {
       let listOfSurvey = result.value
-      let sum = listOfSurvey.reduce<number>((l,r)=>l+r.rating,0)
+      
       let counts = countCommentsByRating(listOfSurvey)
       set({
         isLoading: false, 
         listOfSurvey: listOfSurvey, 
         totalScore: listOfSurvey.length, 
-        summaryAverageScore: counts.total/listOfSurvey.length,
+        summaryAverageScore: (counts.countingStar/counts.countSurveyHasStar).toFixed(1),
         starTotal1: counts.star1,
         starTotal2: counts.star2,
         starTotal3: counts.star3,

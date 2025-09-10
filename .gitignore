@@ -86,6 +86,7 @@ ios/DerivedData/
 google-services.json
 .apk 
 .ipa
+ios/tmp.xcconfig
 # MacOS / IDEs
 .DS_Store
 *.iml
