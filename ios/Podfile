@@ -40,6 +40,23 @@ target 'GalaxyMe' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+    # --- BẮT ĐẦU SCRIPT MỚI ---
+    # Đoạn script này sẽ duyệt qua tất cả các target (thư viện) trong Pods
+    # và ép buộc chúng phải tạo dSYM cho các bản build Release.
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        # Chỉ áp dụng cho cấu hình 'Release'
+        if config.name == 'Release'
+          # Ghi đè cài đặt. 'dwarf-with-dsym' là giá trị mà Xcode hiểu.
+          config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
+          
+          # (Tùy chọn) Đảm bảo Strip Linked Product được đặt thành No cho Release
+          # để giữ lại các symbol cần thiết.
+          config.build_settings['STRIP_INSTALLED_PRODUCT'] = 'NO'
+        end
+      end
+    end
+    # --- KẾT THÚC SCRIPT MỚI ---
     # installer.pods_project.targets.each do |target|
     #   target.build_configurations.each do |config|
     #     config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'

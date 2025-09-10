@@ -18,6 +18,8 @@ import ProfileScreenNew from './tabs/MEScreen';
 import { ReviewScreen } from '@/features/review/screens/ReviewScreen';
 import { useHomeStore } from '../stores/homeStore';
 import { useShallow } from 'zustand/react/shallow';
+import { useReviewStore } from '@/features/review/stores/reviewStore';
+import { Permissions } from '@/features/auth/types/AuthTypes';
 
 // --- TYPE DEFINITIONS ---
 interface MainTabsRoutesProps { 
@@ -109,18 +111,19 @@ export default function MainTabsScreen() {
   const slideAnim = useSharedValue(0);
 
   const json = useHomeStore(useShallow(state=> state.json))
+  const getPermission = useReviewStore(useShallow(state=>state.getPermission))
   const routes: MainTabsRoutesProps[] = useMemo(
     ()=>{
-      return json?.isOwner ? [
+      return json?.employeeSettings.hideReviewManagement ? [
         { name: 'Dashboard', component: HomeScreen, icon: 'home', label: 'Dashboard' },
-        { name: 'Reviews', component: ReviewScreen, icon: 'star', label: 'Reviews' },
         { name: 'ME', component: ProfileScreenNew, icon: 'profile', label: 'ME' },
       ]:[
         { name: 'Dashboard', component: HomeScreen, icon: 'home', label: 'Dashboard' },
+        { name: 'Reviews', component: ReviewScreen, icon: 'star', label: 'Reviews' },
         { name: 'ME', component: ProfileScreenNew, icon: 'profile', label: 'ME' },
       ]
     },[json]
-  ) ;
+  );
 
   const handleTabChange = useCallback((index: number) => {
     if (index === activeIndex) return;

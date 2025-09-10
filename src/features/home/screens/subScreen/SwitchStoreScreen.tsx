@@ -17,6 +17,8 @@ import { StoreItemEntity } from '@/features/auth/usecase/AuthUsecase';
 import { useAuthStore } from '@/features/auth/stores/authStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useUserStore } from '../../stores/profileStore';
+import { isSuccess } from '@/shared/types/Result';
+import { useXAlert } from '@/shared/components/XAlertContext';
 
 
 
@@ -28,7 +30,7 @@ const SwitchStoreScreen = () => {
   const {switchStore,isLoading} = useAuthStore( 
     useShallow((state) => ({switchStore: state.switchStore, isLoading: state.isLoading})),
   )
-
+  const {showAlert} = useXAlert()
   const initData = useHomeStore(useShallow((state)=>state.initData))
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.colors.background},
@@ -61,12 +63,19 @@ const SwitchStoreScreen = () => {
   }, []);
 
   const handlePress = async (item: StoreItemEntity) => {
-    
-    await switchStore(item)
-    useHomeStore.setState({selectedStore: item})
-    goBack()
-    initData()
-    useUserStore.getState().getProfile()
+    const result = await switchStore(item)
+    if(isSuccess(result))
+    {
+      useHomeStore.setState({selectedStore: item})
+      goBack()
+      initData()
+      useUserStore.getState().getProfile()
+
+    }
+    else{
+      showAlert({message:result.error.message, type:"error"})
+    }
+   
   };
 
   const renderItem = ({ item }: { item: StoreItemEntity }) => (
@@ -74,7 +83,7 @@ const SwitchStoreScreen = () => {
       style={[styles.item,]}
       onPress={() => handlePress(item)}
     > 
-      <XAvatar uri={item.storeLogo} size={50} />
+      <XAvatar uri={item.storeLogo} size={50} editable={false}/>
       <View style={{flex:1,flexDirection:"column", justifyContent:"space-between", gap: theme.spacing.sm, }}>
         <XText variant="titleRegular" style={{color: theme.colors.gray800}}>{item.storeName}</XText>
         <XText maxLines={2} variant="bodyLight" style={{color: theme.colors.gray600}}>{item.address} {item.address}</XText>

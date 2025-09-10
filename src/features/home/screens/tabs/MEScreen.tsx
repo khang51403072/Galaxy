@@ -18,20 +18,33 @@ import { appConfig } from "@/shared/utils/appConfig";
 import XSwitch from "@/shared/components/XSwitch";
 import { TouchableOpacity } from "react-native";
 import { useCallback, useEffect, useMemo } from "react";
+import { useXAlert } from "@/shared/components/XAlertContext";
 
-const accountListActions = [
-  {title: "Profile", icon: "profile", onAction:()=>{navigate(ROUTES.PROFILE)}} as MECardItemProps,
-  {title: "Theme", icon: "swatches", onAction:()=>{navigate(ROUTES.CHANGE_THEME)}} as MECardItemProps,
-]
 
-const financeListActions = [
-  {title: "Buy Credits", icon: "buyCredits", onAction:()=>{navigate(ROUTES.REVIEW)}} as MECardItemProps,
-  {title: "Subscriptions", icon: "subscriptions", onAction:()=>{navigate(ROUTES.CHANGE_THEME)}} as MECardItemProps,
-  {title: "Invoices", icon: "invoices", onAction:()=>{navigate(ROUTES.CHANGE_THEME)}} as MECardItemProps,
-  {title: "Statements", icon: "statements", onAction:()=>{navigate(ROUTES.CHANGE_THEME)}} as MECardItemProps,
-]
 export default function ProfileScreenNew(){
     const theme = useTheme();
+    const {showAlert} = useXAlert()
+    const accountListActions = useMemo(
+      ()=>[
+        {title: "Profile", icon: "profile", onAction:()=>{navigate(ROUTES.PROFILE)}} as MECardItemProps,
+        {title: "Theme", icon: "swatches", onAction:()=>{navigate(ROUTES.CHANGE_THEME)}} as MECardItemProps,
+      ],[]
+    )
+    
+
+    const financeListActions = useMemo(
+      ()=>[
+      {title: "Buy Credits", icon: "buyCredits", onAction:()=>{ showAlert({message: "This feature is not available yet"})}} as MECardItemProps,
+      {title: "Subscriptions", icon: "subscriptions", onAction:()=>{ showAlert({message: "This feature is not available yet"})}} as MECardItemProps,
+      {title: "Invoices", icon: "invoices", onAction:()=>{ showAlert({message: "This feature is not available yet"})}} as MECardItemProps,
+      {title: "Statements", icon: "statements", onAction:()=>{ showAlert({message: "This feature is not available yet"})}} as MECardItemProps,
+    ],[])
+
+    const backOfficeActions = useMemo(()=> [
+      {title: "Employees", icon: "group", onAction:()=>{
+        showAlert({message: "This feature is not available yet"})
+      }} as MECardItemProps,
+    ],[])
     const { profile, 
         isLoading, 
         getProfile, 
@@ -143,6 +156,9 @@ export default function ProfileScreenNew(){
           listActions={accountListActions}/>
         <MECard title="Finance" 
           listActions={financeListActions}/>
+
+        <MECard title="Back Office" 
+          listActions={backOfficeActions}/>
         <MECard  
           listActions={[
             {

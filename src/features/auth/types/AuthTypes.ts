@@ -7,7 +7,9 @@ export enum Permissions {
   VIEW_HOME = 'VIEW_HOME',
   MAKE_APPOINTMENTS = "MAKE_APPOINTMENTS",
   MOVE_APPOINTMENT = "MOVE_APPOINTMENT",
-  DELETE_APPOINTMENT = "DELETE_APPOINTMENT"
+  DELETE_APPOINTMENT = "DELETE_APPOINTMENT",
+  VIEW_PHONE_NUMBER_EMAIL="VIEW_PHONE_NUMBER_EMAIL",
+  VIEW_CUSTOMER_NAME="VIEW_CUSTOMER_NAME"
 }
 export type LoginInput = {
     email: string;
@@ -34,6 +36,12 @@ export type LoginInput = {
     channel: string;
   }
 
+ 
+  export interface EmployeeSettings{
+    allowReviewResponse: boolean,
+    hideReviewManagement:boolean
+  }
+
   export interface LoginEntity {
     employeeId: string,
     isOwner: boolean,
@@ -52,7 +60,8 @@ export type LoginInput = {
     fullName: string;
     listRole: string[];
     isShowPhone: boolean;
-    switchableStores: StoreItemEntity[]
+    switchableStores: StoreItemEntity[],
+    employeeSettings: EmployeeSettings
   }
 
 

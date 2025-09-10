@@ -1,6 +1,6 @@
 import xlog from '../../../core/utils/xlog';
 import { AuthRepository } from '../repositories/AuthRepository';
-import { LoginEntity, RegisterFCMRequest, LogoutMRequest, LoginRequest, MerchantInfo } from '../types/AuthTypes';
+import { LoginEntity, RegisterFCMRequest, LogoutMRequest, LoginRequest, MerchantInfo, EmployeeSettings } from '../types/AuthTypes';
 import { Result, success, failure, isSuccess } from '../../../shared/types/Result';
 import { AuthError } from '../types/AuthErrors';
 
@@ -19,7 +19,8 @@ export interface LoginResult {
   switchableStores: StoreItemEntity [];
   selectedStore?: StoreItemEntity;
   merchantInfo: MerchantInfo;
-  fullNameDefault?: string //show in login screen
+  fullNameDefault?: string //show in login screen;
+  employeeSettings: EmployeeSettings
 }
 
 export interface StoreItemEntity  {
@@ -60,7 +61,8 @@ export class AuthUseCase {
           listRole: loginData.listRole || [],
           isShowPhone: loginData.isShowPhone || false,
           switchableStores: loginData.switchableStores || [],
-          merchantInfo: loginData.merchantInfo
+          merchantInfo: loginData.merchantInfo,
+          employeeSettings:loginData.employeeSettings
         };
         return success(result);
       } else {

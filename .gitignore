@@ -87,6 +87,9 @@ google-services.json
 .apk 
 .ipa
 ios/tmp.xcconfig
+/ios/Firebase/Config/GoogleService-Info.*.plist
+/android/app/google-services.json
+Podfile.lock
 # MacOS / IDEs
 .DS_Store
 *.iml

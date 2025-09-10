@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { View, useWindowDimensions } from 'react-native';
 import Svg, { Rect, G, Text as SvgText, Line } from 'react-native-svg';
 import { XSkeleton } from './XSkeleton';
@@ -37,15 +37,6 @@ const XChart: React.FC<XChartProps> = ({
   const fontSizeYTick = Math.max(10, Math.round(chartWidth * 0.03));
   const fontSizeBar = Math.max(10, Math.round(chartWidth * 0.03));
   const fontSizeLabel = Math.max(8, Math.round(chartWidth * 0.03) - 2); 
-
-  const [tooltip, setTooltip] = useState<{
-    x: number;
-    y: number;
-    values: number[];
-    colors: string[];
-    label: string;
-    groupIndex: number;
-  } | null>(null);
   
   const maxLabelLines = useMemo(() => {
     if (isLoading || !data || data.length === 0) return 2;
@@ -54,7 +45,7 @@ const XChart: React.FC<XChartProps> = ({
 
   const singleLabelLineHeight = fontSizeLabel * 1.4;
   const paddingBottom = singleLabelLineHeight * maxLabelLines + 6;
-  const paddingTop = fontSizeYTick * 1;
+  const paddingTop = fontSizeYTick * 1.5;
   const innerChartHeight = chartHeight - paddingTop - paddingBottom;
   
   if (isLoading || !data || data.length === 0) {
@@ -75,10 +66,12 @@ const XChart: React.FC<XChartProps> = ({
   
   const groupCount = data[0].value.length;
   const allValues = data.flatMap(d => d.value);
-  const rawMax = Math.max(...allValues);
-  const rawMin = Math.min(...allValues);
+  const rawMax = Math.max(0, ...allValues);
+  const rawMin = Math.min(0, ...allValues);
   const absMax = Math.max(Math.abs(rawMax), Math.abs(rawMin));
-  const maxValue = absMax === 0 ? 100 : absMax + Math.ceil(absMax * 0.22); 
+  
+  const topPaddingForValue = absMax * 0.25 + fontSizeBar * 2;
+  const maxValue = absMax === 0 ? 100 : absMax + topPaddingForValue;
 
   const yTickValues = Array.from({ length: yTicks + 1 }, (_, i) =>
     Math.round((maxValue * (yTicks - i)) / yTicks)
@@ -94,7 +87,7 @@ const XChart: React.FC<XChartProps> = ({
 
   return (
     <View style={[{ width: chartWidth, height: chartHeight, alignSelf: 'center' }, style]}>
-      <Svg width={chartWidth} height={chartHeight} onPress={() => setTooltip(null)}>
+      <Svg width={chartWidth} height={chartHeight}>
         {yTickValues.map((v, i) => {
           const y = paddingTop + (innerChartHeight * i) / yTicks;
           return (
@@ -111,49 +104,82 @@ const XChart: React.FC<XChartProps> = ({
   
         {data.map((item, i) => {
           const groupStartX = chartPaddingLeft + i * groupWidth + (groupWidth - (barWidth * groupCount)) / 2;
-          const maxBarHeight = Math.max(...item.value.map(v => Math.abs((v / maxValue) * innerChartHeight)));
-          const tooltipY = chartHeight - paddingBottom - maxBarHeight - 8;
+          
+          // --- BẮT ĐẦU LOGIC RENDER MỚI ---
+          // Tạo ra các component cột TRƯỚC
+          const bars = item.value.map((v, j) => {
+            if (v === 0) return null;
+            const barHeight = Math.abs((v / maxValue) * innerChartHeight);
+            const x = groupStartX + j * barWidth;
+            const y = chartHeight - paddingBottom - barHeight;
+            const barColor = barColors[j % barColors.length];
+            
+            return (
+              <Rect
+                key={`bar-${j}`}
+                x={x} y={y} width={barWidth} height={barHeight}
+                fill={barColor} rx={Math.max(2, barWidth * 0.2)}
+              />
+            );
+          });
+
+          // Tạo ra các component text giá trị SAU
+          const valueTexts = item.value.map((v, j) => {
+            if (v === 0) return null;
+            
+            const barHeight = Math.abs((v / maxValue) * innerChartHeight);
+            const x = groupStartX + j * barWidth;
+            const y = chartHeight - paddingBottom - barHeight;
+            const barColor = barColors[j % barColors.length];
+
+            // Logic chống chồng chéo
+            let yOffset = -5; // Mặc định là 5px phía trên cột
+            if (groupCount > 1 && j > 0) {
+              const prevValue = item.value[j - 1];
+              const prevBarHeight = Math.abs((prevValue / maxValue) * innerChartHeight);
+              // Nếu chiều cao của cột này và cột trước đó gần bằng nhau
+              if (Math.abs(barHeight - prevBarHeight) < (fontSizeBar * 1.5)) {
+                // Đẩy text của cột thấp hơn xuống dưới một chút
+                if (barHeight < prevBarHeight) {
+                  yOffset = fontSizeBar * 1.2;
+                }
+              }
+            }
+
+            return (
+              <SvgText
+                key={`text-${j}`}
+                x={x + barWidth / 2}
+                y={y + yOffset}
+                fontSize={fontSizeBar}
+                fill={barColor}
+                textAnchor="middle"
+                fontWeight="500"
+              >
+                {Math.round(v)}
+              </SvgText>
+            );
+          });
+          // --- KẾT THÚC LOGIC RENDER MỚI ---
 
           return (
             <G key={i}>
-              {item.value.map((v, j) => {
-                if (v === 0) return null;
-                const barHeight = Math.abs((v / maxValue) * innerChartHeight);
-                const x = groupStartX + j * barWidth;
-                const y = chartHeight - paddingBottom - barHeight;
-                const barColor = barColors[j % barColors.length];
-                return (
-                  <Rect
-                    key={j}
-                    x={x}
-                    y={y}
-                    width={barWidth}
-                    height={barHeight}
-                    fill={barColor}
-                    rx={Math.max(2, barWidth * 0.2)}
-                    onPress={() => setTooltip({
-                      x: groupStartX + (barWidth * groupCount) / 2,
-                      y: tooltipY,
-                      values: item.value.map(val => Math.round(val * 100) / 100),
-                      colors: item.value.map((_, idx) => barColors[idx % barColors.length]),
-                      label: item.label,
-                      groupIndex: i,
-                    })}
-                  />
-                );
-              })}
+              {/* Render cột trước */}
+              {bars}
+              {/* Render text giá trị sau để nó luôn nằm trên */}
+              {valueTexts}
          
               {(() => {
-                // SỬA ĐỔI: Đơn giản hóa logic căn chỉnh label
                 let labelX = groupStartX + (barWidth * groupCount) / 2;
                 let textAnchor: 'start' | 'middle' | 'end' = 'middle';
                 
-                // Chỉ xử lý đặc biệt cho label ĐẦU TIÊN để tránh bị cắt
                 if (i === 0 && data.length > 1) { 
                   labelX = Math.max(chartPaddingLeft, groupStartX);
                   textAnchor = 'start';
+                } else if (i === data.length - 1 && data.length > 1) {
+                  labelX = Math.min(chartWidth - paddingHorizontal, groupStartX + barWidth * groupCount);
+                  textAnchor = 'end';
                 }
-                // Bỏ logic `else if` cho label cuối cùng
                 
                 const labelLines = item.label.split('\n');
                 const startY = chartHeight - paddingBottom + singleLabelLineHeight - 2; 
@@ -171,17 +197,6 @@ const XChart: React.FC<XChartProps> = ({
                   </G>
                 );
               })()}
-
-              {tooltip && tooltip.groupIndex === i && (
-                <G x={tooltip.x} y={tooltip.y}>
-                  <Rect x={-30} y={-15} width={60} height={tooltip.values.length * (fontSizeBar + 4) + 10} fill="black" opacity={0.7} rx={4} />
-                  {tooltip.values.map((val, idx) => (
-                    <SvgText key={idx} x={0} y={idx * (fontSizeBar + 4)} fontSize={fontSizeBar} fill={tooltip.colors[idx]} textAnchor="middle" fontWeight="bold">
-                      {val}
-                    </SvgText>
-                  ))}
-                </G>
-              )}
             </G>
           );
         })}

@@ -1,7 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
-apply plugin: 'com.google.gms.google-services'
+
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -52,6 +52,7 @@ react {
     // hermesFlags = ["-O", "-output-source-map"]
 
     /* Autolinking */
+    nodeExecutableAndArgs = ["/opt/homebrew/bin/node"]
     autolinkLibrariesWithApp()
 }
 
@@ -109,28 +110,21 @@ android {
         }
     }
     // Product Flavors for different environments
-    flavorDimensions "environment"
+    flavorDimensions "env"
     
     productFlavors {
-        development {
-            dimension "environment"
-            applicationIdSuffix ".dev"
-            versionNameSuffix "-dev"
-            resValue "string", "app_name", "GalaxyMe2 Dev"
-            buildConfigField "String", "ENVIRONMENT", '"development"'
+        qa {
+            dimension "env"
+            applicationIdSuffix ".qa1"
+            versionNameSuffix "-qa"
+            resValue "string", "app_name", "GalaxyMe2.0 QA"
+            buildConfigField "String", "ENVIRONMENT", '"qa"'
         }
         
-        staging {
-            dimension "environment"
-            applicationIdSuffix ".staging"
-            versionNameSuffix "-staging"
-            resValue "string", "app_name", "GalaxyMe2 Staging"
-            buildConfigField "String", "ENVIRONMENT", '"staging"'
-        }
         
         production {
-            dimension "environment"
-            resValue "string", "app_name", "GalaxyMe2"
+            dimension "env"
+            resValue "string", "app_name", "GalaxyMe2.0"
             buildConfigField "String", "ENVIRONMENT", '"production"'
         }
     }
@@ -155,6 +149,15 @@ android {
         }
     }
 }
+// Maps flavors to different .env files
+project.ext.envConfigFiles = [
+        qa: ".env.qa",
+        production:  ".env.production",
+    // Thêm staging ở đây nếu bạn có
+    // staging: ".env.staging",
+]
+// Import script của react-native-config
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
@@ -169,3 +172,4 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:32.7.3')
     implementation 'com.google.firebase:firebase-analytics'
 }
+apply plugin: 'com.google.gms.google-services'

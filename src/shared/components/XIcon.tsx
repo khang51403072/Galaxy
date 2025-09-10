@@ -63,7 +63,7 @@ import Invoices from '../assets/icons/ME/Invoices.svg'
 import ChartBar from '../assets/icons/ChartBar.svg'
 import FaceID from '../assets/icons/ME/FaceID.svg';
 import SignOut from '../assets/icons/ME/SignOut.svg';
-
+import Group from '../assets/icons/ME/Group.svg';
 export const iconMap = {
   user: User,
   passwordCheck: PasswordCheck,
@@ -123,7 +123,8 @@ export const iconMap = {
   trash: Trash,
   starOutline: StarOutline,
   starFilled: StarFilled,
-  load: Load
+  load: Load,
+  group: Group
 };
 
  type XIconProps = {

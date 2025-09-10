@@ -41,7 +41,8 @@ export class ApiAuthRepository implements AuthRepository {
         isOwner: response.isOwner || false,
         listRole: response.listRole || [],
         isShowPhone: response.isShowPhone || false,
-        switchableStores: response.switchableStores
+        switchableStores: response.switchableStores,
+        employeeSettings: response.employeeSettings
       };
       return success(loginData);
     } catch (error: any) {

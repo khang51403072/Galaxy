@@ -4,6 +4,9 @@ import { SurveyItem, SurveyListResponse } from '../types/ReviewResponse';
 import { reviewUsecase } from '@/app/dependencies';
 import { CommonRequest } from '@/types/CommonRequest';
 import { isSuccess } from '@/shared/types/Result';
+import { LoginEntity, Permissions } from '@/features/auth/types/AuthTypes';
+import { useHomeStore } from '@/features/home/stores/homeStore';
+import { appConfig } from '@/shared/utils/appConfig';
 
 const defaultOptions = 
   {label: "Last 7 days", value: 7}
@@ -77,7 +80,6 @@ export type ReviewState = {
   isLoading: boolean;
   error: string | null;
   totalScore: number;
-  json?: string | null;
   listOfSurvey: SurveyItem[];
   starTotal5: number,
   starTotal4: number
@@ -87,7 +89,8 @@ export type ReviewState = {
   selectedStar?: string
   setSelectedFilterDuration: (v: DropdownOption) => void,
   getSurvey: () => void,
-  setSelectedStar: (v?:string) => void
+  setSelectedStar: (v?:string) => void,
+  getPermission: (type: Permissions) => boolean
 };
 
 
@@ -95,7 +98,6 @@ export type ReviewState = {
 const initialState = {
   isLoading: false,
   error: null,
-  json: undefined,
   selectedFilterDuration: defaultOptions,
   totalScore: 0,
   summaryAverageScore: 0,
@@ -144,8 +146,12 @@ export const createReviewStore = () => (set: any, get: any) => ({
     }
    
   },
-  setSelectedStar: (v?:string) => set({selectedStar: v})
-
+  setSelectedStar: (v?:string) => set({selectedStar: v}),
+  getPermission: (type: Permissions) => {
+    const user = useHomeStore.getState().json
+    if(user?.listRole.includes(type)) return true
+    return false;
+  }
 });
 
 export const useReviewStore = create<ReviewState>()(createReviewStore()); 
