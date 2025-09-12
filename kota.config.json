@@ -2,9 +2,9 @@
   "outputDir": "ota_builds",
   "workerUrl": "https://galaxyme-worker.khang51403072.workers.dev",
   "android": {
-    "flavor": "production",
+    "flavor": "qa",
     "version": "1.1.5",
-    "versionCode": "101"
+    "versionCode": "20"
   },
   "ios": {
     "flavor": "production",
