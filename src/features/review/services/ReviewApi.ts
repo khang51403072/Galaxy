@@ -3,6 +3,7 @@ import { httpClient } from "../../../core/network/HttpClient";
 import { API_ENDPOINTS } from "../../../core/network/endpoints";
 import { ApiResponse } from "../../../core/network/ApiResponse";
 import { SurveyListResponse } from "../types/ReviewResponse";
+import { RespondRequest } from "../types/RepondRequest";
 
 export interface ApiReviewResponse<T = any> {
     result: boolean;
@@ -16,6 +17,11 @@ type ReviewResponse = ApiReviewResponse<SurveyListResponse>;
 export const ReviewAPI= {
     getReview : async (request: CommonRequest):Promise<ReviewResponse> =>  {
         const response = await httpClient.post<ReviewResponse>(API_ENDPOINTS.REVIEW.GET_SERVEY_DATE_RANGE, request);
+        return response.data;
+    },
+
+    respondSurvey : async (request: RespondRequest):Promise<ReviewResponse> =>  {
+        const response = await httpClient.post<ReviewResponse>(API_ENDPOINTS.REVIEW.RESPOND, request);
         return response.data;
     }
 }

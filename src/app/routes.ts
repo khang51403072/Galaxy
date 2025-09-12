@@ -21,7 +21,8 @@ export const ROUTES = {
     SWITCH_STORE: 'SwitchStore',
     CHANGE_THEME: 'ChangeTheme',
     SUMMARY: 'Summary',
-    REVIEW: 'Review'
+    REVIEW: 'Review',
+    REPLY_REVIEW: 'REPLY_REVIEW'
     // Thêm các route khác ở đây
   } as const;
   
@@ -49,6 +50,9 @@ export const ROUTES = {
     [ROUTES.CHANGE_THEME]: undefined;
     [ROUTES.SUMMARY]: undefined;
     [ROUTES.REVIEW]: undefined;
+    [ROUTES.REPLY_REVIEW]: undefined;
+
+    
     // Thêm params cho các route khác nếu cần
   };
   

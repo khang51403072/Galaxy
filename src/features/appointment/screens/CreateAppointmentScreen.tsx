@@ -32,9 +32,8 @@ import { useAppointmentUIStore } from "../stores/createAppointmentUIStore";
 import { useCustomerStore } from "../stores/customerStore";
 import { XColumn } from "@/shared/components/XColumn";
 import { XRow } from "@/shared/components/XRow";
-import { toDate } from "date-fns";
 import { createApptMessage } from "../types/AppointmentMessage";
-import {XDivider} from "@/shared/components/XDivider";
+import { XDivider } from "@/shared/components/XDivider";
 // --- Component ---
 export default function CreateAppointmentScreen() {
     const route = useRoute<RouteProp<RootStackParamList, 'CreateAppointment'>>();

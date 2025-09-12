@@ -9,6 +9,8 @@ import StarFilter from "../components/StarFilter"
 import ReviewList from "../components/ReviewList"
 import { useEffect, useMemo } from "react"
 import { stat } from "react-native-fs"
+import { navigate } from "@/app/NavigationService"
+import { ROUTES } from "@/app/routes"
 const listOptions = [
   {label: "Last 7 days", value: 7},
   {label: "Last 14 days", value: 14},
@@ -32,7 +34,7 @@ export const ReviewScreen = () => {
         starTotal3,
         starTotal2,
         starTotal1,
-        selectedStar
+        selectedStar,
     } = useReviewStore(
         useShallow((state) => ({
             isLoading: state.isLoading,
@@ -46,14 +48,14 @@ export const ReviewScreen = () => {
             starTotal2: state.starTotal2,
             starTotal1: state.starTotal1,
             selectedStar: state.selectedStar,
-            
         }))
     )
-    const {setSelectedFilterDuration, getSurvey,setSelectedStar} = useReviewStore(
+    const {setSelectedFilterDuration, getSurvey,setSelectedStar, setReplyingSurveyItem} = useReviewStore(
         useShallow((state) => ({
             setSelectedFilterDuration: state.setSelectedFilterDuration,
             getSurvey: state.getSurvey,
-            setSelectedStar: state.setSelectedStar
+            setSelectedStar: state.setSelectedStar,     
+            setReplyingSurveyItem: state.setReplyingSurveyItem     
         }))
     )
 
@@ -80,6 +82,9 @@ export const ReviewScreen = () => {
                 selectedStar={selectedStar}
                 onItemSelected={setSelectedStar}/>
         </XColumn>
-        <ReviewList options={listOfSurveyByStar}/>
+        <ReviewList options={listOfSurveyByStar} onGoToReplyScreen= {(item)=>{
+            setReplyingSurveyItem(item) 
+            navigate(ROUTES.REPLY_REVIEW)
+        }}/>
     </XScreen>
 }

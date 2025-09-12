@@ -239,7 +239,6 @@ export default function AppointmentScreen() {
                     <TouchableOpacity
                       ref={ref}
                       onPress={() => {
-
                         jumpTo(route.key)
                       }}
                       onLayout={onLayout}

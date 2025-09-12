@@ -50,7 +50,7 @@ import StarOutline from '../assets/icons/StarOutline.svg'
 
 import StarFilled from '../assets/icons/StarFilled.svg'
 import Load from '../assets/icons/Load.svg'
-
+import Reply from '../assets/icons/Reply.svg'
 //ME
 import CaretRight from '../assets/icons/ME/CaretRight.svg'
 import Profile from '../assets/icons/ME/Profile.svg'
@@ -124,7 +124,8 @@ export const iconMap = {
   starOutline: StarOutline,
   starFilled: StarFilled,
   load: Load,
-  group: Group
+  group: Group,
+  reply: Reply
 };
 
  type XIconProps = {

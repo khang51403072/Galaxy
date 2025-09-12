@@ -85,6 +85,7 @@ export interface SurveyItem {
   uid: string[];
   createdAt: string;      // Định dạng ISO 8601 Date String
   updatedAt: string;      // Định dạng ISO 8601 Date String
+  showMoreComment?: boolean
 }
 
 /**

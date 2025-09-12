@@ -47,7 +47,8 @@ export const API_ENDPOINTS = {
     DELETE_APPOINTMENT: 'galaxy-me/delete-appointment'
   },
   REVIEW: {
-    GET_SERVEY_DATE_RANGE: 'galaxy-me/get-servey-date-range'
+    GET_SERVEY_DATE_RANGE: 'galaxy-me/get-servey-date-range',
+    RESPOND: 'galaxy-me/survey/responses'
   }
   ,
   

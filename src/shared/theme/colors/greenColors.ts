@@ -9,14 +9,14 @@ export const greenColors = {
   blackOpacity35: '#00000035',
 
   // Primary Brand Colors
-  primaryMain: '#84AB6A',
+  primaryMain: '#749B5C',
   primaryLight: '#A7C492',
-  primaryOpacity25: '#84AB6A40',
+  primaryOpacity25: '#749B5C40',
   primaryGradient: ['#A7C492', '#699250'],
   splashScreen: ['#A7C492', '#699250'],
-  primaryOpacity50: '#84AB6A80',
+  primaryOpacity50: '#749B5C80',
   primaryDark: '#3F5932',
-  primaryOpacity5: '#84AB6A0D',
+  primaryOpacity5: '#749B5C0D',
   
   // Secondary Colors
   secondary: '#FC98A1',
