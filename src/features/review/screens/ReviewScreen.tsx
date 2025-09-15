@@ -60,7 +60,9 @@ export const ReviewScreen = () => {
     )
 
     const listOfSurveyByStar = useMemo(() => {
-        return selectedStar? listOfSurvey.filter((survey) => survey.rating.toString()== selectedStar):listOfSurvey
+        return selectedStar && selectedStar.length > 0
+        ? listOfSurvey.filter((survey) => selectedStar.includes(survey.rating.toString()))
+        :listOfSurvey
     },[selectedStar, listOfSurvey])
     useEffect(()=>{
         getSurvey()

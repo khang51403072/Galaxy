@@ -14,8 +14,8 @@ interface Props {
   starTotal3: number
   starTotal2: number
   starTotal1: number
-  selectedStar?: string
-  onItemSelected: (v?: string) => void
+  selectedStar?: string[]
+  onItemSelected: (v?: string[]) => void
 }
 
 export default function StarFilter({
@@ -29,27 +29,32 @@ export default function StarFilter({
 }: Props) {
   const theme = useTheme();
   
-  const starFilter = (label:string, value:number) => 
-    <TouchableOpacity onPress={()=>{
-      if(label==selectedStar)
+  const starFilter = (label:string, value:number) => {
+    let isSelected =  selectedStar?.includes(label)
+    return <TouchableOpacity onPress={()=>{
+      if(isSelected)
       {
-        onItemSelected(undefined)
+        let tmpList = selectedStar?.filter(v=> v!=label)
+        onItemSelected(tmpList)
       }
       else{
-        onItemSelected(label)
+        let tmpList = [...selectedStar??[], label]
+        onItemSelected(tmpList)
       }
     }}>
       <XRow justify="center" align="center" style={{            
-        backgroundColor: selectedStar == label? theme.colors.primaryMain : theme.colors.primaryOpacity5,
+        backgroundColor: isSelected? theme.colors.primaryMain : theme.colors.primaryOpacity5,
         borderRadius: theme.borderRadius.lg,
         paddingHorizontal: theme.spacing.md,
         paddingVertical: 12,
         marginHorizontal:theme.spacing.xs
       }}>
-        <XIcon name="starFilled" height={14} width={14} color={selectedStar == label? theme.colors.white: theme.colors.primaryMain}></XIcon>
+        <XIcon name="starFilled" height={14} width={14} color={isSelected? theme.colors.white: theme.colors.primaryMain}></XIcon>
         <XText variant="captionMedium"> {label} ({value})</XText>
       </XRow>
     </TouchableOpacity>
+  }
+    
         
 
   const MemoizedDropdown = useMemo(() => {

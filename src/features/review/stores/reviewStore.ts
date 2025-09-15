@@ -23,7 +23,7 @@ export type ReviewState = {
   starTotal3: number
   starTotal2: number
   starTotal1: number
-  selectedStar?: string,
+  selectedStar?: string[],
   replyingSurveyItem?: SurveyItem;
   replyContent: string;
   isSendSMS: boolean;
@@ -33,7 +33,7 @@ export type ReviewState = {
   setReplyContent?: (item: string) => void,
   setSelectedFilterDuration: (v: DropdownOption) => void,
   getSurvey: () => void,
-  setSelectedStar: (v?:string) => void,
+  setSelectedStar: (v?:string[]) => void,
   getPermission: (type: Permissions) => boolean,
   setReplyingSurveyItem: (item: SurveyItem)=>void,
   sendRespond: () => Promise<string>,
@@ -102,7 +102,7 @@ export const createReviewStore = () => (set: any, get: any) => ({
     }
    
   },
-  setSelectedStar: (v?:string) => set({selectedStar: v}),
+  setSelectedStar: (v?:string[]) => set({selectedStar: v}),
   getPermission: (type: Permissions) => {
     const user = useHomeStore.getState().json
     if(user?.listRole.includes(type)) return true

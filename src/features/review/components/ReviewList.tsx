@@ -19,7 +19,7 @@ interface Props {
   onGoToReplyScreen: (item: SurveyItem) => void;
 }
 
-export default function ReviewList({
+export default function   ReviewList({
   options,
   onGoToReplyScreen
 }: Props) {
@@ -61,7 +61,7 @@ export default function ReviewList({
             />
           )}
 
-          <TouchableOpacity
+          {item.responses.length==0 && <TouchableOpacity
             onPress={() => {onGoToReplyScreen(item)}}
             style={{
               flexDirection: "row",
@@ -76,6 +76,20 @@ export default function ReviewList({
             <XIcon height={14} width={14} name="reply" />
             <XText variant="captionRegular"> Response</XText>
           </TouchableOpacity>
+          }
+          {item.responses.length>0 && (
+            <XRow style={{
+              marginLeft: theme.spacing.sm,
+              borderLeftWidth:1,
+              borderLeftColor: theme.colors.primaryMain,
+              marginTop: theme.spacing.xs,
+              paddingVertical: theme.spacing.sm,
+              paddingHorizontal: theme.spacing.sm,
+              backgroundColor: theme.colors.primaryOpacity5}}> 
+              <XText>{item.responses[0]}</XText>
+            </XRow>
+          )}
+          
         </XColumn>
       );
     },

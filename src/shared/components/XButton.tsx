@@ -99,7 +99,6 @@ export default function XButton({
 
 const styles = StyleSheet.create({
   wrapper: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
