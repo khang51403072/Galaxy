@@ -30,21 +30,30 @@ export const BatchHistoryItem = memo(
       }
     )
 
+// Thêm prop `onPress`
+interface TimeSheetItemProps {
+  item: Attendance;
+  styles: any;
+  theme: any;
+  onPress: (item: Attendance) => void; // Prop mới
+}
+
 export const TimeSheetItem = memo(
-      ({ item, styles, theme }: { item: Attendance, styles:any, theme:any }) => (
-        <View style={styles.itemContainer}>
-          <XAvatar editable={false} uri={item.avatar ?? ""} size={62} />
-          <View style={styles.itemColumn}>
-            <XText variant="bodyRegular">{getDisplayName(item)}</XText>
-            <View style={styles.clockIn}>
-              <XIcon name='clockIn' width={16} height={16} color={theme.colors.primaryMain} />
-              <XText variant="bodyLight">{getClockInTime(item)}</XText>
-            </View>
-            <View style={styles.clockOut}>
-              <XIcon name='clockOut' width={16} height={16} color={theme.colors.primaryMain} />
-              <XText variant="bodyLight">{getClockOutTime(item)}</XText>
-            </View>
+  ({ item, styles, theme, onPress }: TimeSheetItemProps) => (
+    <TouchableOpacity onPress={() => onPress(item)} activeOpacity={0.8}>
+      <View style={styles.itemContainer}>
+        <XAvatar editable={false} uri={item.avatar ?? ""} size={62} />
+        <View style={styles.itemColumn}>
+          <XText variant="bodyRegular">{getDisplayName(item)}</XText>
+          <View style={styles.clockIn}>
+            <XIcon name='clockIn' width={16} height={16} color={theme.colors.primaryMain} />
+            <XText variant="bodyLight">{getClockInTime(item)}</XText>
+          </View>
+          <View style={styles.clockOut}>
+            <XIcon name='clockOut' width={16} height={16} color={theme.colors.primaryMain} />
+            <XText variant="bodyLight">{getClockOutTime(item)}</XText>
           </View>
         </View>
-      )
-    )
+      </View>
+    </TouchableOpacity>)
+);
