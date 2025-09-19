@@ -11,18 +11,14 @@ export type ReportState = {
     error: string | null;
     startDate: Date;
     endDate: Date;
-    reportTechnician: string;
-    reportSales: string;
-    reportTimeSheet: TimeSheetEntity[];
     reportBatchHistory: BatchEntity[];
     closeOut: string;
     json: KeychainObject | null;
-    getReportTechnician: () => Promise<Result<string, Error>>;
-    getReportSales: () => Promise<Result<string, Error>>;
-    getReportTimeSheet: () => Promise<Result<TimeSheetEntity[], Error>>;
-    getReportBatchHistory: () => Promise<Result<BatchEntity[], Error>>;
-    getCloseOut: () => Promise<Result<string, Error>>;
-    setJson: (json: KeychainObject) => void;
+    closeOutOwner?: CloseOutOwnerModel;
+    loadData: () => void;
+    reset: () => void;
+    setStartDate: (date: Date) => void;
+    setEndDate: (date: Date) => void
 }
 //selector
 export const reportSelectors = {
@@ -30,110 +26,73 @@ export const reportSelectors = {
     selectError: (state: ReportState) => state.error,
     selectStartDate: (state: ReportState) => state.startDate,
     selectEndDate: (state: ReportState) => state.endDate,
-    selectReportTechnician: (state: ReportState) => state.reportTechnician,
-    selectReportSales: (state: ReportState) => state.reportSales,
-    selectReportTimeSheet: (state: ReportState) => state.reportTimeSheet,
     selectReportBatchHistory: (state: ReportState) => state.reportBatchHistory,
-    selectGetReportTechnician: (state: ReportState) => state.getReportTechnician,
-    selectGetReportSales: (state: ReportState) => state.getReportSales,
-    selectGetReportTimeSheet: (state: ReportState) => state.getReportTimeSheet,
-    selectGetReportBatchHistory: (state: ReportState) => state.getReportBatchHistory,
-    selectGetCloseOut: (state: ReportState) => state.getCloseOut,
     selectJson: (state: ReportState) => state.json,
     selectCloseOut: (state: ReportState) => state.closeOut,
+    
 }
 // Refactor: nhận reportUsecase từ ngoài vào
-export const createReportStore = (usecase: ReportUsecase): StateCreator<ReportState> => (set, get) => ({
+const initState = {
     isLoading: false,
     error: null,
     startDate: new Date(),
     endDate: new Date(),
-    reportTechnician: "",
-    reportSales: "",
-    reportTimeSheet: [],
     reportBatchHistory: [],
     closeOut: "",
     json: null,
-    getReportTechnician: async ():Promise<Result<string, Error>> => {
-        set({ isLoading: true });
+    closeOutOwner: undefined,
+}
+export const createReportStore = (usecase: ReportUsecase): StateCreator<ReportState> => (set, get) => ({
+    ...initState,
+     reset: () => {
+        set({...initState})
+    },
+    setStartDate: (date: Date) => set({startDate: date}),
+    setEndDate: (date: Date) => set({endDate: date}),
+    loadData: async () => {
+        const user = await appConfig.getUser();
         const request: CommonRequest = {
             dateStart: get().startDate?.format("yyyy-MM-dd"),
             dateEnd: get().endDate?.format("yyyy-MM-dd"),
-            employeeId: get().json?.employeeId??"",
+            employeeId: user.employeeId??"",
         }
-        const response = await usecase.getReportTechnician(request);
-        if(isSuccess(response)) {
-            set({ reportTechnician: response.value as string, isLoading: false });
-        } else {
-            set({ error: response.error.message, isLoading: false });
+        const newStateUpdate: Partial<ReportState> = { isLoading: false, json:user }; 
+        var messageError = ""
+        if(user?.isOwner){
+            set({ isLoading: true, });
+            const [rsCloseOut, rsBatch] = await Promise.all([
+                usecase.getCloseOutOwner(request),
+                usecase.getReportBatchHistory(request)
+            ])
+            if(isSuccess(rsCloseOut)) {
+                newStateUpdate.closeOutOwner = rsCloseOut.value
+            } 
+            else{
+                messageError += `${rsCloseOut.error.message} \n`
+            }
+            if(isSuccess(rsBatch)) {
+                newStateUpdate.reportBatchHistory = rsBatch.value
+            } 
+            else{
+                messageError += `${rsBatch.error.message} \n`
+            }
+        } else{
+            set({ isLoading: true });
+            const response = await usecase.getCloseOut(request);
+            if(isSuccess(response)) {
+                newStateUpdate.closeOut = response.value
+            } else {
+                messageError = response.error.message
+            }
+            user
         }
-        return response;
-    },
-    getReportSales: async ():Promise<Result<string, Error>> => {
-        set({ isLoading: true });
-        const request: CommonRequest = {
-            dateStart: get().startDate?.format("yyyy-MM-dd"),
-            dateEnd: get().endDate?.format("yyyy-MM-dd"),
-            employeeId: get().json?.employeeId??"",
-        }
-        const response = await usecase.getReportSales(request);
-        if(isSuccess(response)) {
-            set({ reportSales: response.value, isLoading: false });
-        } else {
-            set({ error: response.error.message, isLoading: false });
-        }
-        return response;
-    },
-    getReportTimeSheet: async ():Promise<Result<TimeSheetEntity[], Error>> => {
-        set({ isLoading: true });
-        const request: CommonRequest = {
-            dateStart: get().startDate?.format("yyyy-MM-dd"),
-            dateEnd: get().endDate?.format("yyyy-MM-dd"),
-            employeeId: get().json?.employeeId??"",
-        }
-        const response = await usecase.getReportTimeSheet(request);
-        if(isSuccess(response)) {
-            set({ reportTimeSheet: response.value, isLoading: false });
-        } else {
-            set({ error: response.error.message, isLoading: false });
-        }
-        return response;
-    },
-    getReportBatchHistory: async ():Promise<Result<BatchEntity[], Error>> => {
-        set({ isLoading: true });
-        const request: CommonRequest = {
-            dateStart: get().startDate?.format("yyyy-MM-dd"),
-            dateEnd: get().endDate?.format("yyyy-MM-dd"),
-            employeeId: get().json?.employeeId??"",
-        }
-        const response = await usecase.getReportBatchHistory(request);
-        if(isSuccess(response)) {
-            set({ reportBatchHistory: response.value, isLoading: false });
-        } else {
-            set({ error: response.error.message, isLoading: false });
-        }
-        return response;
-    },
-    getCloseOut: async ():Promise<Result<string, Error>> => {
-        set({ isLoading: true });
-        const employeeId = get().json?.employeeId??"";
-        const request: CommonRequest = {
-            dateStart: get().startDate?.format("yyyy-MM-dd"),
-            dateEnd: get().endDate?.format("yyyy-MM-dd"),
-            employeeId: employeeId,
-        }
-        const response = await usecase.getCloseOut(request);
-        if(isSuccess(response)) {
-            set({ closeOut: response.value, isLoading: false });
-        } else {
-            set({ error: response.error.message, isLoading: false });
-        }
-        return response;
-    },
-    setJson: (json: KeychainObject) => set({ json }),
+        set({...newStateUpdate, error: messageError})
+   }
 });
 
 // Khởi tạo real usecase ở production
 import { ReportRepositoryImplement } from "../repositories/ReportRepositoryImplement";
+import { CloseOutOwnerModel } from "../types/closeOutResponse";
+import { appConfig } from "@/shared/utils/appConfig";
 const realReportUsecase = new ReportUsecase(new ReportRepositoryImplement());
 export const useReportStore = create<ReportState>()(createReportStore(realReportUsecase));

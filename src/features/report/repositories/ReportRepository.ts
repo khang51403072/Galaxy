@@ -1,4 +1,5 @@
 import { Result } from "../../../shared/types/Result";
+import { CloseOutOwnerModel } from "../types/closeOutResponse";
 import { BatchEntity, TimeSheetEntity } from "../types/ReportResponse";
 
 export interface ReportRepository {
@@ -7,4 +8,5 @@ export interface ReportRepository {
   getReportTimeSheet(request: any): Promise<Result<TimeSheetEntity[], Error>>;
   getReportBatchHistory(request: any): Promise<Result<BatchEntity[], Error>>;
   getCloseOut(request: any): Promise<Result<string, Error>>;
+  getCloseOutOwner(request: any): Promise<Result<CloseOutOwnerModel, Error>>;
 } 

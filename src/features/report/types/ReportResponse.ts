@@ -30,7 +30,7 @@ export const getClockOut = (entity: TimeSheetEntity): string =>
 function formatTime(dateTime: string): string {
   try {
     const date = new Date(dateTime);
-    return date.format('HH:mm, dd/MM/yyyy')('/');
+    return date.format('HH:mm, dd/MM/yyyy');
   } catch (error) {
     return "Invalid time";
   }
@@ -156,3 +156,6 @@ export const formatISODate = (isoString: string, format: 'date' | 'time' | 'date
 // const date = parseISODate(isoString); // Date object
 // const formatted = formatISODate(isoString, 'datetime'); // "08/07/2025 21:45"
 
+
+
+// src/models/types.ts

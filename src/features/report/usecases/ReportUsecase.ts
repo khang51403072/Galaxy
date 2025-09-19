@@ -1,5 +1,6 @@
 import { Result } from '../../../shared/types/Result';
 import { ReportRepository } from '../repositories/ReportRepository';
+import { CloseOutOwnerModel } from '../types/closeOutResponse';
 import { BatchEntity, TimeSheetEntity } from '../types/ReportResponse';
 
 export class ReportUsecase {
@@ -20,4 +21,8 @@ export class ReportUsecase {
   async getCloseOut(request: any): Promise<Result<string, Error>> {
     return this.repository.getCloseOut(request);
   }
+  async getCloseOutOwner(request: any): Promise<Result<CloseOutOwnerModel, Error>> {
+    return this.repository.getCloseOutOwner(request);
+  }
+  
 } 
