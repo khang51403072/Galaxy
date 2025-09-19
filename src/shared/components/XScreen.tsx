@@ -187,7 +187,8 @@ export default function XScreen({
       {
         backgroundColor: backgroundColor||theme.colors.background, 
         paddingTop: !showHeader && safeArea ?   insets.top  : 0 ,
-        paddingHorizontal: screenPaddingHorizontal
+        paddingHorizontal: screenPaddingHorizontal,
+        paddingBottom: safeArea?insets.bottom:0 
       },
       style
     ]}>
