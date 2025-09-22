@@ -28,7 +28,7 @@ export default function SummaryReviewHeader({
       style={{
         paddingVertical: theme.spacing.md,
         backgroundColor: theme.colors.white, 
-        borderRadius: theme.spacing.md,
+        borderRadius: theme.spacing.sm,
         ...theme.shadows.sm
         }}>
         <XRow align="center" justify="center" gap={theme.spacing.xs} style={{

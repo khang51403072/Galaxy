@@ -1,8 +1,11 @@
-import React, { useMemo } from 'react';
-import { View, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
+import React, { memo, useCallback, useMemo, useState } from 'react';
+import { TouchableOpacity, StyleSheet, ViewStyle, LayoutChangeEvent } from 'react-native';
 import { XDatePicker } from './XDatePicker';
 import XIcon from './XIcon';
 import { useTheme } from '../theme';
+import { XRow } from './XRow';
+import XText from './XText';
+import { XColumn } from './XColumn';
 
 interface Props {
   fromDate: Date;
@@ -15,61 +18,74 @@ interface Props {
   style?: ViewStyle;
 }
 
-const XDateRangerSearch: React.FC<Props> = ({
+const XDateRangerSearch = memo(({
   fromDate,
   toDate,
   onFromChange,
   onToChange,
   onSearch,
-  labelFrom = 'From Date',
-  labelTo = 'To Date',
+  labelFrom = 'From',
+  labelTo = 'To',
   style
-}) => {
+}: Props) => {
   const theme = useTheme();
+  const [buttonWidth, setButtonWidth] = useState<number | undefined>(undefined);
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flexDirection: 'row',
       gap: theme.spacing.sm,
-      alignItems: 'flex-end',
+      alignItems: 'stretch', 
     },
     datePicker: {
       flex: 1,
     },
     searchBtn: {
-      height: 40,
-      width: 40,
       borderRadius: theme.spacing.sm,
       backgroundColor: theme.colors.primaryMain,
       justifyContent: 'center',
       alignItems: 'center',
     },
-  }), [theme.spacing.sm, theme.colors.primaryMain]);
+  }), [theme]);
+
+  const handleButtonLayout =  useCallback((event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout;
+    if (height > 0 && buttonWidth !== height) {
+      setButtonWidth(height);
+    }
+  }, [buttonWidth]);
   return (
-    <View style={[styles.container, style]}>
-      <XDatePicker
-        label={labelFrom}
-        value={fromDate}
-        onChange={onFromChange}
-        style={styles.datePicker}
-        maxDate={toDate}
-      />
-      <XDatePicker
-        label={labelTo}
-        value={toDate}
-        onChange={onToChange}
-        style={[styles.datePicker, { width: '40%' }]}
-        minDate={fromDate}
-      />
-      <TouchableOpacity
-        style={styles.searchBtn}
-        onPress={onSearch}
-        activeOpacity={0.7}
-      >
-        <XIcon name="search" width={24} height={24} color={theme.colors.white} />
-      </TouchableOpacity>
-    </View>
+    <XColumn>
+        <XRow>
+        <XText style={{flex: 1}}>{labelFrom}</XText>
+        <XText style={{flex: 1}}>{labelTo}</XText>
+        <XText style={{width: buttonWidth}}></XText>
+        </XRow>
+        <XRow style={[styles.container, style]}>
+          <XDatePicker
+            value={fromDate}
+            onChange={onFromChange}
+            style={styles.datePicker}
+            maxDate={toDate}
+          />
+          <XDatePicker
+            value={toDate}
+            onChange={onToChange}
+            style={[styles.datePicker]}
+            minDate={fromDate}
+          />
+          <TouchableOpacity
+            onPress={onSearch}
+            activeOpacity={0.7}
+            onLayout={handleButtonLayout}
+            style={[styles.searchBtn, { width: buttonWidth }]}
+          >
+            <XIcon name="search" width={24} height={24} color={theme.colors.white} />
+          </TouchableOpacity>
+        </XRow>
+    </XColumn>
+    
   );
-};
+});
 
 
 

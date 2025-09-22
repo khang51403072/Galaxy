@@ -39,10 +39,10 @@ export const HomeHeader = memo(({
         uri={avatarUri}
       />
       <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-start', paddingLeft: 10 }}>
-        <XText variant='bodyLight' style={{ color: theme.colors.gray800 }}>
+        <XText variant='titleLight' style={{ color: theme.colors.gray800 }}>
           Hi! 
         </XText>
-        <XText variant='bodyRegular' style={{ color: theme.colors.gray800 }}>
+        <XText variant='titleRegular' style={{ color: theme.colors.gray800 }}>
           {`${firstName} ${lastName}`}
         </XText>  
       </View>

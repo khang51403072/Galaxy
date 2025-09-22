@@ -50,7 +50,7 @@ export default function StarFilter({
         marginHorizontal:theme.spacing.xs
       }}>
         <XIcon name="starFilled" height={14} width={14} color={isSelected? theme.colors.white: theme.colors.primaryMain}></XIcon>
-        <XText variant="captionMedium"> {label} ({value})</XText>
+        <XText variant="captionMedium" color={isSelected? theme.colors.white: theme.colors.primaryMain}> {label} ({value})</XText>
       </XRow>
     </TouchableOpacity>
   }
@@ -58,7 +58,7 @@ export default function StarFilter({
         
 
   const MemoizedDropdown = useMemo(() => {
-    return (
+    return ( 
       <ScrollView horizontal={true} contentContainerStyle={{justifyContent: "center"}}>
         {starFilter("5",starTotal5)}
         {starFilter("4",starTotal4)}

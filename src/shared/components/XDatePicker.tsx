@@ -105,7 +105,7 @@ export function XDatePicker({
         style={style}
         hitSlop={{ top:13, bottom: 22, left: 0, right: 10 }} 
       >
-        <XInput textInputStyle={textInputStyle}  containerStyle={containerStyle} textAlign='center' editable={false} value={display} label={label} />
+        <XInput textInputStyle={textInputStyle}  containerStyle={containerStyle}  editable={false} value={display} label={label} />
         
       </TouchableOpacity>
       

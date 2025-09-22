@@ -40,7 +40,7 @@ export function GroupApptToggle({ value, onChange }: Props) {
         paddingVertical: theme.spacing.sm,
       }}
     >
-      <XText variant="bodyRegular">Group Appointment</XText>
+      <XText variant="titleRegular">Group Appointment</XText>
       <XSwitch value={value} onValueChange={onChange} />
     </View>
   );

@@ -149,7 +149,7 @@ export default function  PayRollScreen() {
           {...props}
           indicatorStyle={{ backgroundColor: theme.colors.primaryMain }}
           style={styles.tabBarStyle}
-          inactiveColor={theme.colors.gray200}
+          inactiveColor={theme.colors.primaryOpacity50}
           activeColor={theme.colors.primaryMain}
           
         />

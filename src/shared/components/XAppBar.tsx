@@ -25,7 +25,7 @@ export default function XAppBar({ title, showBack = true, onBackPress, rightIcon
       backgroundColor: theme.colors.white,
       borderBottomWidth: 1,
       borderBottomColor: theme.colors.border,
-      paddingBottom: theme.spacing.sm,
+      paddingVertical: theme.spacing.md,
     },
     backBtn: {
       width: theme.spacing.md,

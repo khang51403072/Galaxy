@@ -113,7 +113,7 @@ export default function HomeScreen() {
         lastName={homeData?.employeeInfo?.lastName}
         notificationCount={notificationCount}
       />
-      <View style={{ width: '100%' , gap: theme.spacing.md}}>
+      <View style={{ width: '100%' , gap: theme.spacing.sm, marginTop: theme.spacing.md}}>
         {meEarningsToday}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
           <StatCard title="Sale" value={homeData?.totalSale??0} />
