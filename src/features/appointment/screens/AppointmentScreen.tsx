@@ -32,7 +32,6 @@ export default function AppointmentScreen() {
     selectedDate,
     appointmentList,
     getAppointmentList,
-    getCompanyProfile,
     json,
     selectedEmployee,
     setSelectedEmployee,

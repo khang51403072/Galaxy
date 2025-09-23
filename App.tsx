@@ -9,7 +9,7 @@
 import 'react-native-url-polyfill/auto';
 import { AppState, AppStateStatus } from 'react-native';
 
-import React, { useEffect, useState,useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import AppNavigator from './src/app/AppNavigator';
 import { StatusBar, StyleSheet, useColorScheme, View, Alert, Platform } from 'react-native';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
@@ -25,26 +25,28 @@ import { XDialogProvider } from '@/shared/components/XAlertContext';
 import { SignalRService } from '@/core/network';
 import useSignalRStore from '@/shared/stores/signalRStore';
 import { initOTA } from '@kang/kota';
+import { XCalendar } from '@/shared/components/DateTimePicker/Calendar';
+import { CalendarProvider } from '@/shared/components/DateTimePicker/calendarContext';
 
 
 function App() {
-  const [notify, setNotify] = useState<{title: string, message: string}|null>(null);
+  const [notify, setNotify] = useState<{ title: string, message: string } | null>(null);
   const { initialize: initializeSignalR } = useSignalRStore();
   const appState = useRef(AppState.currentState);
   useEffect(() => {
     initFirebaseNotificationService(setNotify);
-    
+
     // Initialize SignalR connection
     initializeSignalR().catch(error => {
       console.error('Failed to initialize SignalR:', error);
     });
-    
+
     const subscription = AppState.addEventListener('change', async (nextAppState: AppStateStatus) => {
       // Khi app chuyển từ background -> active
       if (appState.current.match(/inactive|background|stop/) && nextAppState === 'active') {
         console.log("🔄 App resumed - checking for OTA update...");
-        if(Platform.OS=='android')
-        await initOTA('GalaxyMe', App, '1.0.0', '100');
+        if (Platform.OS == 'android')
+          await initOTA('GalaxyMe', App, '1.0.0', '100');
       }
       appState.current = nextAppState;
     });
@@ -56,7 +58,7 @@ function App() {
   }, [initializeSignalR]);
 
   const isDarkMode = useColorScheme() === 'dark';
-  
+
 
   return (
     <GestureHandlerRootView>
@@ -64,7 +66,7 @@ function App() {
         <ThemeProvider>
           <XDialogProvider>
             <View style={styles.container}>
-              <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+              {/* <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
               <ActionSheetProvider>
                 <AppNavigator/>
               </ActionSheetProvider>
@@ -80,7 +82,12 @@ function App() {
                     // ...navigate hoặc mở modal
                   }}
                 />
-              )}
+              )} */}
+              <View style={{ height: 50 }} />
+              <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+              <XCalendar />
+              
+
             </View>
           </XDialogProvider>
         </ThemeProvider>
