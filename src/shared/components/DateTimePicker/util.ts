@@ -6,7 +6,7 @@ import memoize from 'lodash/memoize';
  * Hàm này tạo ra một mảng 2 chiều đại diện cho các tuần trong tháng.
  * Ví dụ: getMonthMatrix(dayjs('2024-08-10'))
  */
-export const getMonthMatrix = (date: dayjs.Dayjs) => {
+export const getMonthMatrix = memoize((date: dayjs.Dayjs) => {
     const firstDayOfMonth = date.startOf('month');
     const firstDayOfWeek = firstDayOfMonth.day(); // 0=Chủ nhật, 1=Thứ 2, ...
 
@@ -34,7 +34,7 @@ export const getMonthMatrix = (date: dayjs.Dayjs) => {
         }
     }
     return monthMatrix;
-};
+}, (date) => date.format('YYYY-MM'));
 
 
 /**
@@ -46,9 +46,9 @@ export const getYearMatrix = memoize((date: dayjs.Dayjs): number[][] => {
   const startYear = Math.floor((currentYear - 1) / 12) * 12 + 1;
   const yearMatrix: number[][] = [];
   let year = startYear;
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 4; i++) { // 4 hàng
     const row: number[] = [];
-    for (let j = 0; j < 3; j++) {
+    for (let j = 0; j < 3; j++) { // 3 cột
       row.push(year);
       year++;
     }
@@ -56,3 +56,25 @@ export const getYearMatrix = memoize((date: dayjs.Dayjs): number[][] => {
   }
   return yearMatrix;
 }, (date) => Math.floor(date.year() / 12)); // Key dựa trên khoảng 12 năm
+
+// New: Hour options (1-12 for 12h format)
+export const getHourOptions = () => {
+  return Array.from({ length: 12 }, (_, i) => ({
+    value: i + 1,
+    label: (i + 1).toString().padStart(2, '0')
+  }));
+};
+
+// New: Minute options (0-59)
+export const getMinuteOptions = () => {
+  return Array.from({ length: 60 }, (_, i) => ({
+    value: i,
+    label: i.toString().padStart(2, '0')
+  }));
+};
+
+// New: Period options
+export const getPeriodOptions = () => [
+  { value: 'AM', label: 'AM' },
+  { value: 'PM', label: 'PM' }
+];

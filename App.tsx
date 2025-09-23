@@ -28,7 +28,7 @@ import { initOTA } from '@kang/kota';
 import { XCalendar } from '@/shared/components/DateTimePicker/Calendar';
 import { CalendarProvider } from '@/shared/components/DateTimePicker/calendarContext';
 
-
+import dayjs, { Dayjs } from 'dayjs'
 function App() {
   const [notify, setNotify] = useState<{ title: string, message: string } | null>(null);
   const { initialize: initializeSignalR } = useSignalRStore();
@@ -85,7 +85,7 @@ function App() {
               )} */}
               <View style={{ height: 50 }} />
               <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-              <XCalendar />
+              <XCalendar onDateChange={(date: dayjs.Dayjs)=>{return console.log(date);}}  />
               
 
             </View>

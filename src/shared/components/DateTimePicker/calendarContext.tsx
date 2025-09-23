@@ -1,20 +1,13 @@
+
+
 // file: src/components/calendar/CalendarContext.tsx
 
 import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { getMonthMatrix, getYearMatrix } from './util';
-import { StyleSheet } from 'react-native';
-import { Theme, useTheme } from '@/shared/theme';
 import { StyleProps } from 'react-native-reanimated';
-
-// --- 1. ĐỊNH NGHĨA "HỢP ĐỒNG" CONTEXT ---
-//    Nó mô tả tất cả những gì Provider sẽ cung cấp.
-export type CalendarView = 'day' | 'month' | 'year';
-
-export const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-];
+import { Theme, useTheme } from '@/shared/theme';
+import { StyleSheet } from 'react-native';
 interface CalendarStyleProps {
     calendarContainer: StyleProps,
     calendarHeader: StyleProps,
@@ -29,8 +22,20 @@ interface CalendarStyleProps {
     selectedMonth: StyleProps,
     yearViewContainer: StyleProps,
     yearCellContainer: StyleProps,
-    selectedYearContainer: StyleProps
+    selectedYearContainer: StyleProps,
+    timeViewContainer: StyleProps,
+    picker: StyleProps,
 }
+
+// --- 1. ĐỊNH NGHĨA "HỢP ĐỒNG" CONTEXT ---
+//    Nó mô tả tất cả những gì Provider sẽ cung cấp.
+export type CalendarView = 'day' | 'month' | 'year' | 'time'; // Added 'time'
+
+export const months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+];
+
 
 interface CalendarContextType {
     // State
@@ -41,7 +46,7 @@ interface CalendarContextType {
     prevMonthMatrix: (Dayjs | null)[][];
     nextMonthMatrix: (Dayjs | null)[][];
     yearMatrix: (number)[][];
-    styles: CalendarStyleProps;
+    styles: CalendarStyleProps,
     theme: Theme;
     // Actions / Handlers
     handleSelectDay: (day: Dayjs) => void;
@@ -49,12 +54,13 @@ interface CalendarContextType {
     handleYearHeaderPress: () => void;
     handleDayHeaderPress: () => void;
     handleSelectMonth: (monthIndex: number) => void;
-    // (Sẽ thêm các hàm cho Year sau)
-    // Handlers mới
     handleSelectYear: (year: number) => void;
     handleNext: () => void;
-    handlePrev: () => void
+    handlePrev: () => void;
     setDisplayDate: (date: Dayjs) => void;
+    handleTimeHeaderPress: () => void; // New
+    handleSelectTime: (hour: number, minute: number, period: 'AM' | 'PM') => void; // New
+    onDateChange: (date: Dayjs) => void
 }
 
 // Tạo Context
@@ -74,22 +80,23 @@ export const useCalendarContext = () => {
 interface CalendarProviderProps {
     children: ReactNode;
     initialDate?: Date;
+    onDateChange: (date: Dayjs) => void;
 }
 
-export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children, initialDate = new Date() }) => {
+export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children, initialDate = new Date(),onDateChange }) => {
     // --- TẤT CẢ STATE VÀ LOGIC ĐƯỢC CHUYỂN VÀO ĐÂY ---
     const [selectedDate, setSelectedDate] = useState(dayjs(initialDate));
     const [displayDate, setDisplayDate] = useState(dayjs(initialDate));
     const [currentView, setCurrentView] = useState<CalendarView>('day');
-
-
 
     const handleNext = useCallback(() => {
         setDisplayDate(prev => {
             switch (currentView) {
                 case 'year': return prev.add(12, 'year');
                 case 'month': return prev.add(1, 'year');
+                case 'time': return prev;
                 case 'day': default: return prev.add(1, 'month');
+                
             }
         });
     }, [currentView]);
@@ -99,13 +106,15 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children, in
                 case 'year': return prev.subtract(12, 'year');
                 case 'month': return prev.subtract(1, 'year');
                 case 'day': return prev.subtract(1, 'month');
+                case 'time': return prev;
             }
         });
     }, [currentView]);
-
     const handleSelectDay = useCallback((day: Dayjs) => {
         setSelectedDate(day);
+        setDisplayDate(day);
     }, []);
+
     const handleMonthHeaderPress = useCallback(() => {
         setCurrentView('month')
     }, []);
@@ -121,9 +130,10 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children, in
         setDisplayDate(prev => prev.month(monthIndex));
         setCurrentView('day');
     }, []);
+
     const monthMatrix = useMemo(() => {
         return getMonthMatrix(displayDate);
-    }, [displayDate, getMonthMatrix])
+    }, [displayDate])
 
     const prevMonthMatrix = useMemo(() => getMonthMatrix(displayDate.subtract(1, 'month')), [displayDate]);
     const nextMonthMatrix = useMemo(() => getMonthMatrix(displayDate.add(1, 'month')), [displayDate]);
@@ -136,6 +146,23 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children, in
         setCurrentView('month'); // Chuyển sang view tháng sau khi chọn năm
     }, []);
 
+    // New: Handler for time header press
+    const handleTimeHeaderPress = useCallback(() => {
+        setCurrentView('time');
+    }, []);
+
+    // New: Handler to select time and update selectedDate
+    const handleSelectTime = useCallback((hour: number, minute: number, period: 'AM' | 'PM') => {
+        let adjustedHour = hour;
+        if (period === 'PM' && hour < 12) adjustedHour += 12;
+        if (period === 'AM' && hour === 12) adjustedHour = 0;
+        const newDate = selectedDate.hour(adjustedHour).minute(minute);
+        setSelectedDate(newDate);
+        setDisplayDate(newDate);
+       // Back to day view
+       onDateChange(newDate)
+    }, [selectedDate]);
+    //
     const theme = useTheme()
 
     const styles: CalendarStyleProps = useMemo(
@@ -143,12 +170,13 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children, in
             calendarContainer: {
                 backgroundColor: theme.colors.white,
                 borderRadius: theme.spacing.sm,
-                padding: theme.spacing.md,
                 ...theme.shadows.md
             },
             calendarHeader: {
                 marginBottom: theme.spacing.md,
-                paddingHorizontal: theme.spacing.lg
+                paddingHorizontal: theme.spacing.lg,
+                paddingVertical: theme.spacing.sm,
+                backgroundColor: theme.colors.primaryMain
             },
             dayCellContainer: {
                 flex: 1,
@@ -202,8 +230,18 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children, in
             selectedYearContainer: {
                 backgroundColor: theme.colors.primaryMain,
             },
+            timeViewContainer: {
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: 10,
+            },
+            picker: {
+                flex: 1,
+                height: 200,
+                
+            },
         }), [theme])
-
     // Đóng gói tất cả giá trị vào một object để truyền đi
     const value = useMemo(() => ({
         selectedDate,
@@ -211,8 +249,7 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children, in
         currentView,
         monthMatrix,
         yearMatrix,
-        prevMonthMatrix, nextMonthMatrix,
-        styles,
+        prevMonthMatrix,nextMonthMatrix,styles,
         theme,
         handleSelectDay,
         handleDayHeaderPress,
@@ -221,12 +258,15 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children, in
         handleSelectMonth,
         handleSelectYear,
         handleNext,
+        handlePrev,
         setDisplayDate,
-        handlePrev
-    }), [selectedDate, displayDate, currentView, monthMatrix, yearMatrix,
-        handleSelectDay, handleDayHeaderPress, handleMonthHeaderPress,
-        handleYearHeaderPress, handleSelectMonth, handleSelectYear, handleNext,
-        handlePrev, setDisplayDate, styles, theme]);
+        handleTimeHeaderPress,
+        handleSelectTime,onDateChange,
+        
+    }), [selectedDate, displayDate, currentView, monthMatrix, yearMatrix,styles,theme,
+        handleSelectDay, handleDayHeaderPress, handleMonthHeaderPress, 
+        handleYearHeaderPress, handleSelectMonth, handleSelectYear, handleNext, handlePrev,
+        handleTimeHeaderPress, handleSelectTime,onDateChange]);
 
     return (
         <CalendarContext.Provider value={value}>
