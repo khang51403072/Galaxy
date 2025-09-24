@@ -7,7 +7,7 @@ export const greenColors = {
   blackOpacity10: '#0000001A',
   blackOpacity25: '#00000025',
   blackOpacity35: '#00000035',
-
+  blackOpacity50: '#00000050',
   // Primary Brand Colors
   primaryMain: '#749B5C',
   primaryLight: '#A7C492',

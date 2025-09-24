@@ -61,6 +61,7 @@ import XAlert from './XAlert';
 import { XSkeleton } from './XSkeleton';
 import LoadingAnimation from './LoadingAnimation';
 import { ImageBackground } from 'react-native';
+import LoadingAnimationCircular from './LoadingAnimationCircular';
 
 interface XScreenProps {
   children: ReactNode;
@@ -161,9 +162,8 @@ export default function XScreen({
     },
   }),[theme]); 
   // Loading screen (skeleton or spinner)
-  if (loading) {
-    if (skeleton) {
-      return (
+  if (loading && skeleton) {
+    return (
         <View style={[
           styles.container,
           { backgroundColor: screenBackgroundColor },
@@ -176,8 +176,6 @@ export default function XScreen({
           {skeleton}
         </View>
       );
-    }
-    return <LoadingAnimation />;
   }
 
   // Main content
@@ -198,6 +196,7 @@ export default function XScreen({
     </View>
   );
 
+  
   if (scrollable) {
     content =  (
       <ScrollView
@@ -244,42 +243,40 @@ export default function XScreen({
     );
   }
 
-  
-  return (
-    imgBackgroundPath?
-    <ImageBackground style={styles.imageBackground} 
-          source={
-            imgBackgroundPath
-          }
-      >
+  const LoadingOverlay = () => (
+    // View này sẽ là lớp phủ
+    <View style={[StyleSheet.absoluteFill, {backgroundColor: theme.colors.blackOpacity50}]}> 
+        <LoadingAnimationCircular />
+    </View>
+  );
+  const MainScreen = (
+    <View style={styles.container}>
+      {showHeader && (
         <XAppBar
           title={title ?? ""}
           showBack={true}
-         
           rightIcon={rightIcon}
           safeArea={safeArea}
           onBackPress={onBackPress}
         />
-        {content}        
-      </ImageBackground>
-    :
-
-    <View
-      style={[
-        styles.container,
-      ]}
-    > 
-       <XAppBar
-          title={title ?? ""}
-          showBack={true}
-         
-          rightIcon={rightIcon}
-          safeArea={safeArea}
-          onBackPress={onBackPress}
-        />
-        {content}    
+      )}
+      {content}
       {footer && <View style={styles.footer}>{footer}</View>}
     </View>
+  );
+  return (
+    imgBackgroundPath ? 
+      <ImageBackground style={styles.imageBackground} source={imgBackgroundPath}>
+        {MainScreen}
+        {/* Render loading overlay nếu loading=true và không có skeleton */}
+        {loading && !skeleton && <LoadingOverlay />}
+      </ImageBackground>
+    :
+      <View style={styles.container}>
+        {MainScreen}
+        {/* Render loading overlay nếu loading=true và không có skeleton */}
+        {loading && !skeleton && <LoadingOverlay />}
+      </View>
   );
 
   
