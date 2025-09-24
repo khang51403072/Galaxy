@@ -19,6 +19,7 @@ import XSwitch from "@/shared/components/XSwitch";
 import { TouchableOpacity } from "react-native";
 import { useCallback, useEffect, useMemo } from "react";
 import { useXAlert } from "@/shared/components/XAlertContext";
+import { View } from "react-native";
 
 
 export default function ProfileScreenNew(){
@@ -26,22 +27,22 @@ export default function ProfileScreenNew(){
     const {showAlert} = useXAlert()
     const accountListActions = useMemo(
       ()=>[
-        {title: "Profile", icon: "profile", onAction:()=>{navigate(ROUTES.PROFILE)}} as MECardItemProps,
-        {title: "Theme", icon: "swatches", onAction:()=>{navigate(ROUTES.CHANGE_THEME)}} as MECardItemProps,
+        {title: "Profile", leftIcon: "profile", onAction:()=>{navigate(ROUTES.PROFILE)}} as MECardItemProps,
+        {title: "Theme", leftIcon: "swatches", onAction:()=>{navigate(ROUTES.CHANGE_THEME)}} as MECardItemProps,
       ],[]
     )
     
 
     const financeListActions = useMemo(
       ()=>[
-      {title: "Buy Credits", icon: "buyCredits", onAction:()=>{ showAlert({message: "This feature is not available yet"})}} as MECardItemProps,
-      {title: "Subscriptions", icon: "subscriptions", onAction:()=>{ showAlert({message: "This feature is not available yet"})}} as MECardItemProps,
-      {title: "Invoices", icon: "invoices", onAction:()=>{ showAlert({message: "This feature is not available yet"})}} as MECardItemProps,
-      {title: "Statements", icon: "statements", onAction:()=>{ showAlert({message: "This feature is not available yet"})}} as MECardItemProps,
+      {title: "Buy Credits", leftIcon: "buyCredits", onAction:()=>{ showAlert({message: "This feature is not available yet"})}} as MECardItemProps,
+      {title: "Subscriptions", leftIcon: "subscriptions", onAction:()=>{ showAlert({message: "This feature is not available yet"})}} as MECardItemProps,
+      {title: "Invoices", leftIcon: "invoices", onAction:()=>{ showAlert({message: "This feature is not available yet"})}} as MECardItemProps,
+      {title: "Statements", leftIcon: "statements", onAction:()=>{ showAlert({message: "This feature is not available yet"})}} as MECardItemProps,
     ],[])
 
     const backOfficeActions = useMemo(()=> [
-      {title: "Employees", icon: "group", onAction:()=>{
+      {title: "Employees", leftIcon: "group", onAction:()=>{
         showAlert({message: "This feature is not available yet"})
       }} as MECardItemProps,
     ],[])
@@ -126,15 +127,13 @@ export default function ProfileScreenNew(){
       ), 
       [showTooltip,isUseFaceId,setShowTooltip,handleToggle] // Thêm dependency
     );
-
+    const view = <View></View>
     const logOutCard = useMemo( // Dùng useMemo ở đây cũng tốt
       () => (
-        <TouchableOpacity onPress={async () => {
-            await logout();
-            reset([{ name: ROUTES.LOGIN }], 0);
-        }}>
-            <MECard listActions={[{ title: "Log Out", icon: "signOut" }]}/>
-        </TouchableOpacity>
+        <MECard listActions={[{ title: "Log Out", leftIcon: "signOut", right: view, onAction: async () => {
+          await logout();
+          reset([{ name: ROUTES.LOGIN }], 0);
+        } }]}/>
       ), 
       [logout] // Thêm dependency
     );
@@ -163,8 +162,8 @@ export default function ProfileScreenNew(){
           listActions={[
             {
               title: "Sign In With Face ID", 
-              icon:'faceID',
-              actionButton: actionButton} as MECardItemProps,
+              leftIcon:'faceID',
+              right: actionButton} as MECardItemProps,
           ]}/>
         {logOutCard}
         {versionText}

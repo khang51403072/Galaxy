@@ -3,7 +3,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import XButton from './XButton';
 import XText from './XText';
-import { TextStyles } from '../constants/textStyles';
+import { useTheme } from '../theme';
 
 type FormBaseProps = {
   onConfirm?: () => void;
@@ -28,6 +28,7 @@ export default function FormBase({
   children,
   style,
 }: FormBaseProps) {
+  const theme = useTheme()
   return (
     <View style={[styles.container, style]}>
       {children}
@@ -53,7 +54,7 @@ export default function FormBase({
             loading={confirmLoading}
             disabled={confirmDisabled}
             style={styles.button}
-            textStyle={TextStyles.buttonText}
+            textStyle={theme.typography.titleMedium}
             radius="xl"
             useGradient={true}
           />

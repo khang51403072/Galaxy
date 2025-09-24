@@ -9,8 +9,8 @@ import { TouchableOpacity } from "react-native";
 
 export interface MECardItemProps{
     title: string;
-    icon: keyof typeof iconMap;
-    actionButton?: ReactNode;
+    leftIcon: keyof typeof iconMap;
+    right?: ReactNode;
     onAction?: ()=> void
 }
 
@@ -34,16 +34,17 @@ export const  MECard = memo(
     )
     const actions = useMemo(
         () => listActions.map(
-            (e, index) => <XRow key={index} align="center">
-                <XRow align="center" gap={theme.spacing.sm} style={{flex:1}}>
-                    <XIcon name={e.icon} color={theme.colors.primaryMain}></XIcon>
-                    <XText color={theme.colors.gray800} variant="titleRegular">{e.title}</XText>
+            (e, index) => 
+            <TouchableOpacity key={index} onPress={e.onAction}>
+                <XRow  align="center">
+                    <XRow align="center" gap={theme.spacing.sm} style={{flex:1}}>
+                        <XIcon name={e.leftIcon} color={theme.colors.primaryMain}></XIcon>
+                        <XText color={theme.colors.gray800} variant="titleRegular">{e.title}</XText>
+                    </XRow>
+                    {!e.right && <XIcon  width={18} name='caretRight' style={{justifyContent:'flex-end'}}></XIcon>}
+                    {e.right}
                 </XRow>
-                {e.onAction && <TouchableOpacity onPress={e.onAction} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} >
-                    <XIcon  width={18} name='caretRight' style={{justifyContent:'flex-end'}}></XIcon>
-                </TouchableOpacity>}
-                {e.actionButton}
-            </XRow>
+            </TouchableOpacity>
         ), [listActions, theme]
     )
     return <XColumn style={{...theme.shadows.sm, backgroundColor: theme.colors.white, borderRadius: theme.spacing.sm, padding: theme.spacing.lg, gap: theme.spacing.lg}} >
