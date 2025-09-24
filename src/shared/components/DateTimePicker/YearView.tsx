@@ -18,7 +18,7 @@ const YearGrid = ({ date }: { date: dayjs.Dayjs }) => {
   return (
     <XRow align='center' justify='center' style={styles.yearViewContainer}>
       {yearMatrix.map((row, rowIndex) => (
-        <XRow gap={theme.spacing.sm} key={rowIndex}>
+        <XRow align='center' justify='center' gap={theme.spacing.sm} key={rowIndex}>
           {row.map(year => {
             const isSelected = year === currentYear;
             return (

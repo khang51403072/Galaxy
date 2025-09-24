@@ -66,7 +66,7 @@ function App() {
         <ThemeProvider>
           <XDialogProvider>
             <View style={styles.container}>
-              {/* <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+              <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
               <ActionSheetProvider>
                 <AppNavigator/>
               </ActionSheetProvider>
@@ -82,10 +82,10 @@ function App() {
                     // ...navigate hoặc mở modal
                   }}
                 />
-              )} */}
-              <View style={{ height: 50 }} />
+              )}
+              {/* <View style={{ height: 50 }} />
               <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-              <XCalendar onDateChange={(date: dayjs.Dayjs)=>{return console.log(date);}}  />
+              <XCalendar  onDateChange={(date: dayjs.Dayjs) => { return console.log(date); } } initCalendarView={'time'}  /> */}
               
 
             </View>
