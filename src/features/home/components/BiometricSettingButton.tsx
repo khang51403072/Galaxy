@@ -9,7 +9,7 @@ interface BiometricButtonProps {
     setShowTooltip: (v:boolean) => void;
     handleToggle: (v:boolean) => void;
 }
-export const BiometricButton = memo(
+export const BiometricSettingButton = memo(
     ({isShowTooltip, setShowTooltip, isUseFaceId, handleToggle}:BiometricButtonProps) => (
       <Tooltip
         isVisible={isShowTooltip}

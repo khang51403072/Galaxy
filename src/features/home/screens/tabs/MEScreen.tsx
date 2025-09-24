@@ -17,7 +17,7 @@ import { appConfig } from "@/shared/utils/appConfig";
 import { useCallback, useEffect, useMemo } from "react";
 import { useXAlert } from "@/shared/components/XAlertContext";
 import { View } from "react-native";
-import { BiometricButton } from "../../components/BiometricSetting";
+import { BiometricSettingButton } from "../../components/BiometricSettingButton";
 
 
 export default function ProfileScreenNew() {
@@ -126,7 +126,7 @@ export default function ProfileScreenNew() {
     {
       title: "Sign In With Face ID",
       leftIcon: 'faceID',
-      right: <BiometricButton isShowTooltip={showTooltip} isUseFaceId={isUseFaceId} setShowTooltip={setShowTooltip} handleToggle={handleToggle}></BiometricButton>
+      right: <BiometricSettingButton isShowTooltip={showTooltip} isUseFaceId={isUseFaceId} setShowTooltip={setShowTooltip} handleToggle={handleToggle}></BiometricSettingButton>
     } as MECardItemProps,
   ], [showTooltip, isUseFaceId, setShowTooltip, handleToggle]);
   const logoutAction = useMemo(() => [
