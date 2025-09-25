@@ -3,7 +3,7 @@ import { View, TouchableOpacity } from "react-native";
 import XInput from "@/shared/components/XInput";
 import XIcon from "@/shared/components/XIcon";
 import XText from "@/shared/components/XText";
-import { BookingServiceEntity, useCreateAppointmentStore } from "../stores/createAppointmentStore";
+import { BookingServiceEntity, useCreateAppointmentStore } from "../stores/createAppointment/createAppointmentStore";
 import { EmployeeEntity, getDisplayName } from "@/features/ticket/types/TicketResponse";
 import { useTheme } from "@/shared/theme/ThemeProvider";
 import { XRow } from "@/shared/components/XRow";

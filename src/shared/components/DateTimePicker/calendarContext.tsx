@@ -60,7 +60,7 @@ interface CalendarProviderProps {
     mode: CalendarViews
 }
 
-export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children, initialDate = new Date(),onDateChange, mode = "day" }) => {
+export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children, initialDate = new Date(), onDateChange, mode = "day" }) => {
     // --- TẤT CẢ STATE VÀ LOGIC ĐƯỢC CHUYỂN VÀO ĐÂY ---
     const [selectedDate, setSelectedDate] = useState(dayjs(initialDate));
     const [displayDate, setDisplayDate] = useState(dayjs(initialDate));
@@ -90,6 +90,7 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children, in
     const handleSelectDay = useCallback((day: Dayjs) => {
         setSelectedDate(day);
         setDisplayDate(day);
+        onDateChange(day)
     }, []);
 
     const handleMonthHeaderPress = useCallback(() => {

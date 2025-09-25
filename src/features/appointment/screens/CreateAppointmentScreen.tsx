@@ -27,8 +27,8 @@ import { CustomerPicker } from "../components/AppointmentPickers";
 import { DatePickerField, TimePickerField } from "../components/DateTimePickerField";
 
 // --- IMPORT CÁC STORE MỚI ---
-import { useCreateAppointmentStore } from "../stores/createAppointmentStore";
-import { useAppointmentUIStore } from "../stores/createAppointmentUIStore";
+import { GetApptDetailsRequest, useCreateAppointmentStore } from "../stores/createAppointment/createAppointmentStore";
+import { useAppointmentUIStore } from "../stores/createAppointment/createAppointmentUIStore";
 import { useCustomerStore } from "../stores/customerStore";
 import { XColumn } from "@/shared/components/XColumn";
 import { XRow } from "@/shared/components/XRow";
@@ -36,30 +36,45 @@ import { createApptMessage } from "../types/AppointmentMessage";
 import { XDivider } from "@/shared/components/XDivider";
 import { stylesMemoize } from "./CreateAppointmentScreen.styles";
 import { useHomeStore } from "@/features/home/stores/homeStore";
+import { useCreateAppointmentConfigStore } from "../stores/createAppointment/createAppointmentConfigStore";
+import { useEmployeeStore } from "@/shared/stores/employeeStore";
 // --- Component ---
 export default function CreateAppointmentScreen() {
     const route = useRoute<RouteProp<RootStackParamList, 'CreateAppointment'>>();
     const { apptId } = route.params || {};
     const theme = useTheme();
-    
+
     // --- LẤY STATE & ACTIONS TỪ FORM STORE ---
-    const { 
-        selectedApptType, listApptType, isLoading, listServices, selectedDate,
-        isConfirmOnline, isGroupAppt, error, listEmployeeOnWork, apptDetails,
+
+    const {
+        listApptType, isLoading: isLoadingConfig, listEmployeeOnWork, listItemMenu, companyProfile,
+        loadConfigData
+    } = useCreateAppointmentConfigStore(
+        useShallow((state) => ({
+            listApptType: state.listApptType,
+            isLoading: state.isLoading,
+            listEmployeeOnWork: state.listEmployeeOnWork,
+            listItemMenu: state.listItemMenu,
+            companyProfile: state.companyProfile,
+            loadConfigData: state.loadConfigData,
+        }))
+    );
+
+    const {
+        selectedApptType, isLoading, listServices, selectedDate,
+        isConfirmOnline, isGroupAppt, error, apptDetails,
         setSelectedApptType, setSelectedDate, setIsConfirmOnline, setIsGroupAppt,
-        reset, saveAppointment, initData, getIsAllowEdit,
+        reset, saveAppointment, getApptDetails, getIsAllowEdit,
         updateBookingService, removeBookingService, getIsAllowDelete, deleteAppt
     } = useCreateAppointmentStore(
         useShallow((s) => ({
             selectedApptType: s.selectedApptType,
-            listApptType: s.listApptType,
             isLoading: s.isLoading,
             listServices: s.listBookingServices,
             selectedDate: s.selectedDate,
             isConfirmOnline: s.isConfirmOnline,
             isGroupAppt: s.isGroupAppointment,
             error: s.error,
-            listEmployeeOnWork: s.listEmployeeOnWork,
             apptDetails: s.apptDetails,
             setSelectedApptType: s.setSelectedApptType,
             setSelectedDate: s.setSelectedDate,
@@ -67,7 +82,7 @@ export default function CreateAppointmentScreen() {
             setIsGroupAppt: s.setIsGroupAppt,
             reset: s.reset,
             saveAppointment: s.saveAppointment,
-            initData: s.initData,
+            getApptDetails: s.getApptDetails,
             getIsAllowEdit: s.getIsAllowEdit,
             updateBookingService: s.updateBookingService,
             removeBookingService: s.removeBookingService,
@@ -75,7 +90,7 @@ export default function CreateAppointmentScreen() {
             deleteAppt: s.deleteAppt
         }))
     );
-    
+
     // --- LẤY STATE & ACTIONS TỪ UI STORE ---
     const {
         showServiceSheet, employeeForAvailable, serviceIndex,
@@ -89,65 +104,81 @@ export default function CreateAppointmentScreen() {
             comboIndex: s.comboIndex,
             isShowTechnician: s.isShowTechnician,
             openServiceSheet: s.openServiceSheet,
-            closeServiceSheet: s.closeServiceSheet, 
+            closeServiceSheet: s.closeServiceSheet,
             openTechnicianSheet: s.openTechnicianSheet,
             closeTechnicianSheet: s.closeTechnicianSheet,
         }))
     );
-    
-    const {selectedCustomer, resetCustomerState} = 
-    useCustomerStore(
+
+    const { selectedCustomer, resetCustomerState } = useCustomerStore(
         useShallow(
-        (state)=> ({selectedCustomer: state.selectedCustomer, resetCustomerState: state.reset})
-    ))
+            (state) => ({ selectedCustomer: state.selectedCustomer, resetCustomerState: state.reset })
+        ))
 
 
     ////Home store
-    const {selectedStore, json} = 
-    useHomeStore(
+    const { selectedStore, json } = useHomeStore(
         useShallow(
-        (state)=> ({selectedStore: state.selectedStore, json: state.json})
-    ))
-    useHomeStore
-    // const { sendMessage } = useSignalR();
-    const navigation = useNavigation();
-    const { showAlert, showConfirm } = useXAlert();
-    // Các hook khác không thay đổi
+            (state) => ({ selectedStore: state.selectedStore, json: state.json })
+        ))
+
     const { getAppointmentList } = useAppointmentStore(
         useShallow((s) => ({ getAppointmentList: s.getAppointmentList }))
     );
-    
+
+    const { listEmployee } = useEmployeeStore(useShallow(s => ({ listEmployee: s.employees })))
+    // const { sendMessage } = useSignalR();
+    const navigation = useNavigation();
+    const { showAlert, showConfirm } = useXAlert();
     useBackHandler(navigation, reset);
 
     const isAllowEdit = useMemo(() => getIsAllowEdit(json), [apptDetails, getIsAllowEdit]);
-    const isAllowDelete = useMemo(  () => getIsAllowDelete(json), [apptDetails, getIsAllowDelete]);
+    const isAllowDelete = useMemo(() => getIsAllowDelete(json), [apptDetails, getIsAllowDelete]);
     const styles = useMemo(
         () => stylesMemoize(theme), [theme]
     );
+
     useEffect(() => {
-        initData(apptId);
+        const init = async () => {
+            await loadConfigData(listEmployee)
+            if (!apptId) {
+                const params: GetApptDetailsRequest = {
+                    apptId: apptId ?? "",
+                    listEmployee: listEmployee,
+                    listItemMenu: listItemMenu,
+                    companyProfile: companyProfile,
+                    listApptType: listApptType
+
+                }
+                const result = await getApptDetails(params);
+                if (isSuccess(result)) {
+                    useCustomerStore.setState({ selectedCustomer: result.value.customer })
+                }
+            }
+        }
+        init();
         // Clean up store khi unmount
         return () => {
             reset();
             resetCustomerState();
         }
-    }, [apptId, initData, reset]);
+    }, [apptId, reset]);
 
     useEffect(() => {
         if (!isLoading && selectedCustomer == null && !apptId) {
             navigate(ROUTES.SELECT_CUSTOMER as never);
         }
-    }, [isLoading, selectedCustomer, apptId]);
-   
-    const dropdownOptions = useMemo(() => 
-        listApptType.map((e) => ({label: e.name, value: e})), 
+    }, [isLoading, selectedCustomer]);
+
+    const dropdownOptions = useMemo(() =>
+        listApptType.map((e) => ({ label: e.name, value: e })),
         [listApptType]
     );
 
     // --- Memoized Callbacks - Cập nhật để dùng actions từ các store mới ---
     const handleSave = useCallback(async () => {
         const result = await saveAppointment(selectedCustomer);
-        if (isSuccess(result)) {  
+        if (isSuccess(result)) {
             // sendMessage([{ type: "SendMessage", data: createApptMessage(result.value) }]);
             showAlert({
                 title: "Successfully",
@@ -174,12 +205,12 @@ export default function CreateAppointmentScreen() {
         newDate.setHours(time.getHours(), time.getMinutes());
         setSelectedDate(newDate);
     }, [setSelectedDate, selectedDate]);
-    
+
     const handleSelectTechnician = useCallback((index: number, comboIdx = -1) => {
         const service = comboIdx === -1
             ? listServices[index].service
             : listServices[index].comboItems?.[comboIdx]?.service;
-            
+
         if (!service) return;
 
         const allowedEmployeesIds = service.allowedEmployees || [];
@@ -190,10 +221,10 @@ export default function CreateAppointmentScreen() {
 
         openTechnicianSheet({ employees: listEmployee, serviceIndex: index, comboIndex: comboIdx });
     }, [listServices, listEmployeeOnWork, openTechnicianSheet]);
-    
+
     const handleSelectServiceItem = useCallback((service: MenuItemEntity) => {
-       updateBookingService({ serviceIndex, e: service, type: 'service' });
-       closeServiceSheet(); // Tự động đóng sau khi chọn
+        updateBookingService({ serviceIndex, e: service, type: 'service' });
+        closeServiceSheet(); // Tự động đóng sau khi chọn
     }, [updateBookingService, serviceIndex, closeServiceSheet]);
 
     const handleSelectEmployeeItem = useCallback((item: EmployeeEntity) => {
@@ -202,35 +233,35 @@ export default function CreateAppointmentScreen() {
     }, [updateBookingService, serviceIndex, comboIndex, closeTechnicianSheet]);
 
     const onDeleteAppointment = useCallback(
-        async ()  =>{
+        async () => {
             let result = await deleteAppt(selectedStore);
-            if(isSuccess(result) && result.value.result) {
+            if (isSuccess(result) && result.value.result) {
                 const json = await appConfig.getUser();
                 getAppointmentList(json);
                 goBack()
             }
             else if (isSuccess(result)) {
-                showAlert({message: result.value.errorMsg, type: 'error'})
+                showAlert({ message: result.value.errorMsg, type: 'error' })
             }
-            else if(isFailure(result)) {
-                showAlert({message: result.error.message, type: 'error'})
+            else if (isFailure(result)) {
+                showAlert({ message: result.error.message, type: 'error' })
             }
-        },[deleteAppt, showAlert,getAppointmentList]
+        }, [deleteAppt, showAlert, getAppointmentList]
     )
-    
+
     const onTrashButtonClick = useCallback(
-        async ()  => {
+        async () => {
             showConfirm({
                 title: 'Delete Appointment',
                 message: 'Are you sure you want to delete this appointment?',
                 confirmText: 'Delete',
                 cancelText: 'Cancel',
                 onConfirm: onDeleteAppointment,
-                onCancel: ()=>{},
+                onCancel: () => { },
                 childrenBottom: <XColumn style={styles.deleteApptChildren}>
                     <XRow justify="center">
                         <XText variant="titleMedium">Customer: </XText>
-                        <XText variant="titleRegular">{apptDetails?.customer.firstName+' '+apptDetails?.customer.lastName}</XText>
+                        <XText variant="titleRegular">{apptDetails?.customer.firstName + ' ' + apptDetails?.customer.lastName}</XText>
                     </XRow>
                     <XRow justify="center">
                         <XText variant="titleMedium">Date & Time: </XText>
@@ -238,10 +269,10 @@ export default function CreateAppointmentScreen() {
                     </XRow>
                 </XColumn>
             })
-        },[apptDetails]);
+        }, [apptDetails]);
 
     const trashButton = useMemo(
-        ()=>{
+        () => {
             return <TouchableOpacity onPress={
                 onTrashButtonClick
             }> <XIcon name="trash"></XIcon></TouchableOpacity>
@@ -249,14 +280,14 @@ export default function CreateAppointmentScreen() {
         [isAllowEdit]
     )
     return (
-        <XScreen 
+        <XScreen
             title={apptId ? "Edit Appointment" : "Booking Appointment"}
-            loading={isLoading} 
+            loading={isLoading}
             error={error}
             scrollable={true}
-            footer={isAllowEdit && <XButton title="Save" onPress={handleSave}/>}
-            rightIcon= {isAllowDelete && trashButton}
-        >   
+            footer={isAllowEdit && <XButton title="Save" onPress={handleSave} />}
+            rightIcon={isAllowDelete && trashButton}
+        >
             <View style={styles.container}>
                 {!isAllowEdit &&
                     <View style={styles.mask} />
@@ -269,11 +300,11 @@ export default function CreateAppointmentScreen() {
                 />
                 <ConfirmOnlineToggle value={isConfirmOnline} onChange={setIsConfirmOnline} />
                 <GroupApptToggle value={isGroupAppt} onChange={setIsGroupAppt} />
-                <XDivider/>
+                <XDivider />
                 <DatePickerField value={selectedDate} onChange={handleDateChange} />
                 <TimePickerField value={selectedDate} onChange={handleTimeChange} />
-                <XDivider/>
-                
+                <XDivider />
+
                 <View style={styles.menuHeader}>
                     <XIcon name="menu" width={16} height={16} color={theme.colors.primaryMain} />
                     <XText variant="titleRegular">Service</XText>
@@ -286,14 +317,14 @@ export default function CreateAppointmentScreen() {
                     onRemoveService={removeBookingService}
                     onSelectTechnician={handleSelectTechnician}
                 />
-            </View> 
-            
+            </View>
+
             <SelectServiceScreen
                 visible={showServiceSheet}
                 onClose={closeServiceSheet} // Sử dụng action mới
                 onSelect={handleSelectServiceItem}
             />
-            
+
             <XBottomSheetSearch
                 visible={isShowTechnician}
                 onClose={closeTechnicianSheet} // Sử dụng action mới
@@ -301,8 +332,8 @@ export default function CreateAppointmentScreen() {
                 onSelect={handleSelectEmployeeItem}
                 placeholder="Search..."
                 title="Technician"
-            /> 
+            />
         </XScreen>
     );
-}   
+}
 

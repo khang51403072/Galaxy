@@ -5,7 +5,7 @@ import { View, TouchableOpacity, StyleSheet, Modal } from "react-native";
 import XInput from "@/shared/components/XInput";
 import XText from "@/shared/components/XText";
 import XIcon from "@/shared/components/XIcon";
-import { useCreateAppointmentStore, createAppointmentSelectors } from "../stores/createAppointmentStore";
+import { useCreateAppointmentStore, createAppointmentSelectors } from "../stores/createAppointment/createAppointmentStore";
 import { useShallow } from "zustand/react/shallow";
 import { useTheme, Theme } from "@/shared/theme/ThemeProvider";
 import { MenuItemEntity } from "../types/MenuItemResponse";

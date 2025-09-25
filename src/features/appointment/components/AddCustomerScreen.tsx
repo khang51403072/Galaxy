@@ -12,7 +12,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useNavigation } from "@react-navigation/native";
 import { useBackHandler } from "@/shared/hooks/useBackHandler";
 import { goBack } from "@/app/NavigationService";
-import { useAppointmentUIStore } from "../stores/createAppointmentUIStore";
+import { useAppointmentUIStore } from "../stores/createAppointment/createAppointmentUIStore";
 import { useCustomerStore } from "../stores/customerStore";
 
 export default function AddCustomerScreen() {

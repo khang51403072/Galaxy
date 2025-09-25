@@ -1,5 +1,5 @@
 import { EmployeeEntity } from "@/features/ticket/types/TicketResponse";
-import { AppointmentFormState } from "../stores/createAppointmentStore";
+import { AppointmentFormState } from "../stores/createAppointment/createAppointmentStore";
 import { useCustomerStore } from "../stores/customerStore";
 import { dateFromTimeEntity, TimeRange } from "../types/CompanyProfileResponse";
 import { CustomerEntity } from "../types/CustomerResponse";
