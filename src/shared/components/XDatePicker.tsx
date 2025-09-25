@@ -35,7 +35,6 @@ type Props = {
   minDate?: Date;
   maxDate?: Date;
   displayFormat?: string; // Thêm parameter displayFormat
-  textAlign?: 'left' | 'center' | 'right';
   containerStyle?: StyleProp<TextStyle>
   textInputStyle?: StyleProp<TextStyle>
 };
@@ -48,7 +47,6 @@ export function XDatePicker({
   minDate, 
   maxDate,
   displayFormat,
-  textAlign,
   containerStyle,
   textInputStyle
 }: Props) {

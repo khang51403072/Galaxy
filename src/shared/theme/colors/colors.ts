@@ -108,18 +108,19 @@ export const darkColors = {
   blackOpacity10: '#0000001A',
   blackOpacity25: '#00000025',
   blackOpacity35: '#00000035',
-
+  blackOpacity50: '#00000050',
   // Primary Brand Colors
   primaryMain: '#1D62D8',
   primaryLight: '#2578EB',
-  primaryDark: '#1E4FAF',
-  primaryOpacity50: '#1D62D880',
   primaryOpacity25: '#1D62D840',
-  primaryOpacity5: '#1D62D80D',
   primaryGradient: ['#3B96F6', '#1D62D8'],
   splashScreen: ['#2578EB', '#1E4FAF'],
+  
+  primaryOpacity50: '#1D62D880',
+  primaryDark: '#1E4FAF',
+  primaryOpacity5: '#1D62D80D',
   // Secondary Colors
-  secondary: '#1CD8D9',
+  
   secondaryOpacity5: '#1CD8D90D',
   
   // Category Colors
@@ -140,7 +141,7 @@ export const darkColors = {
   warningMain: '#EAB308',
   warningLight: '#FEFCF5',
   infoMain: '#3B96F6',
-  infoLight: '#F9FCFF',
+  infoLight: '#EAF4FE',
   
   // Gray Scale
   gray50: '#FDFDFD',
@@ -158,16 +159,13 @@ export const darkColors = {
   accent: '#FF4081',
   
   // Legacy Colors (keeping for backward compatibility)
-  primary: '#1D62D8',
-  primary80: '#1D62D880',
-  primary600: '#1E4FAF',
-  primary200: '#1D62D820',
+ 
   skyBlue: '#3B96F6',
   skyBlue200: '#3B96F620',
   purple: '#6554FD',
   indigoBlue: '#4B66FF',
   blue: '#30A6DD',
-  cyan: '#1CD8D9',
+  secondary: '#1CD8D9',
   cyan200: '#1CD8D920',
   
   // Background & Surface

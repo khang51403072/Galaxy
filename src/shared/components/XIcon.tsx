@@ -51,6 +51,8 @@ import StarOutline from '../assets/icons/StarOutline.svg'
 import StarFilled from '../assets/icons/StarFilled.svg'
 import Load from '../assets/icons/Load.svg'
 import Reply from '../assets/icons/Reply.svg'
+import ConfirmRespondReview from '../assets/icons/ConfirmRespondReview.svg'
+
 //ME
 import CaretRight from '../assets/icons/ME/CaretRight.svg'
 import Profile from '../assets/icons/ME/Profile.svg'
@@ -64,6 +66,8 @@ import ChartBar from '../assets/icons/ChartBar.svg'
 import FaceID from '../assets/icons/ME/FaceID.svg';
 import SignOut from '../assets/icons/ME/SignOut.svg';
 import Group from '../assets/icons/ME/Group.svg';
+
+
 export const iconMap = {
   user: User,
   passwordCheck: PasswordCheck,
@@ -125,7 +129,8 @@ export const iconMap = {
   starFilled: StarFilled,
   load: Load,
   group: Group,
-  reply: Reply
+  reply: Reply,
+  confirmRespondReview: ConfirmRespondReview
 };
 
  type XIconProps = {

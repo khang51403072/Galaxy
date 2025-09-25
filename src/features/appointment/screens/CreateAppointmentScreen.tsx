@@ -34,53 +34,14 @@ import { XColumn } from "@/shared/components/XColumn";
 import { XRow } from "@/shared/components/XRow";
 import { createApptMessage } from "../types/AppointmentMessage";
 import { XDivider } from "@/shared/components/XDivider";
+import { stylesMemoize } from "./CreateAppointmentScreen.styles";
+import { useHomeStore } from "@/features/home/stores/homeStore";
 // --- Component ---
 export default function CreateAppointmentScreen() {
     const route = useRoute<RouteProp<RootStackParamList, 'CreateAppointment'>>();
     const { apptId } = route.params || {};
-    
     const theme = useTheme();
-    const styles = useMemo(
-        () => StyleSheet.create({
-            container: {
-                gap: theme.spacing.md,
-                paddingTop: theme.spacing.md,
-                flex: 1,
-            },
-            customerDetailsContainer: {
-                gap: 4,
-                flexDirection: 'row',
-                alignItems: 'center',
-            },
-            divider: {
-                height: 1,
-                backgroundColor: theme.colors.gray200,
-            },
-            menuHeader: {
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 10,
-            },
-            mask: {
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(255, 255, 255, 0.7)', // Thêm độ trong suốt
-                zIndex: 10,
-            },
-            deleteApptChildren: { 
-                backgroundColor: theme.colors.primaryOpacity5, 
-                paddingVertical: theme.spacing.xs, 
-                paddingHorizontal: theme.spacing.xs
-            },
-
-        }), [theme]);
-    const { showAlert, showConfirm } = useXAlert();
-    const { sendMessage } = useSignalR();
-    const navigation = useNavigation();
-
+    
     // --- LẤY STATE & ACTIONS TỪ FORM STORE ---
     const { 
         selectedApptType, listApptType, isLoading, listServices, selectedDate,
@@ -139,6 +100,18 @@ export default function CreateAppointmentScreen() {
         useShallow(
         (state)=> ({selectedCustomer: state.selectedCustomer, resetCustomerState: state.reset})
     ))
+
+
+    ////Home store
+    const {selectedStore, json} = 
+    useHomeStore(
+        useShallow(
+        (state)=> ({selectedStore: state.selectedStore, json: state.json})
+    ))
+    useHomeStore
+    // const { sendMessage } = useSignalR();
+    const navigation = useNavigation();
+    const { showAlert, showConfirm } = useXAlert();
     // Các hook khác không thay đổi
     const { getAppointmentList } = useAppointmentStore(
         useShallow((s) => ({ getAppointmentList: s.getAppointmentList }))
@@ -146,9 +119,11 @@ export default function CreateAppointmentScreen() {
     
     useBackHandler(navigation, reset);
 
-    const isAllowEdit = useMemo(() => getIsAllowEdit(), [apptDetails, getIsAllowEdit]);
-    const isAllowDelete = useMemo(  () => getIsAllowDelete(), [apptDetails, getIsAllowDelete]);
-
+    const isAllowEdit = useMemo(() => getIsAllowEdit(json), [apptDetails, getIsAllowEdit]);
+    const isAllowDelete = useMemo(  () => getIsAllowDelete(json), [apptDetails, getIsAllowDelete]);
+    const styles = useMemo(
+        () => stylesMemoize(theme), [theme]
+    );
     useEffect(() => {
         initData(apptId);
         // Clean up store khi unmount
@@ -171,20 +146,20 @@ export default function CreateAppointmentScreen() {
 
     // --- Memoized Callbacks - Cập nhật để dùng actions từ các store mới ---
     const handleSave = useCallback(async () => {
-        const result = await saveAppointment();
+        const result = await saveAppointment(selectedCustomer);
         if (isSuccess(result)) {  
-            sendMessage([{ type: "SendMessage", data: createApptMessage(result.value) }]);
+            // sendMessage([{ type: "SendMessage", data: createApptMessage(result.value) }]);
             showAlert({
                 title: "Successfully",
                 message: "Appointment created successfully",
                 onClose: async () => {
-                    goBack();
                     const json = await appConfig.getUser();
                     getAppointmentList(json);
+                    goBack();
                 }
             });
         }
-    }, [saveAppointment, sendMessage, showAlert, getAppointmentList]);
+    }, [saveAppointment, showAlert, getAppointmentList]);
 
     const handleNavigateToSelectCustomer = useCallback(() => navigate(ROUTES.SELECT_CUSTOMER as never), []);
 
@@ -228,7 +203,7 @@ export default function CreateAppointmentScreen() {
 
     const onDeleteAppointment = useCallback(
         async ()  =>{
-            let result = await deleteAppt();
+            let result = await deleteAppt(selectedStore);
             if(isSuccess(result) && result.value.result) {
                 const json = await appConfig.getUser();
                 getAppointmentList(json);
@@ -244,7 +219,7 @@ export default function CreateAppointmentScreen() {
     )
     
     const onTrashButtonClick = useCallback(
-        async ()  =>{
+        async ()  => {
             showConfirm({
                 title: 'Delete Appointment',
                 message: 'Are you sure you want to delete this appointment?',
@@ -252,7 +227,7 @@ export default function CreateAppointmentScreen() {
                 cancelText: 'Cancel',
                 onConfirm: onDeleteAppointment,
                 onCancel: ()=>{},
-                children: <XColumn style={styles.deleteApptChildren}>
+                childrenBottom: <XColumn style={styles.deleteApptChildren}>
                     <XRow justify="center">
                         <XText variant="titleMedium">Customer: </XText>
                         <XText variant="titleRegular">{apptDetails?.customer.firstName+' '+apptDetails?.customer.lastName}</XText>

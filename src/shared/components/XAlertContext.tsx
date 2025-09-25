@@ -17,7 +17,8 @@ export type XConfirmOptions = {
   cancelText?: string;
   onConfirm: () => void;
   onCancel?: () => void;
-  children?: React.ReactNode;
+  childrenBottom?: React.ReactNode;
+  childrenTop?: React.ReactNode;
 };
 
 
@@ -83,7 +84,8 @@ export function XDialogProvider({ children }: { children: ReactNode }) {
           cancelText={confirm.cancelText}
           onConfirm={handleConfirm}
           onCancel={handleCancel}
-          children={confirm.children}
+          childrenBottom={confirm.childrenBottom}
+          childrenTop={confirm.childrenTop}
         />
       )}
     </XDialogContext.Provider>

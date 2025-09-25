@@ -41,8 +41,9 @@ export function DatePickerField({ value, onChange }: Props) {
         containerStyle={{
           backgroundColor: theme.colors.blackOpacity10,
           borderColor: "transparent",
+          flex:1,
         }}
-        textAlign="center"
+        textInputStyle={{textAlign: 'center'}}
         style={{ width: "52%" }}
         value={value}
         onChange={(date) => {
@@ -93,7 +94,7 @@ export function TimePickerField({ value, onChange }: Props) {
           backgroundColor: theme.colors.blackOpacity10,
           borderColor: "transparent",
         }}
-        textAlign="center"
+        textInputStyle={{textAlign: 'center'}}
         mode="time"
         style={{ width: "52%" }}
         value={value}

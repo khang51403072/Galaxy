@@ -11,7 +11,8 @@ export interface XConfirmDialogProps {
   visible: boolean;
   title: string;
   message: string;
-  children?: React.ReactNode;
+  childrenTop?: React.ReactNode;
+  childrenBottom?: React.ReactNode;
   confirmText?: string;
   cancelText?: string;
   onConfirm: () => void;
@@ -22,7 +23,8 @@ export default function XConfirmDialog({
   visible,
   title,
   message,
-  children,
+  childrenBottom: childrenBottom,
+  childrenTop,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
   onConfirm,
@@ -55,9 +57,10 @@ export default function XConfirmDialog({
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.overlay}>
         <View style={styles.dialog}>
+          {childrenTop}
           <XText style={{justifyContent:'center', textAlign:'center' }} variant="titleMedium">{title}</XText>
           <XText variant="bodyLight" style={{ color: theme.colors.gray700, justifyContent:'center', textAlign:'center' }}>{message}</XText>
-          {children}
+          {childrenBottom}
           <XRow justify="flex-end" gap={theme.spacing.sm} style={styles.buttonContainer}>
             <XButton textStyle={{color: theme.colors.gray700}} title={cancelText} onPress={onCancel} backgroundColor={theme.colors.gray200} style={{flex:1}}/>
             <XButton title={confirmText} onPress={onConfirm} backgroundColor={theme.colors.primaryMain} style={{flex:1}}/>

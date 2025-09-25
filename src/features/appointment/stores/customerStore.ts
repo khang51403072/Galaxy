@@ -40,11 +40,11 @@ type CustomerState = {
   isLoading: boolean;
   searchString: string;
   error: string | null;
-  selectedCustomer?: CustomerEntity|null;
+  selectedCustomer?: CustomerEntity;
   // --- Actions ---
   searchCustomer: (searchString?: string) => Promise<CustomerEntity[]>;
   getCustomerLookup: (pageNumber?: number, pageSize?: number, phoneNumber?: string) => Promise<Result<CustomerResponse, Error>>;
-  setSelectedCustomer: (customer?: CustomerEntity | null) => void;
+  setSelectedCustomer: (customer?: CustomerEntity ) => void;
   reset: ()=>void;
   setSearchString: (searchString: string) => void;
   setIsLoading: (isLoading: boolean)=>void
@@ -53,7 +53,7 @@ type CustomerState = {
 // --- State ban đầu ---
 const initialCustomerState = {
     customerList: [],
-    selectedCustomer: null,
+    selectedCustomer: undefined,
     isLoading: false,
     error: null,
     searchString: ''

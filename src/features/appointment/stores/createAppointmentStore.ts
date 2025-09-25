@@ -3,13 +3,12 @@ import { ApptRes, WorkHours } from '../types/ApptResResponse';
 import { failure, isSuccess, Result, success } from '../../../shared/types/Result';
 import { AppointmentRepositoryImplement } from '../repositories/AppointmentRepositoryImplement';
 import { AppointmentUsecase } from '../usecases/AppointmentUsecase';
-import { CustomerResponse, CustomerPayload } from '../types/CustomerResponse';
 import { ApptType, createApptType } from '../types/AppointmentType';
 import { CategoryEntity } from '../types/CategoriesResponse';
 import { MenuItemEntity } from '../types/MenuItemResponse';
 import { EmployeeEntity } from '@/features/ticket/types/TicketResponse';
 import { ApptPackageItem, ApptPayload, ApptServiceItem, DataAppt } from '../types/ApptSaveResponse';
-import { CompanyProfileResponse, dateFromTimeEntity, TimeRange } from '../types/CompanyProfileResponse';
+import { CompanyProfileResponse} from '../types/CompanyProfileResponse';
 import { ApptDetail} from '../types/ApptDetailsResponse';
 import { useEmployeeStore } from '@/shared/stores/employeeStore';
 import { DropdownOption } from '@/shared/components/XDropdown';
@@ -19,6 +18,10 @@ import { useCustomerStore } from './customerStore';
 import { AppointmentResponse } from '../types/AppointmentResponse';
 import { DeleteAppointmentRequest } from '../types/DeleteAppointmentRequest';
 import { appConfig } from '@/shared/utils/appConfig';
+import { isEmployeeAvailableForDay, isValidTime, validBookings } from '../utils/createAppointmentStore.util';
+import { StoreItemEntity } from '@/features/auth/usecase/AuthUsecase';
+import { CustomerEntity } from '../types/CustomerResponse';
+import { KeychainObject } from '@/shared/utils/keychainHelper';
 
 
 // --- TYPE DEFINITIONS ---
@@ -62,7 +65,7 @@ export type AppointmentFormState = {
   getCompanyProfile: () => Promise<Result<CompanyProfileResponse, Error>>;
   getApptDetails: (id: string) => Promise<Result<ApptDetail, Error>>;
   initData: (id?: string) => Promise<void>;
-  deleteAppt: () => Promise<Result<AppointmentResponse, Error>>;
+  deleteAppt: (selectedStore: StoreItemEntity|null) => Promise<Result<AppointmentResponse, Error>>;
   // SET Form Data
   setIsConfirmOnline: (value: boolean) => void;
   setIsGroupAppt: (value: boolean) => void;
@@ -70,11 +73,11 @@ export type AppointmentFormState = {
   setSelectedApptType: (value: DropdownOption) => void;
   setIsAllowBookAnyway: (value: boolean) => void;
   // Logic
-  saveAppointment: () => Promise<Result<DataAppt, Error>>;
+  saveAppointment: (selectedCustomer?:CustomerEntity) => Promise<Result<DataAppt, Error>>;
   updateBookingService: (params: UpdateBookingParams) => void;
   removeBookingService: (index: number) => void;
-  getIsAllowEdit: () => boolean;
-  getIsAllowDelete: () => boolean
+  getIsAllowEdit: (json:KeychainObject | null) => boolean;
+  getIsAllowDelete: (json:KeychainObject | null) => boolean
 };
 
 // --- INITIAL STATE ---
@@ -246,11 +249,10 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
   },
 
   // --- MAIN BUSINESS LOGIC ---
-  saveAppointment: async () => {
+  saveAppointment: async (selectedCustomer) => {
     set({ isLoading: true, error: null });
     const state : AppointmentFormState = get();
-    const customerState = useCustomerStore.getState()
-    if (!validBookings(state, (msg) => set({ error: msg, isLoading: false }))) {
+    if (!validBookings(state, (msg) => set({ error: msg, isLoading: false }), selectedCustomer)) {
       return failure(new Error(state.error || "Validation failed"));
     }
 
@@ -280,7 +282,7 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
             duration: combo.service?.duration || 0,
             startTime: startTimeEntity, 
             price: combo.service?.regularPrice || 0, employeeId: combo.technician?.id || "",
-            note: customerState.selectedCustomer?.notes??"",
+            note: selectedCustomer?.notes??"",
             apptServicePackageId: item?.service?.id??"", // Thêm
             apptServicePackageName: item?.service?.name??"", // Thêm
             position: 1,
@@ -323,13 +325,13 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
       apptServiceItems: apptServiceItems,
       apptServicePackages: apptServicePackages,
       customer: {
-        id: customerState.selectedCustomer?.id || "",
-        firstName: customerState.selectedCustomer?.firstName || "", lastName: customerState.selectedCustomer?.lastName || "",
-        fullName: customerState.selectedCustomer?.firstName+" "+ customerState.selectedCustomer?.lastName|| "", 
-        email: customerState.selectedCustomer?.email || "",
-        cellPhone: customerState.selectedCustomer?.cellPhone || "",
+        id: selectedCustomer?.id || "",
+        firstName: selectedCustomer?.firstName || "", lastName: selectedCustomer?.lastName || "",
+        fullName: selectedCustomer?.firstName+" "+ selectedCustomer?.lastName|| "", 
+        email: selectedCustomer?.email || "",
+        cellPhone: selectedCustomer?.cellPhone || "",
       },
-      customerNote: customerState.selectedCustomer?.notes || "",
+      customerNote: selectedCustomer?.notes || "",
       allowBookAnyway: state.isAllowBookAnyway,
     };
 
@@ -383,7 +385,7 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
     }));
   },
   
-  getIsAllowEdit: () => {
+  getIsAllowEdit: (json) => {
     const { apptDetails } = get();
     if (apptDetails === null) return true;
     
@@ -392,38 +394,34 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
       return false;
     }
 
-    const roles = useHomeStore?.getState()?.json?.listRole || []; // Example auth store access
+    const roles = json?.listRole || []; // Example auth store access
     if(roles.includes(Permissions.MOVE_APPOINTMENT)){
       return true;
     }
 
     return false; 
   },
-  getIsAllowDelete: () => {
+  getIsAllowDelete: (json) => {
     const { apptDetails } = get();
-    let user:LoginEntity|null =  useHomeStore?.getState()?.json as LoginEntity
+    let user:LoginEntity|null =  json as LoginEntity
     if (apptDetails === null) return false;
     //check status first
     const status = apptDetails.apptStatus.toLowerCase();
-    if (status === "checkin" || status === "checkout" || status === "completed") {
-      return false;
+    if (status != "checkin" && status != "checkout" && status != "completed") {
+      return true;
     }
     /// is owner
     if(user.isOwner) return true;
-    
-    const roles = useHomeStore?.getState()?.json?.listRole || []; 
-    
-    if(roles.includes(Permissions.DELETE_APPOINTMENT)){
+    ///list role have DELETE_APPOINTMENT flag
+    if(user?.listRole?.includes(Permissions.DELETE_APPOINTMENT)){
       return true;
     }
 
     return false; 
   },
-  deleteAppt: async () => {
+  deleteAppt: async (selectedStore) => {
     set({isLoading: true})
-    let homeState = useHomeStore.getState()
     let user:LoginEntity = await appConfig.getUser()
-    let selectedStore =homeState.selectedStore
     let rq: DeleteAppointmentRequest = {
       id: get().apptDetails?.id??'',
       deletedBy: {
@@ -437,84 +435,5 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
   }
 }));
 
-// --- SELECTORS ---
-export const createAppointmentSelectors = {
-  // state
-  state: (state: AppointmentFormState) => state,
-  isLoading: (state: AppointmentFormState) => state.isLoading,
-  error: (state: AppointmentFormState) => state.error,
-  listBookingServices: (state: AppointmentFormState) => state.listBookingServices,
-  listCategories:(state: AppointmentFormState) => state.listCategories,
-  listItemMenu: (state: AppointmentFormState) => state.listItemMenu,
-  // ... add more specific selectors if needed for performance
-  
-  // actions
-  actions: (state: AppointmentFormState) => ({
-    reset: state.reset,
-    initData: state.initData,
-    saveAppointment: state.saveAppointment,
-    // ... other actions
-  })
-};
 
-// --- HELPER FUNCTIONS ---
-function validBookings(state: AppointmentFormState, setAlertMessage: (msg: string) => void): boolean {
-  if (!useCustomerStore.getState().selectedCustomer) {
-    setAlertMessage("Please select a customer");
-    return false;
-  }
-  const listBooking = state.listBookingServices.filter(item => item.service !== null);
-  if (listBooking.length < 1) {
-    setAlertMessage("Please add at least one service");
-    return false;
-  }
-  for (const item of listBooking) {
-    if (item.service?.menuItemType !== "ServicePackage" && !item.technician) {
-      setAlertMessage(`Please select a technician for service: ${item.service?.name}`);
-      return false;
-    }
-    if (item.service?.menuItemType === "ServicePackage" && item.comboItems?.some(c => !c.technician)) {
-        const unassignedService = item.comboItems.find(c=>!c.technician)?.service?.name
-        setAlertMessage(`Please select a technician for service: ${unassignedService}`);
-        return false;
-    }
-  }
-  return true;
-}
 
-function isValidTime(selectedDate: Date, totalDuration: number, businessHours: any, setAlertMessage: (msg: string) => void): boolean {
-  const timeRange = getWorkHourByDay(businessHours, selectedDate);
-  if (!timeRange) {
-    setAlertMessage("This day is not a working day.");
-    return false;
-  }
-  const bookingEnd = new Date(selectedDate.getTime() + totalDuration * 60000);
-  const workEnd = dateFromTimeEntity(selectedDate, timeRange.end);
-  if (bookingEnd > workEnd) {
-    setAlertMessage("Appointment time must not exceed the end of the working day.");
-    return false;
-  }
-  return true;
-}
-
-function getWorkHourByDay(workHours: any, date: Date): TimeRange | null {
-  if (!workHours) return null;
-  const day = date.getDay();
-  const days = [
-      { check: workHours.isSun, from: workHours.sunFromHour, to: workHours.sunToHour },
-      { check: workHours.isMon, from: workHours.monFromHour, to: workHours.monToHour },
-      { check: workHours.isTue, from: workHours.tueFromHour, to: workHours.tueToHour },
-      { check: workHours.isWed, from: workHours.wedFromHour, to: workHours.wedToHour },
-      { check: workHours.isThu, from: workHours.thuFromHour, to: workHours.thuToHour },
-      { check: workHours.isFri, from: workHours.friFromHour, to: workHours.friToHour },
-      { check: workHours.isSat, from: workHours.satFromHour, to: workHours.satToHour }
-  ];
-  const currentDay = days[day];
-  return currentDay.check ? { start: currentDay.from, end: currentDay.to } : null;
-}
-
-const isEmployeeAvailableForDay = (employee: EmployeeEntity, bookingDate: Date): boolean => {
-  if (!employee.workHours) return true;
-  const workHourForDay = getWorkHourByDay(employee.workHours, bookingDate);
-  return !!workHourForDay; // Simple check if they work on that day. Time check can be more granular if needed.
-};

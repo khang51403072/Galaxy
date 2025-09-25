@@ -124,7 +124,6 @@ const XInput = forwardRef<TextInput, XInputProps>(
                 justifyContent: 'center',
                 textAlignVertical: 'center',
                 includeFontPadding: true,
-                textAlign: textAlign,
               },
               textInputStyle
             ]}
