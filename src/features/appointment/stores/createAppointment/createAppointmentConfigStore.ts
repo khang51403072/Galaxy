@@ -1,31 +1,12 @@
 import { create } from 'zustand';
 import { ApptRes, WorkHours } from '../../types/ApptResResponse';
-import { failure, isFailure, isSuccess, Result, success } from '../../../../shared/types/Result';
-import { AppointmentRepositoryImplement } from '../../repositories/AppointmentRepositoryImplement';
-import { AppointmentUsecase } from '../../usecases/AppointmentUsecase';
+import { isFailure } from '../../../../shared/types/Result';
 import { ApptType, createApptType } from '../../types/AppointmentType';
 import { CategoryEntity } from '../../types/CategoriesResponse';
 import { MenuItemEntity } from '../../types/MenuItemResponse';
 import { EmployeeEntity } from '@/features/ticket/types/TicketResponse';
-import { ApptPackageItem, ApptPayload, ApptServiceItem, DataAppt } from '../../types/ApptSaveResponse';
 import { CompanyProfileResponse } from '../../types/CompanyProfileResponse';
-import { ApptDetail } from '../../types/ApptDetailsResponse';
-import { useEmployeeStore } from '@/shared/stores/employeeStore';
-import { DropdownOption } from '@/shared/components/XDropdown';
-import { LoginEntity, Permissions } from '@/features/auth/types/AuthTypes';
-import { useCustomerStore } from '../customerStore';
-import { AppointmentResponse } from '../../types/AppointmentResponse';
-import { DeleteAppointmentRequest } from '../../types/DeleteAppointmentRequest';
-import { appConfig } from '@/shared/utils/appConfig';
-import { isEmployeeAvailableForDay, isValidTime, validBookings } from '../../utils/createAppointmentStore.util';
-import { StoreItemEntity } from '@/features/auth/usecase/AuthUsecase';
-import { CustomerEntity } from '../../types/CustomerResponse';
-import { KeychainObject } from '@/shared/utils/keychainHelper';
-import { BookingServiceEntity } from './createAppointmentStore';
 import { appointmentUsecase } from '@/app/dependencies';
-import { isError } from 'lodash';
-
-
 // --- STATE AND ACTIONS TYPE ---
 export type CreateAppointmentConfigState = {
     error: string | null;
@@ -112,7 +93,6 @@ export const useCreateAppointmentConfigStore = create<CreateAppointmentConfigSta
         const mapApptResource = new Map<string, WorkHours>();
         newState.listApptResource.forEach((item) => mapApptResource.set(item.id, item.workHours));
         newState.listEmployeeOnWork = listEmployee.map((item) => ({ ...item, workHours: mapApptResource.get(item.id) }));
-
         set({...newState});
     },
 

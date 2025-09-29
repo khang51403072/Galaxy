@@ -11,7 +11,7 @@ import { LoginEntity, Permissions } from '@/features/auth/types/AuthTypes';
 import { AppointmentResponse } from '../../types/AppointmentResponse';
 import { DeleteAppointmentRequest } from '../../types/DeleteAppointmentRequest';
 import { appConfig } from '@/shared/utils/appConfig';
-import { isEmployeeAvailableForDay, isValidTime, validBookings } from '../../utils/createAppointmentStore.util';
+import { isEmployeeAvailableForDay, validBookings } from '../../utils/createAppointmentStore.util';
 import { StoreItemEntity } from '@/features/auth/usecase/AuthUsecase';
 import { CustomerEntity } from '../../types/CustomerResponse';
 import { KeychainObject } from '@/shared/utils/keychainHelper';
@@ -28,7 +28,13 @@ export type UpdateBookingParams = {
   e: MenuItemEntity | EmployeeEntity;
   type: 'service' | 'technician';
   comboIndex?: number;
+  listItemMenu: MenuItemEntity[]
 };
+
+export type SaveAppointmentParams = {
+  selectedCustomer?: CustomerEntity;
+  companyProfile?: CompanyProfileResponse;
+}
 
 export interface GetApptDetailsRequest {
   apptId: string;
@@ -61,11 +67,9 @@ export type AppointmentFormState = {
   setSelectedApptType: (value: DropdownOption) => void;
   setIsAllowBookAnyway: (value: boolean) => void;
   // Logic
-  saveAppointment: (selectedCustomer?: CustomerEntity) => Promise<Result<DataAppt, Error>>;
+  saveAppointment: (params: SaveAppointmentParams) => Promise<Result<DataAppt, Error>>;
   updateBookingService: (params: UpdateBookingParams) => void;
   removeBookingService: (index: number) => void;
-  getIsAllowEdit: (json: KeychainObject | null) => boolean;
-  getIsAllowDelete: (json: KeychainObject | null) => boolean
 };
 
 // --- INITIAL STATE ---
@@ -79,13 +83,9 @@ export const initialFormState = {
   selectedDate: new Date(),
   isAllowBookAnyway: false,
   listBookingServices: [{ service: null, technician: null }],
-};
-
-
-
+}; 
 export const useCreateAppointmentStore = create<AppointmentFormState>((set, get) => ({
   ...initialFormState,
-
   reset: () => set({ ...initialFormState }),
 
   // --- SETTERS ---
@@ -143,18 +143,13 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
   },
 
   // --- MAIN BUSINESS LOGIC ---
-  saveAppointment: async (selectedCustomer) => {
+  saveAppointment: async (params: SaveAppointmentParams) => {
     set({ isLoading: true, error: null });
     const state: AppointmentFormState = get();
-    if (!validBookings(state, (msg) => set({ error: msg, isLoading: false }), selectedCustomer)) {
-      return failure(new Error(state.error || "Validation failed"));
-    }
-
-    const businessHours = state.companyProfile?.data.businessHours;
-    const totalDuration = state.listBookingServices.reduce((acc, item) => acc + (item.service?.duration || 0), 0);
-
-    if (!isValidTime(state.selectedDate, totalDuration, businessHours, (msg) => set({ error: msg, isLoading: false }))) {
-      return failure(new Error(state.error || "Invalid time"));
+    ///validate booking service list
+    let bookingErrorMsg = validBookings({ state: state, selectedCustomer: params.selectedCustomer, selectedDate: state.selectedDate, companyProfile: params.companyProfile, listBookingServices: state.listBookingServices })
+    if (bookingErrorMsg) {
+      return failure(new Error(bookingErrorMsg));
     }
 
     // --- Build Payload ---
@@ -176,7 +171,7 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
             duration: combo.service?.duration || 0,
             startTime: startTimeEntity,
             price: combo.service?.regularPrice || 0, employeeId: combo.technician?.id || "",
-            note: selectedCustomer?.notes ?? "",
+            note: params.selectedCustomer?.notes ?? "",
             apptServicePackageId: item?.service?.id ?? "", // Thêm
             apptServicePackageName: item?.service?.name ?? "", // Thêm
             position: 1,
@@ -219,13 +214,13 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
       apptServiceItems: apptServiceItems,
       apptServicePackages: apptServicePackages,
       customer: {
-        id: selectedCustomer?.id || "",
-        firstName: selectedCustomer?.firstName || "", lastName: selectedCustomer?.lastName || "",
-        fullName: selectedCustomer?.firstName + " " + selectedCustomer?.lastName || "",
-        email: selectedCustomer?.email || "",
-        cellPhone: selectedCustomer?.cellPhone || "",
+        id: params.selectedCustomer?.id || "",
+        firstName: params.selectedCustomer?.firstName || "", lastName: params.selectedCustomer?.lastName || "",
+        fullName: params.selectedCustomer?.firstName + " " + params.selectedCustomer?.lastName || "",
+        email: params.selectedCustomer?.email || "",
+        cellPhone: params.selectedCustomer?.cellPhone || "",
       },
-      customerNote: selectedCustomer?.notes || "",
+      customerNote: params.selectedCustomer?.notes || "",
       allowBookAnyway: state.isAllowBookAnyway,
     };
 
@@ -241,7 +236,7 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
 
   updateBookingService: (params: UpdateBookingParams) => {
     const { type, e, serviceIndex, comboIndex } = params;
-    const { listBookingServices, listItemMenu } = get();
+    const { listBookingServices } = get();
 
     let newList: BookingServiceEntity[];
     if (type === 'technician') {
@@ -258,7 +253,7 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
       let comboItems: BookingServiceEntity[] = [];
       if (service.menuItemType === 'ServicePackage') {
         const mapIds = new Set(service.servicePackageMaps.map(map => map.mapMenuItemId));
-        comboItems = listItemMenu.filter((item: MenuItemEntity) => mapIds.has(item.id))
+        comboItems = params.listItemMenu.filter((item: MenuItemEntity) => mapIds.has(item.id))
           .map((item: MenuItemEntity) => ({ service: item, technician: null }));
       }
       const newItem: BookingServiceEntity = { service, technician, comboItems };
@@ -277,41 +272,6 @@ export const useCreateAppointmentStore = create<AppointmentFormState>((set, get)
     set((state) => ({
       listBookingServices: state.listBookingServices.filter((_, i) => i !== index),
     }));
-  },
-
-  getIsAllowEdit: (json) => {
-    const { apptDetails } = get();
-    if (apptDetails === null) return true;
-
-    const status = apptDetails.apptStatus.toLowerCase();
-    if (status === "checkout" || status === "cancel") {
-      return false;
-    }
-
-    const roles = json?.listRole || []; // Example auth store access
-    if (roles.includes(Permissions.MOVE_APPOINTMENT)) {
-      return true;
-    }
-
-    return false;
-  },
-  getIsAllowDelete: (json) => {
-    const { apptDetails } = get();
-    let user: LoginEntity | null = json as LoginEntity
-    if (apptDetails === null) return false;
-    //check status first
-    const status = apptDetails.apptStatus.toLowerCase();
-    if (status != "checkin" && status != "checkout" && status != "completed") {
-      return true;
-    }
-    /// is owner
-    if (user.isOwner) return true;
-    ///list role have DELETE_APPOINTMENT flag
-    if (user?.listRole?.includes(Permissions.DELETE_APPOINTMENT)) {
-      return true;
-    }
-
-    return false;
   },
   deleteAppt: async (selectedStore) => {
     set({ isLoading: true })

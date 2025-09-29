@@ -5,13 +5,14 @@ import { View, TouchableOpacity, StyleSheet, Modal } from "react-native";
 import XInput from "@/shared/components/XInput";
 import XText from "@/shared/components/XText";
 import XIcon from "@/shared/components/XIcon";
-import { useCreateAppointmentStore, createAppointmentSelectors } from "../stores/createAppointment/createAppointmentStore";
+import { useCreateAppointmentStore } from "../stores/createAppointment/createAppointmentStore";
 import { useShallow } from "zustand/react/shallow";
 import { useTheme, Theme } from "@/shared/theme/ThemeProvider";
 import { MenuItemEntity } from "../types/MenuItemResponse";
 import { CategoryEntity } from "../types/CategoriesResponse";
 import XNoDataView from "@/shared/components/XNoDataView";
 import { useDebounce } from "@/shared/hooks/useDebounce"; // Import từ file riêng
+import { useCreateAppointmentConfigStore } from "../stores/createAppointment/createAppointmentConfigStore";
 
 // --- Tách thành các component con để tối ưu render ---
 
@@ -111,10 +112,10 @@ function SelectServiceScreen({
   const [searchText, setSearchText] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
 
-  const { listCategories, listItemMenu } = useCreateAppointmentStore(
+  const { listCategories, listItemMenu } = useCreateAppointmentConfigStore(
     useShallow((state) => ({
-      listCategories: createAppointmentSelectors.listCategories(state),
-      listItemMenu: createAppointmentSelectors.listItemMenu(state),
+      listCategories: state.listCategories,
+      listItemMenu: state.listItemMenu,
     }))
   );
 
